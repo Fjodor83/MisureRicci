@@ -19,34 +19,34 @@
 </head>
 <body class="dx-viewport theme-dark">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm box-shadow mb-3">
-            <div class="container-fluid">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm mb-4">
+            <div class="container">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">STEFANO RICCI</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1 ms-lg-4">
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Dashboard</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Clienti" asp-action="Index">Gestione Clienti</a>
+                            <a class="nav-link" asp-area="" asp-controller="Clienti" asp-action="Index">Clienti</a>
                         </li>
-                        <button class="btn btn-link nav-link p-0 border-0" onclick="window.location.href='/Clienti?search=misure'" style="text-transform: uppercase;">Registro Misure</button>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Negozi" asp-action="Index">Gestione Negozi</a>
+                            <a class="nav-link" asp-area="" asp-controller="Negozi" asp-action="Index">Negozi</a>
                         </li>
-
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Utenti" asp-action="Index">Staff</a>
                         </li>
                     </ul>
                     <div class="d-flex align-items-center">
-                        <div class="form-check form-switch me-3">
+                        <div class="form-check form-switch theme-toggle">
                             <input class="form-check-input" type="checkbox" id="themeSwitcher" checked>
-                            <label class="form-check-label text-gold small text-uppercase fw-bold" for="themeSwitcher">Dark Mode</label>
+                            <label class="form-check-label ms-2" for="themeSwitcher">
+                                <i class="bi bi-moon-stars-fill text-gold" id="themeIcon"></i>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -72,6 +72,7 @@
         const themeSwitcher = document.getElementById('themeSwitcher');
         const lightTheme = document.getElementById('dx-theme-light');
         const darkTheme = document.getElementById('dx-theme-dark');
+        const themeIcon = document.getElementById('themeIcon');
 
         function setTheme(isDark) {
             if (isDark) {
@@ -80,6 +81,7 @@
                 themeSwitcher.checked = true;
                 document.body.classList.add('theme-dark');
                 document.body.classList.remove('theme-light');
+                themeIcon.className = 'bi bi-moon-stars-fill text-gold';
                 localStorage.setItem('sr-theme', 'dark');
             } else {
                 lightTheme.disabled = false;
@@ -87,6 +89,7 @@
                 themeSwitcher.checked = false;
                 document.body.classList.add('theme-light');
                 document.body.classList.remove('theme-dark');
+                themeIcon.className = 'bi bi-sun-fill text-gold';
                 localStorage.setItem('sr-theme', 'light');
             }
         }
