@@ -117,5 +117,28 @@ namespace MisureRicci.Controllers
         {
             return _context.Clienti.Any(e => e.Id == id);
         }
+
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var cliente = await _context.Clienti.FirstOrDefaultAsync(m => m.Id == id);
+            if (cliente == null) return NotFound();
+
+            return View(cliente);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var cliente = await _context.Clienti.FindAsync(id);
+            if (cliente != null)
+            {
+                _context.Clienti.Remove(cliente);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

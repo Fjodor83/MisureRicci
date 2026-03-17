@@ -1,0 +1,13 @@
+@model MisureRicci.Models.Cliente
+@{ ViewData["Title"] = "Elimina Cliente"; }
+<div class="card p-5 text-center mx-auto" style="max-width: 600px;">
+    <h1 class="text-danger mb-4"><i class="bi bi-exclamation-triangle-fill"></i> ELIMINA CLIENTE</h1>
+    <p class="fs-5 mb-4">Sei sicuro di voler eliminare il profilo di <strong>@Model.Nome @Model.Cognome</strong>?<br/>L'operazione rimuoverà anche lo storico misure in base alla configurazione DB. <b>L'operazione non è reversibile.</b></p>
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <div class="d-flex justify-content-center gap-3">
+            <button type="submit" class="btn btn-danger btn-lg">Conferma Eliminazione</button>
+            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary btn-lg">Annulla</a>
+        </div>
+    </form>
+</div>

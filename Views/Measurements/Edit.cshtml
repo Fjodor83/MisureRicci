@@ -1,0 +1,57 @@
+@model object
+@using System.Reflection
+@using System.ComponentModel.DataAnnotations
+
+@{
+    ViewData["Title"] = "Modifica " + ViewBag.TipoMisura;
+    var t = Model.GetType();
+    var id = t.GetProperty("Id")?.GetValue(Model);
+    var clienteId = t.GetProperty("ClienteId")?.GetValue(Model);
+    var props = t.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+        .Where(p => p.Name != "Id" && p.Name != "ClienteId" && p.Name != "Cliente" && p.Name != "CreatedAt" && p.Name != "OrderId" && p.Name != "Giacca" && p.Name != "Pantalone")
+        .ToList();
+}
+
+<h1 class="sr-title mb-4">MODIFICA MISURA: @ViewBag.TipoMisura.ToUpper()</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" name="id" value="@id" />
+    <input type="hidden" name="tipoMisura" value="@ViewBag.TipoMisura" />
+    
+    <div class="card p-4 mb-4">
+        <div class="row">
+            @if (ViewBag.TipoMisura.ToString().ToLower() == "abito")
+            {
+                <div class="alert alert-warning mb-0">
+                    Modifica per Abito Completo (campi annidati). I campi Giacca e Pantalone non sono direttamente esposti in questa vista rapida. Contattare l'amministratore o utilizzare API dedicate.
+                </div>
+            }
+            else
+            {
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                @foreach(var prop in props)
+                {
+                    if (prop.Name == "Notes")
+                    {
+                        <div class="col-12 mb-3 mt-3">
+                            <label for="NotesField_@prop.Name" class="form-label sr-gold small text-uppercase">Note</label>
+                            <textarea id="NotesField_@prop.Name" name="@prop.Name" class="form-control" rows="3">@prop.GetValue(Model)</textarea>
+                        </div>
+                    }
+                    else
+                    {
+                        var displayAttr = prop.GetCustomAttribute<DisplayAttribute>();
+                        string displayName = displayAttr != null ? displayAttr.Name : prop.Name;
+                        <div class="col-md-4 mb-3">
+                            <label for="@prop.Name" class="form-label sr-gold small text-uppercase">@displayName</label>
+                            <input type="text" id="@prop.Name" name="@prop.Name" value="@prop.GetValue(Model)" class="form-control" />
+                        </div>
+                    }
+                }
+            }
+        </div>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">SALVA MODIFICHE</button>
+    <a asp-controller="Clienti" asp-action="Details" asp-route-id="@clienteId" class="btn btn-outline-secondary">ANNULLA</a>
+</form>

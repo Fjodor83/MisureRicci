@@ -1,110 +1,124 @@
 @model MisureRicci.Models.Cliente
 
 @{
-    ViewData["Title"] = "Dettagli Cliente";
+    ViewData["Title"] = "Dossier Cliente";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="sr-title mb-0">PROFILO CLIENTE: @Model.Nome @Model.Cognome</h1>
+<div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeInDown">
     <div>
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-gold me-2">MODIFICA</a>
-        <a asp-action="Index" class="btn btn-outline-secondary">TORNA ALL'ELENCO</a>
+        <h1 class="page-title">DOSSIER CLIENTE</h1>
+        <p class="page-subtitle mt-2 mb-0">@Model.Nome @Model.Cognome - @Model.ClientCode</p>
+    </div>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary me-2"><i class="bi bi-pencil-fill me-2"></i> UPDATE</a>
+        <a asp-action="Index" class="btn btn-outline-secondary">INDIETRO</a>
     </div>
 </div>
 
-<div class="row">
+<div class="row g-4">
+    <!-- Sezione SX: Info & Azioni Rapide -->
     <div class="col-md-4">
-        <div class="card p-4 mb-4">
-            <h3 class="sr-title small mb-3">INFORMAZIONI</h3>
-            <p class="mb-1 sr-gold small text-uppercase">Codice Cliente</p>
-            <p class="fw-bold mb-3">@Model.ClientCode</p>
-            
-            <p class="mb-1 sr-gold small text-uppercase">Email</p>
-            <p class="mb-3">@Model.Email</p>
-            
-            <p class="mb-1 sr-gold small text-uppercase">Telefono</p>
-            <p class="mb-3">@(Model.Telefono ?? "N/A")</p>
-            
-            <p class="mb-1 sr-gold small text-uppercase">Data Registrazione</p>
-            <p class="mb-0">@Model.DataRegistrazione.ToString("f")</p>
-        </div>
+        <div class="card p-4 h-100 animate__animated animate__fadeInLeft" style="animation-delay: 0.1s;">
+            <div class="text-center mb-4">
+                <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.3);">
+                    <i class="bi bi-person-bounding-box fs-1 sr-gold"></i>
+                </div>
+                <h3 class="font-cinzel text-white letter-spacing-1 mb-0">@Model.Nome @Model.Cognome</h3>
+                <span class="badge mt-2" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">VIP CLIENT</span>
+            </div>
 
-        <div class="card p-4 mb-4 text-center">
-            <h3 class="sr-title small mb-4">AZIONI RAPIDE</h3>
-            <div class="d-grid gap-2">
-                <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.Id" class="btn btn-primary">NUOVA MISURA</a>
-                <button class="btn btn-outline-secondary">STAMPA SCHEDA</button>
+            <hr style="border-color: rgba(212, 175, 55, 0.2);" class="mb-4">
+
+            <div class="mb-4">
+                <p class="mb-1 sr-gold-light small text-uppercase letter-spacing-1">Email / Telefono</p>
+                <p class="font-monospace text-muted mb-0 small">@Model.Email</p>
+                <p class="font-monospace text-muted small">@(Model.Telefono ?? "N/A")</p>
+            </div>
+            
+            <div class="mb-4">
+                <p class="mb-1 sr-gold-light small text-uppercase letter-spacing-1">Data Registrazione</p>
+                <p class="text-white small mb-0 font-cinzel letter-spacing-1">@Model.DataRegistrazione.ToString("dd MMMM yyyy")</p>
+            </div>
+
+            <div class="mt-auto d-grid gap-3">
+                <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.Id" class="btn btn-outline-gold w-100"><i class="bi bi-rulers me-2"></i> NUOVA MISURA</a>
+                <button class="btn btn-outline-secondary w-100"><i class="bi bi-printer me-2"></i> STAMPA DOSSIER</button>
             </div>
         </div>
     </div>
 
+    <!-- Sezione DX: Indirizzo, Note & Storico Misure -->
     <div class="col-md-8">
-        <div class="card p-4 mb-4">
-            <h3 class="sr-title small mb-3">INDIRIZZO E NOTE</h3>
-            <div class="row">
-                <div class="col-md-6 bordered-right">
-                    <p class="mb-1 sr-gold small text-uppercase">Indirizzo Completo</p>
-                    <address>
-                        @Model.Indirizzo<br />
-                        @Model.CodicePostale @Model.Citta<br />
-                        @Model.StatoProvincia<br />
-                        <strong class="text-uppercase">@Model.Paese</strong>
-                    </address>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1 sr-gold small text-uppercase">Note Interne</p>
-                    <p class="italic text-muted">@(Model.Note ?? "Nessuna nota aggiuntiva.")</p>
+        <div class="row g-4 h-100">
+            <!-- Indirizzo e Note -->
+            <div class="col-12">
+                <div class="card p-4 animate__animated animate__fadeInRight" style="animation-delay: 0.2s;">
+                    <div class="row">
+                        <div class="col-md-6 border-end" style="border-color: var(--border-color) !important;">
+                            <h3 class="sr-title small mb-3"><i class="bi bi-geo-alt-fill me-2"></i> RESIDENZA</h3>
+                            <address class="text-muted small mb-0 lh-lg" style="font-family: inherit;">
+                                @Model.Indirizzo<br />
+                                @Model.CodicePostale @Model.Citta<br />
+                                @Model.StatoProvincia<br />
+                                <strong class="text-white letter-spacing-1">@Model.Paese</strong>
+                            </address>
+                        </div>
+                        <div class="col-md-6 ps-md-4 pt-4 pt-md-0">
+                            <h3 class="sr-title small mb-3"><i class="bi bi-bookmark-star-fill me-2"></i> NOTE SARTORIALI</h3>
+                            <p class="fst-italic text-muted small lh-lg mb-0 text-white-50">@(Model.Note ?? "Nessuna preferenza sartoriale indicata.")</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="card p-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="sr-title small mb-0">STORICO MISURE</h3>
-                <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.Id" class="btn btn-sm btn-outline-gold">REGISTRA NUOVA</a>
+            <!-- Storico Misure -->
+            <div class="col-12">
+                <div class="card p-0 overflow-hidden h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+                    <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom border-gold-dim">
+                        <h3 class="sr-title small mb-0"><i class="bi bi-clock-history me-2"></i> ARCHIVIO SARTORIALE</h3>
+                        <span class="badge" style="background: rgba(212, 175, 55, 0.1); color: var(--sr-gold);">@(ViewBag.History != null ? ((List<MisureRicci.Models.MisureCliente>)ViewBag.History).Count : 0) RECORD</span>
+                    </div>
+                    
+                    <div class="card-body p-0">
+                        @if (ViewBag.History != null && ((List<MisureRicci.Models.MisureCliente>)ViewBag.History).Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="ps-4">DATA</th>
+                                            <th>CATEGORIA</th>
+                                            <th class="text-end pe-4">AZIONI</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var entry in (List<MisureRicci.Models.MisureCliente>)ViewBag.History)
+                                        {
+                                            <tr style="transition: background-color 0.3s ease;">
+                                                <td class="ps-4 text-muted small font-cinzel">@entry.DataCreazione.ToString("dd MMM yyyy - HH:mm")</td>
+                                                <td>
+                                                    <span class="badge rounded-pill fw-normal" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.3); color: var(--sr-gold-light); letter-spacing: 1px;">@entry.TipoMisura.ToUpper()</span>
+                                                </td>
+                                                <td class="text-end pe-4">
+                                                    <a asp-controller="Measurements" asp-action="Details" asp-route-id="@entry.RecordId" asp-route-tipoMisura="@entry.TipoMisura" class="btn btn-sm btn-outline-gold"><i class="bi bi-eye-fill"></i> VEDI</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-5">
+                                <i class="bi bi-file-earmark-x fs-1 sr-gold opacity-50 mb-3 d-block"></i>
+                                <p class="text-muted small letter-spacing-1">NESSUNA SCHEDA SARTORIALE PRESENTE.</p>
+                                <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.Id" class="btn btn-outline-gold mt-2 btn-sm">CREA SCHEDA ORA</a>
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
-            
-            @if (ViewBag.History != null && ((List<MisureRicci.Models.MisureCliente>)ViewBag.History).Any())
-            {
-                <div class="table-responsive">
-                    <table class="table table-hover text-white small">
-                        <thead>
-                            <tr class="sr-gold">
-                                <th class="border-0">DATA</th>
-                                <th class="border-0">CATEGORIA</th>
-                                <th class="border-0">AZIONI</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var entry in (List<MisureRicci.Models.MisureCliente>)ViewBag.History)
-                            {
-                                <tr>
-                                    <td class="border-gold-dim">@entry.DataCreazione.ToString("dd/MM/yyyy HH:mm")</td>
-                                    <td class="border-gold-dim">
-                                        <span class="badge border border-gold text-gold">@entry.TipoMisura.ToUpper()</span>
-                                    </td>
-                                    <td class="border-gold-dim">
-                                        <button class="btn btn-sm btn-link sr-gold p-0 text-decoration-none">VEDI</button>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-            else
-            {
-                <div class="text-center py-5">
-                    <i class="bi bi-rulers fs-1 sr-gold mb-3 d-block"></i>
-                    <p class="text-muted">Nessuna misura salvata per questo cliente.</p>
-                    <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.Id" class="sr-gold text-decoration-none small text-uppercase letter-spacing-1">Aggiungi la prima misura &rarr;</a>
-                </div>
-            }
         </div>
     </div>
 </div>
-
-<style>
-    .bordered-right { border-right: 1px solid rgba(197, 160, 89, 0.2); }
-    @@media (max-width: 768px) { .bordered-right { border-right: none; border-bottom: 1px solid rgba(197, 160, 89, 0.2); margin-bottom: 1rem; padding-bottom: 1rem; } }
-</style>
