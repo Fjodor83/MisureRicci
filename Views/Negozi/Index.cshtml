@@ -1,0 +1,49 @@
+@model IEnumerable<MisureRicci.Models.Negozio>
+
+@{
+    ViewData["Title"] = "Gestione Negozi";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="sr-title">GESTIONE NEGOZI</h1>
+    <a asp-action="Create" class="btn btn-primary">NUOVO NEGOZIO</a>
+</div>
+
+<div class="card p-0 overflow-hidden">
+    <table class="table table-hover mb-0">
+        <thead class="bg-dark text-white">
+            <tr>
+                <th class="ps-4">NOME</th>
+                <th>CITTÀ</th>
+                <th>PAESE</th>
+                <th>CODICE</th>
+                <th>STATO</th>
+                <th class="pe-4 text-end">AZIONI</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="ps-4 text-white fw-bold">@item.Nome</td>
+                    <td>@item.Citta</td>
+                    <td>@item.Paese</td>
+                    <td class="sr-gold">@item.CodiceNegozio</td>
+                    <td>
+                        @if (item.Attivo)
+                        {
+                            <span class="badge bg-success">Attivo</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inattivo</span>
+                        }
+                    </td>
+                    <td class="pe-4 text-end">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-gold">DETTAGLI</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,57 @@
+@model MisureRicci.Models.Utente
+
+@{
+    ViewData["Title"] = "Nuovo Utente Staff";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h1 class="sr-title">CREAZIONE ACCOUNT STAFF</h1>
+        
+        <form asp-action="Create" method="post" class="mt-4">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <div class="card p-4 mb-4">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Username" class="form-label sr-gold"></label>
+                        <input asp-for="Username" class="form-control" placeholder="es: m.rossi" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="NomeCompleto" class="form-label sr-gold"></label>
+                        <input asp-for="NomeCompleto" class="form-control" />
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label sr-gold"></label>
+                    <input asp-for="Email" class="form-control" />
+                </div>
+            </div>
+
+            <div class="card p-4 mb-4">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Ruolo" class="form-label sr-gold"></label>
+                        <select asp-for="Ruolo" class="form-control">
+                            <option value="Admin">Amministratore</option>
+                            <option value="Sartoria">Mastro Sarto</option>
+                            <option value="Boutique">Personale Boutique</option>
+                            <option value="Manager">Regional Manager</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="NegozioId" class="form-label sr-gold">NEGOZIO ASSEGNATO</label>
+                        <select asp-for="NegozioId" class="form-control" asp-items="@(new SelectList(ViewBag.Negozi, "Id", "Nome"))">
+                            <option value="">Seleziona Negozio...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a asp-action="Index" class="btn btn-outline-secondary me-md-2">ANNULLA</a>
+                <button type="submit" class="btn btn-primary px-5">CREA ACCOUNT STAFF</button>
+            </div>
+        </form>
+    </div>
+</div>

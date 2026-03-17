@@ -1,0 +1,110 @@
+@model MisureRicci.Models.Cliente
+
+@{
+    ViewData["Title"] = "Dettagli Cliente";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="sr-title mb-0">PROFILO CLIENTE: @Model.Nome @Model.Cognome</h1>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-gold me-2">MODIFICA</a>
+        <a asp-action="Index" class="btn btn-outline-secondary">TORNA ALL'ELENCO</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card p-4 mb-4">
+            <h3 class="sr-title small mb-3">INFORMAZIONI</h3>
+            <p class="mb-1 sr-gold small text-uppercase">Codice Cliente</p>
+            <p class="fw-bold mb-3">@Model.ClientCode</p>
+            
+            <p class="mb-1 sr-gold small text-uppercase">Email</p>
+            <p class="mb-3">@Model.Email</p>
+            
+            <p class="mb-1 sr-gold small text-uppercase">Telefono</p>
+            <p class="mb-3">@(Model.Telefono ?? "N/A")</p>
+            
+            <p class="mb-1 sr-gold small text-uppercase">Data Registrazione</p>
+            <p class="mb-0">@Model.DataRegistrazione.ToString("f")</p>
+        </div>
+
+        <div class="card p-4 mb-4 text-center">
+            <h3 class="sr-title small mb-4">AZIONI RAPIDE</h3>
+            <div class="d-grid gap-2">
+                <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.Id" class="btn btn-primary">NUOVA MISURA</a>
+                <button class="btn btn-outline-secondary">STAMPA SCHEDA</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card p-4 mb-4">
+            <h3 class="sr-title small mb-3">INDIRIZZO E NOTE</h3>
+            <div class="row">
+                <div class="col-md-6 bordered-right">
+                    <p class="mb-1 sr-gold small text-uppercase">Indirizzo Completo</p>
+                    <address>
+                        @Model.Indirizzo<br />
+                        @Model.CodicePostale @Model.Citta<br />
+                        @Model.StatoProvincia<br />
+                        <strong class="text-uppercase">@Model.Paese</strong>
+                    </address>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1 sr-gold small text-uppercase">Note Interne</p>
+                    <p class="italic text-muted">@(Model.Note ?? "Nessuna nota aggiuntiva.")</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="sr-title small mb-0">STORICO MISURE</h3>
+                <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.Id" class="btn btn-sm btn-outline-gold">REGISTRA NUOVA</a>
+            </div>
+            
+            @if (ViewBag.History != null && ((List<MisureRicci.Models.MisureCliente>)ViewBag.History).Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover text-white small">
+                        <thead>
+                            <tr class="sr-gold">
+                                <th class="border-0">DATA</th>
+                                <th class="border-0">CATEGORIA</th>
+                                <th class="border-0">AZIONI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var entry in (List<MisureRicci.Models.MisureCliente>)ViewBag.History)
+                            {
+                                <tr>
+                                    <td class="border-gold-dim">@entry.DataCreazione.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td class="border-gold-dim">
+                                        <span class="badge border border-gold text-gold">@entry.TipoMisura.ToUpper()</span>
+                                    </td>
+                                    <td class="border-gold-dim">
+                                        <button class="btn btn-sm btn-link sr-gold p-0 text-decoration-none">VEDI</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-rulers fs-1 sr-gold mb-3 d-block"></i>
+                    <p class="text-muted">Nessuna misura salvata per questo cliente.</p>
+                    <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.Id" class="sr-gold text-decoration-none small text-uppercase letter-spacing-1">Aggiungi la prima misura &rarr;</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .bordered-right { border-right: 1px solid rgba(197, 160, 89, 0.2); }
+    @@media (max-width: 768px) { .bordered-right { border-right: none; border-bottom: 1px solid rgba(197, 160, 89, 0.2); margin-bottom: 1rem; padding-bottom: 1rem; } }
+</style>

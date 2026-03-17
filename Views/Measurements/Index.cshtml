@@ -1,0 +1,136 @@
+@{
+    ViewData["Title"] = "Dashboard Misure - " + ViewBag.ClienteNome;
+    int clienteId = ViewBag.ClienteId;
+}
+
+<div class="text-center mb-5">
+    <h1 class="sr-title">GESTIONALE MISURE</h1>
+    <p class="sr-gold text-uppercase letter-spacing-2">Seleziona la categoria di abbigliamento per <strong>@ViewBag.ClienteNome</strong></p>
+</div>
+
+<div class="row g-4">
+    <!-- Giacca -->
+    <div class="col-md-4">
+        <a asp-action="CreateGiacca" asp-route-clienteId="@clienteId" class="text-decoration-none">
+            <div class="card category-card h-100">
+                <i class="bi bi-person-video2 sr-gold"></i>
+                <h3 class="sr-title small">GIACCA</h3>
+                <hr class="border-gold opacity-50 mx-4" />
+                <p class="text-muted small px-3">Misure specifiche per giacche e blazer.</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- Pantalone -->
+    <div class="col-md-4">
+        <a asp-action="CreatePantalone" asp-route-clienteId="@clienteId" class="text-decoration-none">
+            <div class="card category-card h-100">
+                <i class="bi bi-layout-sidebar-inset sr-gold"></i>
+                <h3 class="sr-title small">PANTALONE</h3>
+                <hr class="border-gold opacity-50 mx-4" />
+                <p class="text-muted small px-3">Misure per pantaloni sartoriali e casual.</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- Abito Completo -->
+    <div class="col-md-4">
+        <a asp-action="CreateAbito" asp-route-clienteId="@clienteId" class="text-decoration-none">
+            <div class="card category-card h-100">
+                <i class="bi bi-suit-spade sr-gold"></i>
+                <h3 class="sr-title small">ABITO COMPLETO</h3>
+                <hr class="border-gold opacity-50 mx-4" />
+                <p class="text-muted small px-3">Configurazione completa giacca e pantalone.</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- Gilet -->
+    <div class="col-md-4">
+        <a asp-action="CreateGilet" asp-route-clienteId="@clienteId" class="text-decoration-none">
+            <div class="card category-card h-100">
+                <i class="bi bi-vest sr-gold"></i>
+                <h3 class="sr-title small">GILET</h3>
+                <hr class="border-gold opacity-50 mx-4" />
+                <p class="text-muted small px-3">Misure per gilet eleganti e sportivi.</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- Maglie -->
+    <div class="col-md-4">
+        <a asp-action="CreateMaglie" asp-route-clienteId="@clienteId" class="text-decoration-none">
+            <div class="card category-card h-100">
+                <i class="bi bi-tsert sr-gold"></i>
+                <h3 class="sr-title small">MAGLIE</h3>
+                <hr class="border-gold opacity-50 mx-4" />
+                <p class="text-muted small px-3">Misure per pullover, cardigan e maglieria.</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- Outdoor -->
+    <div class="col-md-4">
+        <a asp-action="CreateOutdoor" asp-route-clienteId="@clienteId" class="text-decoration-none">
+            <div class="card category-card h-100">
+                <i class="bi bi-cloud-sun sr-gold"></i>
+                <h3 class="sr-title small">OUTDOOR</h3>
+                <hr class="border-gold opacity-50 mx-4" />
+                <p class="text-muted small px-3">Abbigliamento tecnico, cappotti e giacconi.</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- Camicia -->
+    <div class="col-md-4">
+        <a asp-action="CreateCamicia" asp-route-clienteId="@clienteId" class="text-decoration-none">
+            <div class="card category-card h-100">
+                <i class="bi bi-layers sr-gold"></i>
+                <h3 class="sr-title small">CAMICIA</h3>
+                <hr class="border-gold opacity-50 mx-4" />
+                <p class="text-muted small px-3">Misure per camicie sartoriali.</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- Scarpe -->
+    <div class="col-md-4">
+        <a asp-action="CreateScarpe" asp-route-clienteId="@clienteId" class="text-decoration-none">
+            <div class="card category-card h-100">
+                <i class="bi bi-footprint sr-gold"></i>
+                <h3 class="sr-title small">SCARPE</h3>
+                <hr class="border-gold opacity-50 mx-4" />
+                <p class="text-muted small px-3">Taglia e misure del piede.</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- Cravatta -->
+    <div class="col-md-4">
+        <a asp-action="CreateCravatta" asp-route-clienteId="@clienteId" class="text-decoration-none">
+            <div class="card category-card h-100">
+                <i class="bi bi-distribute-vertical sr-gold"></i>
+                <h3 class="sr-title small">CRAVATTA</h3>
+                <hr class="border-gold opacity-50 mx-4" />
+                <p class="text-muted small px-3">Misure per cravatte su misura.</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- Cintura -->
+    <div class="col-md-4">
+        <a asp-action="CreateCintura" asp-route-clienteId="@clienteId" class="text-decoration-none">
+            <div class="card category-card h-100">
+                <i class="bi bi-dash-square sr-gold"></i>
+                <h3 class="sr-title small">CINTURA</h3>
+                <hr class="border-gold opacity-50 mx-4" />
+                <p class="text-muted small px-3">Lunghezza e girovita per cinture.</p>
+            </div>
+        </a>
+    </div>
+</div>
+
+
+<div class="text-center mt-5 mb-5">
+    <a asp-controller="Clienti" asp-action="Details" asp-route-id="@clienteId" class="btn btn-outline-secondary px-5">TORNA AL PROFILO CLIENTE</a>
+</div>

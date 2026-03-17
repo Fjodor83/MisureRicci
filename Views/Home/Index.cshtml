@@ -1,0 +1,174 @@
+@using Microsoft.EntityFrameworkCore
+@{
+    ViewData["Title"] = "SaaS Dashboard - Stefano Ricci";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header Dashboard -->
+    <div class="row mb-4 animate__animated animate__fadeInDown">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center bg-dark p-4 rounded-3 border-gold-light">
+                <div>
+                    <h1 class="sr-title mb-0 display-5">SR GESTIONALE SAAS</h1>
+                    <p class="sr-gold text-uppercase letter-spacing-2 mb-0">Control Panel & Global Analytics</p>
+                </div>
+                <div class="text-end">
+                    <span class="text-muted small">STATUS: <span class="text-success fw-bold">ONLINE</span></span>
+                    <br />
+                    <span class="sr-gold font-cinzel">@DateTime.Now.ToString("dd MMMM yyyy")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card stat-card h-100 p-4 border-0 bg-dark shadow-gold">
+                <i class="bi bi-people sr-gold fs-1 mb-2"></i>
+                <h4 class="text-muted small text-uppercase">Totale Clienti</h4>
+                <div class="display-6 text-white fw-bold">@ViewBag.TotalClients</div>
+                <div class="progress mt-3 bg-secondary" style="height: 4px;">
+                    <div class="progress-bar bg-gold" role="progressbar" style="width: 70%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card h-100 p-4 border-0 bg-dark shadow-gold">
+                <i class="bi bi-shop sr-gold fs-1 mb-2"></i>
+                <h4 class="text-muted small text-uppercase">Negozi Attivi</h4>
+                <div class="display-6 text-white fw-bold">@ViewBag.TotalStores</div>
+                <div class="progress mt-3 bg-secondary" style="height: 4px;">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: 85%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card h-100 p-4 border-0 bg-dark shadow-gold">
+                <i class="bi bi-pencil-square sr-gold fs-1 mb-2"></i>
+                <h4 class="text-muted small text-uppercase">Misure Registrate</h4>
+                <div class="display-6 text-white fw-bold">@ViewBag.TotalMeasurements</div>
+                <div class="progress mt-3 bg-secondary" style="height: 4px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: 60%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card h-100 p-4 border-0 bg-dark shadow-gold">
+                <i class="bi bi-person-badge sr-gold fs-1 mb-2"></i>
+                <h4 class="text-muted small text-uppercase">Staff Management</h4>
+                <div class="display-6 text-white fw-bold">@ViewBag.TotalStaff</div>
+                <div class="progress mt-3 bg-secondary" style="height: 4px;">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: 40%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-5">
+        <!-- Main Management Sections -->
+        <div class="col-lg-8">
+            <h2 class="sr-title small mb-4 text-uppercase letter-spacing-2 border-bottom border-gold pb-2">CORE MANAGEMENT</h2>
+            
+            <div class="row g-4">
+                <!-- Clients Sector -->
+                <div class="col-md-6">
+                    <div class="card bg-dark-soft border-gold p-4 h-100 sector-card">
+                        <div class="d-flex justify-content-between">
+                            <h3 class="sr-title small mb-3">GESTIONE CLIENTI</h3>
+                            <i class="bi bi-arrow-up-right sr-gold"></i>
+                        </div>
+                        <p class="text-muted small">Anagrafica completa, storico misure e preferenze sartoriali internazionali.</p>
+                        <div class="mt-auto">
+                            <a asp-controller="Clienti" asp-action="Index" class="btn btn-outline-gold btn-sm w-100">ACCEDI DATABASE</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stores Sector -->
+                <div class="col-md-6">
+                    <div class="card bg-dark-soft border-gold p-4 h-100 sector-card">
+                        <div class="d-flex justify-content-between">
+                            <h3 class="sr-title small mb-3">GESTIONE NEGOZI</h3>
+                            <i class="bi bi-arrow-up-right sr-gold"></i>
+                        </div>
+                        <p class="text-muted small">Configurazione punti vendita, boutique e laboratori di sartoria globali.</p>
+                        <div class="mt-auto">
+                            <a asp-controller="Negozi" asp-action="Index" class="btn btn-outline-gold btn-sm w-100">GESTIONE SEDI</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Staff/Users Sector -->
+                <div class="col-md-6">
+                    <div class="card bg-dark-soft border-gold p-4 h-100 sector-card highlight-staff">
+                        <div class="d-flex justify-content-between">
+                            <h3 class="sr-title small mb-3">GESTIONE UTENTI (CRUD)</h3>
+                            <span class="badge bg-gold text-dark">STAFF ONLY</span>
+                        </div>
+                        <p class="text-muted small">Controllo accessi per sarti, manager e personale di vendita (SaaS roles).</p>
+                        <div class="mt-auto">
+                            <a asp-controller="Utenti" asp-action="Index" class="btn btn-primary btn-sm w-100">AMMINISTRA UTENTI</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Global Sync Sector -->
+                <div class="col-md-6">
+                    <div class="card bg-dark-soft border-gold p-4 h-100 sector-card">
+                        <div class="d-flex justify-content-between">
+                            <h3 class="sr-title small mb-3">REPORTS & EXPORT</h3>
+                            <i class="bi bi-file-earmark-pdf sr-gold"></i>
+                        </div>
+                        <p class="text-muted small">Generazione schede tecniche di produzione e analisi dati produzione.</p>
+                        <div class="mt-auto">
+                            <button class="btn btn-outline-gold btn-sm w-100" disabled>PRESTO DISPONIBILE</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Measurements Quick View -->
+        <div class="col-lg-4">
+            <h2 class="sr-title small mb-4 text-uppercase letter-spacing-2 border-bottom border-gold pb-2">MISURE PER TIPO</h2>
+            <div class="list-group list-group-flush bg-dark rounded-3 overflow-hidden border-gold-dim">
+                <a asp-controller="Clienti" asp-action="Index" class="list-group-item list-group-item-action bg-dark border-gold-dim py-3 d-flex justify-content-between align-items-center text-decoration-none transition-all">
+                    <span class="text-white fw-bold"><i class="bi bi-suit-spade-fill me-2 sr-gold"></i> GIACCA / OUTDOOR</span>
+                    <span class="badge rounded-pill bg-gold-dim text-gold">REGISTRA</span>
+                </a>
+                <a asp-controller="Clienti" asp-action="Index" class="list-group-item list-group-item-action bg-dark border-gold-dim py-3 d-flex justify-content-between align-items-center text-decoration-none transition-all">
+                    <span class="text-white fw-bold"><i class="bi bi-layout-sidebar-inset me-2 sr-gold"></i> PANTALONE</span>
+                    <span class="badge rounded-pill bg-gold-dim text-gold">REGISTRA</span>
+                </a>
+                <a asp-controller="Clienti" asp-action="Index" class="list-group-item list-group-item-action bg-dark border-gold-dim py-3 d-flex justify-content-between align-items-center text-decoration-none transition-all">
+                    <span class="text-white fw-bold"><i class="bi bi-layers-fill me-2 sr-gold"></i> CAMICIA / MAGLIE</span>
+                    <span class="badge rounded-pill bg-gold-dim text-gold">REGISTRA</span>
+                </a>
+                <a asp-controller="Clienti" asp-action="Index" class="list-group-item list-group-item-action bg-dark border-gold-dim py-3 d-flex justify-content-between align-items-center text-decoration-none transition-all">
+                    <span class="text-white fw-bold"><i class="bi bi-vinyl-fill me-2 sr-gold"></i> SCARPE & ACCESSORI</span>
+                    <span class="badge rounded-pill bg-gold-dim text-gold">REGISTRA</span>
+                </a>
+            </div>
+
+
+            <div class="mt-4 p-4 rounded-3 bg-gold-gradient text-dark fw-bold text-center animate__animated animate__pulse animate__infinite">
+                <i class="bi bi-cpu-fill me-2"></i> INTELLIGENZA ARTIGIANALE SR
+                <p class="small mb-0 mt-1 opacity-75">Sincronizzazione globale sartoria attiva</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-dark-soft { background-color: rgba(15, 23, 42, 0.6); }
+    .border-gold-light { border: 1px solid rgba(197, 160, 89, 0.4); }
+    .border-gold-dim { border-color: rgba(197, 160, 89, 0.15) !important; }
+    .shadow-gold { box-shadow: 0 4px 20px rgba(197, 160, 89, 0.1); }
+    .stat-card:hover { transform: translateY(-5px); transition: all 0.3s ease; border: 1px solid rgba(197, 160, 89, 0.5) !important; }
+    .sector-card { transition: all 0.3s ease; }
+    .sector-card:hover { background-color: rgba(15, 23, 42, 0.9); border-color: #c5a059; }
+    .bg-gold-dim { background-color: rgba(197, 160, 89, 0.1); }
+    .bg-gold-gradient { background: linear-gradient(135deg, #c5a059, #e2c07d); }
+    .highlight-staff { border-width: 2px !important; }
+</style>

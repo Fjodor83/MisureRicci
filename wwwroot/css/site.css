@@ -1,0 +1,159 @@
+/* Stefano Ricci SaaS Design System */
+:root {
+    --sr-gold: #c5a059;
+    --sr-gold-light: #dfc28d;
+    --sr-navy: #0c121e;
+}
+
+/* Theme Default (Dark) or theme-dark */
+body, .theme-dark {
+    --bg-main: #0c121e;
+    --bg-card: rgba(255, 255, 255, 0.05);
+    --text-main: #e2e8f0;
+    --text-muted: #94a3b8;
+    --border-color: rgba(197, 160, 89, 0.3);
+}
+
+/* Theme Light */
+.theme-light {
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: rgba(197, 160, 89, 0.3);
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    background-color: var(--bg-main) !important;
+    color: var(--text-main) !important;
+    font-family: 'Cinzel', serif, 'Playfair Display', serif, 'Segoe UI', sans-serif;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.main-container {
+    flex: 1 0 auto;
+    width: 100%;
+    padding-top: 2rem;
+}
+
+/* Navbar Tuning */
+.navbar {
+    background-color: var(--sr-navy) !important;
+    border-bottom: 2px solid var(--sr-gold) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.navbar-brand, .nav-link {
+    color: var(--sr-gold) !important;
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+}
+
+.nav-link:hover {
+    color: var(--sr-gold-light) !important;
+    text-shadow: 0 0 8px rgba(197, 160, 89, 0.4);
+}
+
+.text-gold { color: var(--sr-gold) !important; }
+
+/* DevExpress Overrides for SaaS Theme consistency */
+.dx-viewport {
+    background-color: transparent !important;
+}
+
+/* Titles */
+h1, h2, h3, h4, .sr-title {
+    color: var(--sr-gold);
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    border-bottom: 2px solid var(--sr-gold);
+    padding-bottom: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.small-title {
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+}
+
+/* Cards */
+.card {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+    border-color: var(--sr-gold) !important;
+    box-shadow: 0 10px 15px -3px rgba(197, 160, 89, 0.2);
+}
+
+/* Forms */
+.form-label {
+    color: var(--sr-gold);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.form-control, .form-select {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+    border-radius: 4px;
+}
+
+/* Footer */
+.footer {
+    flex-shrink: 0;
+    background-color: var(--sr-navy);
+    border-top: 1px solid var(--sr-gold);
+    color: var(--sr-gold);
+    padding: 2rem 0;
+    margin-top: 4rem;
+}
+
+/* Utilities */
+.letter-spacing-2 { letter-spacing: 2px; }
+.font-cinzel { font-family: 'Cinzel', serif; }
+
+.badge.bg-gold {
+    background-color: var(--sr-gold) !important;
+    color: #000;
+}
+
+.btn-primary {
+    background-color: var(--sr-gold) !important;
+    border-color: var(--sr-gold) !important;
+    color: #000 !important;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.btn-primary:hover {
+    background-color: var(--sr-gold-light) !important;
+    border-color: var(--sr-gold-light) !important;
+}
+
+.btn-outline-gold {
+    border-color: var(--sr-gold) !important;
+    color: var(--sr-gold) !important;
+}
+
+.btn-outline-gold:hover {
+    background-color: var(--sr-gold) !important;
+    color: #000 !important;
+}

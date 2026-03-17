@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - STEFANO RICCI Misure</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- DevExpress Fluent SaaS Themes -->
+    <link id="dx-theme-light" rel="stylesheet" href="https://cdn3.devexpress.com/jslib/23.2.5/css/dx.fluent.saas.light.css" disabled />
+    <link id="dx-theme-dark" rel="stylesheet" href="https://cdn3.devexpress.com/jslib/23.2.5/css/dx.fluent.saas.dark.css" />
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/MisureRicci.styles.css" asp-append-version="true" />
+</head>
+<body class="dx-viewport theme-dark">
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">STEFANO RICCI</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Clienti" asp-action="Index">Gestione Clienti</a>
+                        </li>
+                        <button class="btn btn-link nav-link p-0 border-0" onclick="window.location.href='/Clienti?search=misure'" style="text-transform: uppercase;">Registro Misure</button>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Negozi" asp-action="Index">Gestione Negozi</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Utenti" asp-action="Index">Staff</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex align-items-center">
+                        <div class="form-check form-switch me-3">
+                            <input class="form-check-input" type="checkbox" id="themeSwitcher" checked>
+                            <label class="form-check-label text-gold small text-uppercase fw-bold" for="themeSwitcher">Dark Mode</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container main-container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="container text-center text-uppercase letter-spacing-2 fw-bold">
+            &copy; 2026 - STEFANO RICCI GESTIONALE SAAS
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <script>
+        const themeSwitcher = document.getElementById('themeSwitcher');
+        const lightTheme = document.getElementById('dx-theme-light');
+        const darkTheme = document.getElementById('dx-theme-dark');
+
+        function setTheme(isDark) {
+            if (isDark) {
+                lightTheme.disabled = true;
+                darkTheme.disabled = false;
+                themeSwitcher.checked = true;
+                document.body.classList.add('theme-dark');
+                document.body.classList.remove('theme-light');
+                localStorage.setItem('sr-theme', 'dark');
+            } else {
+                lightTheme.disabled = false;
+                darkTheme.disabled = true;
+                themeSwitcher.checked = false;
+                document.body.classList.add('theme-light');
+                document.body.classList.remove('theme-dark');
+                localStorage.setItem('sr-theme', 'light');
+            }
+        }
+
+        themeSwitcher.addEventListener('change', (e) => {
+            setTheme(e.target.checked);
+        });
+
+        // Initialize theme from storage
+        const savedTheme = localStorage.getItem('sr-theme');
+        if (savedTheme === 'light') {
+            setTheme(false);
+        } else {
+            setTheme(true);
+        }
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
