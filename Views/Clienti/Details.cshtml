@@ -1,4 +1,4 @@
-@model MisureRicci.Models.Cliente
+@model MisureRicci.Models.ViewModels.ClienteDetailsViewModel
 
 @{
     ViewData["Title"] = "Dossier Cliente";
@@ -7,10 +7,10 @@
 <div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeInDown">
     <div>
         <h1 class="page-title">DOSSIER CLIENTE</h1>
-        <p class="page-subtitle mt-2 mb-0">@Model.Nome @Model.Cognome - @Model.ClientCode</p>
+        <p class="page-subtitle mt-2 mb-0">@Model.Cliente.Nome @Model.Cliente.Cognome - @Model.Cliente.ClientCode</p>
     </div>
     <div>
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary me-2"><i class="bi bi-pencil-fill me-2"></i> UPDATE</a>
+        <a asp-action="Edit" asp-route-id="@Model.Cliente.Id" class="btn btn-primary me-2"><i class="bi bi-pencil-fill me-2"></i> UPDATE</a>
         <a asp-action="Index" class="btn btn-outline-secondary">INDIETRO</a>
     </div>
 </div>
@@ -23,7 +23,7 @@
                 <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.3);">
                     <i class="bi bi-person-bounding-box fs-1 sr-gold"></i>
                 </div>
-                <h3 class="font-cinzel text-white letter-spacing-1 mb-0">@Model.Nome @Model.Cognome</h3>
+                <h3 class="font-cinzel text-white letter-spacing-1 mb-0">@Model.Cliente.Nome @Model.Cliente.Cognome</h3>
                 <span class="badge mt-2" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">VIP CLIENT</span>
             </div>
 
@@ -31,18 +31,18 @@
 
             <div class="mb-4">
                 <p class="mb-1 sr-gold-light small text-uppercase letter-spacing-1">Email / Telefono</p>
-                <p class="font-monospace text-muted mb-0 small">@Model.Email</p>
-                <p class="font-monospace text-muted small">@(Model.Telefono ?? "N/A")</p>
+                <p class="font-monospace text-muted mb-0 small">@Model.Cliente.Email</p>
+                <p class="font-monospace text-muted small">@(Model.Cliente.Telefono ?? "N/A")</p>
             </div>
             
             <div class="mb-4">
                 <p class="mb-1 sr-gold-light small text-uppercase letter-spacing-1">Data Registrazione</p>
-                <p class="text-white small mb-0 font-cinzel letter-spacing-1">@Model.DataRegistrazione.ToString("dd MMMM yyyy")</p>
+                <p class="text-white small mb-0 font-cinzel letter-spacing-1">@Model.Cliente.DataRegistrazione.ToString("dd MMMM yyyy")</p>
             </div>
 
             <div class="mt-auto d-grid gap-3">
-                <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.Id" class="btn btn-outline-gold w-100"><i class="bi bi-rulers me-2"></i> NUOVA MISURA</a>
-                <button class="btn btn-outline-secondary w-100"><i class="bi bi-printer me-2"></i> STAMPA DOSSIER</button>
+                <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.Cliente.Id" class="btn btn-outline-gold w-100"><i class="bi bi-rulers me-2"></i> NUOVA MISURA</a>
+                <a href="/pdf/dossier/@Model.Cliente.Id" target="_blank" class="btn btn-outline-secondary w-100"><i class="bi bi-printer me-2"></i> STAMPA DOSSIER</a>
             </div>
         </div>
     </div>
@@ -57,15 +57,15 @@
                         <div class="col-md-6 border-end" style="border-color: var(--border-color) !important;">
                             <h3 class="sr-title small mb-3"><i class="bi bi-geo-alt-fill me-2"></i> RESIDENZA</h3>
                             <address class="text-muted small mb-0 lh-lg" style="font-family: inherit;">
-                                @Model.Indirizzo<br />
-                                @Model.CodicePostale @Model.Citta<br />
-                                @Model.StatoProvincia<br />
-                                <strong class="text-white letter-spacing-1">@Model.Paese</strong>
+                                @Model.Cliente.Indirizzo<br />
+                                @Model.Cliente.CodicePostale @Model.Cliente.Citta<br />
+                                @Model.Cliente.StatoProvincia<br />
+                                <strong class="text-white letter-spacing-1">@Model.Cliente.Paese</strong>
                             </address>
                         </div>
                         <div class="col-md-6 ps-md-4 pt-4 pt-md-0">
                             <h3 class="sr-title small mb-3"><i class="bi bi-bookmark-star-fill me-2"></i> NOTE SARTORIALI</h3>
-                            <p class="fst-italic text-muted small lh-lg mb-0 text-white-50">@(Model.Note ?? "Nessuna preferenza sartoriale indicata.")</p>
+                            <p class="fst-italic text-muted small lh-lg mb-0 text-white-50">@(Model.Cliente.Note ?? "Nessuna preferenza sartoriale indicata.")</p>
                         </div>
                     </div>
                 </div>
@@ -76,11 +76,11 @@
                 <div class="card p-0 overflow-hidden h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
                     <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom border-gold-dim">
                         <h3 class="sr-title small mb-0"><i class="bi bi-clock-history me-2"></i> ARCHIVIO SARTORIALE</h3>
-                        <span class="badge" style="background: rgba(212, 175, 55, 0.1); color: var(--sr-gold);">@(ViewBag.History != null ? ((List<MisureRicci.Models.MisureCliente>)ViewBag.History).Count : 0) RECORD</span>
+                        <span class="badge" style="background: rgba(212, 175, 55, 0.1); color: var(--sr-gold);">@(Model.History != null ? Model.History.Count : 0) RECORD</span>
                     </div>
                     
                     <div class="card-body p-0">
-                        @if (ViewBag.History != null && ((List<MisureRicci.Models.MisureCliente>)ViewBag.History).Any())
+                        @if (Model.History != null && Model.History.Any())
                         {
                             <div class="table-responsive">
                                 <table class="table table-hover mb-0">
@@ -92,7 +92,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach (var entry in (List<MisureRicci.Models.MisureCliente>)ViewBag.History)
+                                        @foreach (var entry in (List<MisureRicci.Models.MisureCliente>)Model.History)
                                         {
                                             <tr style="transition: background-color 0.3s ease;">
                                                 <td class="ps-4 text-muted small font-cinzel">@entry.DataCreazione.ToString("dd MMM yyyy - HH:mm")</td>
@@ -100,7 +100,7 @@
                                                     <span class="badge rounded-pill fw-normal" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.3); color: var(--sr-gold-light); letter-spacing: 1px;">@entry.TipoMisura.ToUpper()</span>
                                                 </td>
                                                 <td class="text-end pe-4">
-                                                    <a asp-controller="Measurements" asp-action="Details" asp-route-id="@entry.RecordId" asp-route-tipoMisura="@entry.TipoMisura" class="btn btn-sm btn-outline-gold"><i class="bi bi-eye-fill"></i> VEDI</a>
+                                                    <a asp-controller="Measurements" asp-action="Details" asp-route-id="@entry.RecordId" asp-route-tipoMisura="@entry.TipoMisura" asp-route-registryId="@entry.Id" class="btn btn-sm btn-outline-gold"><i class="bi bi-eye-fill"></i> VEDI</a>
                                                 </td>
                                             </tr>
                                         }
@@ -113,7 +113,7 @@
                             <div class="text-center py-5">
                                 <i class="bi bi-file-earmark-x fs-1 sr-gold opacity-50 mb-3 d-block"></i>
                                 <p class="text-muted small letter-spacing-1">NESSUNA SCHEDA SARTORIALE PRESENTE.</p>
-                                <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.Id" class="btn btn-outline-gold mt-2 btn-sm">CREA SCHEDA ORA</a>
+                                <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.Cliente.Id" class="btn btn-outline-gold mt-2 btn-sm">CREA SCHEDA ORA</a>
                             </div>
                         }
                     </div>
@@ -122,3 +122,5 @@
         </div>
     </div>
 </div>
+
+

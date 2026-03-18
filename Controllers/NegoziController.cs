@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MisureRicci.Data;
@@ -5,6 +6,7 @@ using MisureRicci.Models;
 
 namespace MisureRicci.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class NegoziController : Controller
     {
         private readonly ApplicationDbContext _context;

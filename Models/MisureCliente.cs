@@ -20,6 +20,8 @@ namespace MisureRicci.Models
         [Display(Name = "Note")]
         public string? Note { get; set; }
 
+        public bool IsDynamic { get; set; }
+
         // Reference to the specific record in the category table
         public int RecordId { get; set; }
     }

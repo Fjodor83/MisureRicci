@@ -1,32 +1,39 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MisureRicci.Data;
 using MisureRicci.Models;
+using MisureRicci.Services;
 using System.Threading.Tasks;
 
 namespace MisureRicci.Controllers
 {
+    [Authorize]
     public class ClientiController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IClienteService _clienteService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ClientiController(ApplicationDbContext context)
+        public ClientiController(IClienteService clienteService, UserManager<ApplicationUser> userManager)
         {
-            _context = context;
+            _clienteService = clienteService;
+            _userManager = userManager;
         }
 
         // GET: Clienti
-        public async Task<IActionResult> Index(string searchString)
+        public async Task<IActionResult> Index(string searchString, int page = 1)
         {
-            var clienti = from c in _context.Clienti
-                         select c;
+            var currentUser = await _userManager.GetUserAsync(User);
+            bool isAdmin = User.IsInRole("Admin");
 
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                clienti = clienti.Where(s => s.Nome.Contains(searchString) || s.Cognome.Contains(searchString) || s.ClientCode.Contains(searchString));
-            }
+            const int pageSize = 20;
+            
+            var result = await _clienteService.GetClientiPagedAsync(searchString, currentUser?.NegozioId, isAdmin, page, pageSize);
 
-            return View(await clienti.OrderByDescending(c => c.DataRegistrazione).ToListAsync());
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)System.Math.Ceiling(result.TotalCount / (double)pageSize);
+            ViewBag.SearchString = searchString;
+
+            return View(result.Items);
         }
 
         // GET: Clienti/Details/5
@@ -34,22 +41,19 @@ namespace MisureRicci.Controllers
         {
             if (id == null) return NotFound();
 
-            var cliente = await _context.Clienti
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var cliente = await _clienteService.GetClienteByIdAsync(id.Value);
             
             if (cliente == null) return NotFound();
 
-            // Fetch measurement history
-            var history = await _context.RegistroMisure
-                .Where(m => m.ClienteId == id)
-                .OrderByDescending(m => m.DataCreazione)
-                .ToListAsync();
+            var history = await _clienteService.GetStoricoMisureAsync(id.Value);
 
-            ViewBag.History = history;
-            ViewBag.ClienteId = cliente.Id;
-            ViewBag.ClienteNome = $"{cliente.Nome} {cliente.Cognome}";
+            var vm = new MisureRicci.Models.ViewModels.ClienteDetailsViewModel
+            {
+                Cliente = cliente,
+                History = history
+            };
 
-            return View(cliente);
+            return View(vm);
         }
 
         // GET: Clienti/Create
@@ -65,14 +69,7 @@ namespace MisureRicci.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(cliente);
-                await _context.SaveChangesAsync();
-
-                // Generate automatic code: SR-Year-ID (padded)
-                cliente.ClientCode = $"SR-{DateTime.Now.Year}-{cliente.Id:D5}";
-                _context.Update(cliente);
-                await _context.SaveChangesAsync();
-
+                await _clienteService.CreateClienteAsync(cliente);
                 return RedirectToAction(nameof(Index));
             }
             return View(cliente);
@@ -83,7 +80,7 @@ namespace MisureRicci.Controllers
         {
             if (id == null) return NotFound();
 
-            var cliente = await _context.Clienti.FindAsync(id);
+            var cliente = await _clienteService.GetClienteByIdAsync(id.Value);
             if (cliente == null) return NotFound();
             
             return View(cliente);
@@ -100,12 +97,11 @@ namespace MisureRicci.Controllers
             {
                 try
                 {
-                    _context.Update(cliente);
-                    await _context.SaveChangesAsync();
+                    await _clienteService.UpdateClienteAsync(cliente);
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException)
                 {
-                    if (!ClienteExists(cliente.Id)) return NotFound();
+                    if (!_clienteService.ClienteExists(cliente.Id)) return NotFound();
                     else throw;
                 }
                 return RedirectToAction(nameof(Index));
@@ -113,16 +109,11 @@ namespace MisureRicci.Controllers
             return View(cliente);
         }
 
-        private bool ClienteExists(int id)
-        {
-            return _context.Clienti.Any(e => e.Id == id);
-        }
-
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
 
-            var cliente = await _context.Clienti.FirstOrDefaultAsync(m => m.Id == id);
+            var cliente = await _clienteService.GetClienteByIdAsync(id.Value);
             if (cliente == null) return NotFound();
 
             return View(cliente);
@@ -132,12 +123,7 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var cliente = await _context.Clienti.FindAsync(id);
-            if (cliente != null)
-            {
-                _context.Clienti.Remove(cliente);
-                await _context.SaveChangesAsync();
-            }
+            await _clienteService.DeleteClienteAsync(id);
             return RedirectToAction(nameof(Index));
         }
     }

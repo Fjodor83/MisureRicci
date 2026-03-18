@@ -109,14 +109,15 @@
 
                 <!-- Global Sync Sector -->
                 <div class="col-md-6">
-                    <div class="card p-4 h-100" style="opacity: 0.7;">
+                    <div class="card p-4 h-100">
                         <div class="d-flex justify-content-between">
                             <h3 class="sr-title small mb-3">REPORT & EXPORT</h3>
-                            <i class="bi bi-file-earmark-pdf sr-gold"></i>
+                            <i class="bi bi-file-earmark-excel sr-gold"></i>
                         </div>
-                        <p class="text-muted small mb-4">Generazione schede tecniche di produzione e analisi dati produzione.</p>
-                        <div class="mt-auto">
-                            <button class="btn btn-outline-secondary w-100" disabled>Presto Disponibile</button>
+                        <p class="text-muted small mb-4">Esportazione anagrafiche e storico misure in formato CSV per Excel.</p>
+                        <div class="mt-auto d-grid gap-2">
+                            <a asp-controller="Report" asp-action="ExportClientiCsv" class="btn btn-outline-gold"><i class="bi bi-download me-1"></i> Export Clienti</a>
+                            <a asp-controller="Report" asp-action="ExportMisureCsv" class="btn btn-outline-secondary text-white"><i class="bi bi-download me-1"></i> Export Misure</a>
                         </div>
                     </div>
                 </div>
@@ -128,20 +129,20 @@
             <h2 class="sr-title small mb-4">Registro Rapido</h2>
             <div class="card p-0 overflow-hidden mb-4">
                 <div class="list-group list-group-flush">
-                    <a asp-controller="Clienti" asp-action="Index" class="list-group-item list-group-item-action bg-transparent py-4 d-flex justify-content-between align-items-center text-decoration-none" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="giacca" class="list-group-item list-group-item-action bg-transparent py-4 d-flex justify-content-between align-items-center text-decoration-none" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                         <span class="text-white fw-bold font-cinzel letter-spacing-1"><i class="bi bi-suit-spade-fill me-3 sr-gold"></i> GIACCA E CAPISPALLA</span>
                         <i class="bi bi-chevron-right text-muted"></i>
                     </a>
-                    <a asp-controller="Clienti" asp-action="Index" class="list-group-item list-group-item-action bg-transparent py-4 d-flex justify-content-between align-items-center text-decoration-none" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                        <span class="text-white fw-bold font-cinzel letter-spacing-1"><i class="bi bi-layout-sidebar-inset me-3 sr-gold"></i> PANTALONE STARTORIALE</span>
+                    <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="pantalone" class="list-group-item list-group-item-action bg-transparent py-4 d-flex justify-content-between align-items-center text-decoration-none" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <span class="text-white fw-bold font-cinzel letter-spacing-1"><i class="bi bi-layout-sidebar-inset me-3 sr-gold"></i> PANTALONE SARTORIALE</span>
                         <i class="bi bi-chevron-right text-muted"></i>
                     </a>
-                    <a asp-controller="Clienti" asp-action="Index" class="list-group-item list-group-item-action bg-transparent py-4 d-flex justify-content-between align-items-center text-decoration-none" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="camicia" class="list-group-item list-group-item-action bg-transparent py-4 d-flex justify-content-between align-items-center text-decoration-none" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                         <span class="text-white fw-bold font-cinzel letter-spacing-1"><i class="bi bi-layers-fill me-3 sr-gold"></i> CAMICERIA E MAGLIERIA</span>
                         <i class="bi bi-chevron-right text-muted"></i>
                     </a>
-                    <a asp-controller="Clienti" asp-action="Index" class="list-group-item list-group-item-action bg-transparent py-4 d-flex justify-content-between align-items-center text-decoration-none">
-                        <span class="text-white fw-bold font-cinzel letter-spacing-1"><i class="bi bi-vinyl-fill me-3 sr-gold"></i> SCARPE & ACCESSORI</span>
+                    <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="scarpe" class="list-group-item list-group-item-action bg-transparent py-4 d-flex justify-content-between align-items-center text-decoration-none">
+                        <span class="text-white fw-bold font-cinzel letter-spacing-1"><i class="bi bi-vinyl-fill me-3 sr-gold"></i> SCARPE E ACCESSORI</span>
                         <i class="bi bi-chevron-right text-muted"></i>
                     </a>
                 </div>

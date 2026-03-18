@@ -12,6 +12,7 @@
     var props = t.GetProperties(BindingFlags.Public | BindingFlags.Instance)
         .Where(p => p.Name != "Id" && p.Name != "ClienteId" && p.Name != "Cliente" && p.Name != "CreatedAt" && p.Name != "OrderId" && p.Name != "Notes")
         .ToList();
+
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">

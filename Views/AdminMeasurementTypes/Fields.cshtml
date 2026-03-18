@@ -1,0 +1,78 @@
+@model MisureRicci.Models.ViewModels.MeasurementTypeManageViewModel
+
+@{
+    ViewData["Title"] = "Campi Tipologia";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">CAMPI: @Model.Type.Nome.ToUpper()</h1>
+        <p class="page-subtitle mb-0">Definizione dinamica dei campi per la tipologia.</p>
+    </div>
+    <a asp-action="CreateField" asp-route-typeId="@Model.Type.Id" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Nuovo Campo</a>
+</div>
+
+<div class="card card-static p-3">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Gruppo</th>
+                    <th>Ordine</th>
+                    <th>Campo</th>
+                    <th>Etichetta</th>
+                    <th>Tipo</th>
+                    <th>Template</th>
+                    <th>Req</th>
+                    <th>Stato</th>
+                    <th class="text-end">Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Fields.Any())
+                {
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">Nessun campo configurato</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var field in Model.Fields.OrderBy(f => f.OrdineGruppo).ThenBy(f => f.Gruppo).ThenBy(f => f.Ordine).ThenBy(f => f.Etichetta))
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-bold">@(string.IsNullOrWhiteSpace(field.Gruppo) ? "Generale" : field.Gruppo)</div>
+                                <div class="text-muted small">Sezione @field.OrdineGruppo</div>
+                            </td>
+                            <td>@field.Ordine</td>
+                            <td class="fw-bold">@field.NomeCampo</td>
+                            <td>
+                                <div>@field.Etichetta @(string.IsNullOrWhiteSpace(field.UnitaMisura) ? "" : $"({field.UnitaMisura})")</div>
+                                @if (!string.IsNullOrWhiteSpace(field.HelpText))
+                                {
+                                    <div class="text-muted small">@field.HelpText</div>
+                                }
+                            </td>
+                            <td>@field.TipoDato</td>
+                            <td>@field.Template</td>
+                            <td><span class="badge @(field.Obbligatorio ? "bg-warning text-dark" : "bg-secondary")">@(field.Obbligatorio ? "Si" : "No")</span></td>
+                            <td><span class="badge @(field.IsActive ? "bg-success" : "bg-secondary")">@(field.IsActive ? "Attivo" : "Off")</span></td>
+                            <td class="text-end">
+                                <a asp-action="EditField" asp-route-id="@field.Id" class="btn btn-sm btn-outline-secondary me-1">Modifica</a>
+                                <form asp-action="DeleteField" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@field.Id" />
+                                    <input type="hidden" name="typeId" value="@Model.Type.Id" />
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Eliminare questo campo?');">Elimina</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a asp-action="Index" class="btn btn-outline-secondary">Torna alle Tipologie</a>
+</div>

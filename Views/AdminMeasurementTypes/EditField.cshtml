@@ -1,0 +1,81 @@
+@model MisureRicci.Models.MeasurementFieldDefinition
+
+@{
+    ViewData["Title"] = "Modifica Campo";
+}
+
+<h1 class="page-title mb-4">MODIFICA CAMPO — @ViewBag.TypeName</h1>
+
+<div class="card card-static p-4">
+    <form asp-action="EditField" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="MeasurementTypeId" />
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="NomeCampo" class="form-label"></label>
+                <input asp-for="NomeCampo" class="form-control" />
+                <span asp-validation-for="NomeCampo" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Etichetta" class="form-label"></label>
+                <input asp-for="Etichetta" class="form-control" />
+                <span asp-validation-for="Etichetta" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Gruppo" class="form-label"></label>
+                <input asp-for="Gruppo" class="form-control" placeholder="Es. Corpo, Lunghezze, Note sartoriali" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="OrdineGruppo" class="form-label"></label>
+                <input asp-for="OrdineGruppo" class="form-control" />
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="TipoDato" class="form-label"></label>
+                <select asp-for="TipoDato" asp-items="Html.GetEnumSelectList<MisureRicci.Models.DynamicFieldType>()" class="form-select"></select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Template" class="form-label"></label>
+                <select asp-for="Template" asp-items="Html.GetEnumSelectList<MisureRicci.Models.DynamicFieldTemplate>()" class="form-select"></select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="UnitaMisura" class="form-label"></label>
+                <input asp-for="UnitaMisura" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Ordine" class="form-label"></label>
+                <input asp-for="Ordine" class="form-control" />
+            </div>
+
+            <div class="col-md-12">
+                <label asp-for="Placeholder" class="form-label"></label>
+                <input asp-for="Placeholder" class="form-control" />
+            </div>
+            <div class="col-md-12">
+                <label asp-for="HelpText" class="form-label"></label>
+                <input asp-for="HelpText" class="form-control" placeholder="Suggerimento operativo visibile in form" />
+            </div>
+
+            <div class="col-md-6 form-check form-switch mt-4">
+                <input asp-for="Obbligatorio" class="form-check-input" />
+                <label asp-for="Obbligatorio" class="form-check-label"></label>
+            </div>
+            <div class="col-md-6 form-check form-switch mt-4">
+                <input asp-for="IsActive" class="form-check-input" />
+                <label asp-for="IsActive" class="form-check-label"></label>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary me-2">Salva</button>
+            <a asp-action="Fields" asp-route-typeId="@Model.MeasurementTypeId" class="btn btn-outline-secondary">Annulla</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

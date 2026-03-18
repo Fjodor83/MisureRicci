@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MisureRicci.Data;
 
@@ -11,9 +12,11 @@ using MisureRicci.Data;
 namespace MisureRicci.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260318135333_AddDynamicMeasurementTypesAndFields")]
+    partial class AddDynamicMeasurementTypesAndFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -631,14 +634,6 @@ namespace MisureRicci.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Gruppo")
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
-
-                    b.Property<string>("HelpText")
-                        .HasMaxLength(160)
-                        .HasColumnType("nvarchar(160)");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -656,15 +651,9 @@ namespace MisureRicci.Migrations
                     b.Property<int>("Ordine")
                         .HasColumnType("int");
 
-                    b.Property<int>("OrdineGruppo")
-                        .HasColumnType("int");
-
                     b.Property<string>("Placeholder")
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
-
-                    b.Property<int>("Template")
-                        .HasColumnType("int");
 
                     b.Property<int>("TipoDato")
                         .HasColumnType("int");
@@ -728,9 +717,6 @@ namespace MisureRicci.Migrations
 
                     b.Property<DateTime>("DataCreazione")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDynamic")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");

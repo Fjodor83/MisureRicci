@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MisureRicci.Data;
 
@@ -11,9 +12,11 @@ using MisureRicci.Data;
 namespace MisureRicci.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260318090340_AddIdentity")]
+    partial class AddIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -382,9 +385,6 @@ namespace MisureRicci.Migrations
                     b.Property<string>("Indirizzo")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("NegozioId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -403,8 +403,6 @@ namespace MisureRicci.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("NegozioId");
 
                     b.ToTable("Clienti", (string)null);
                 });
@@ -440,65 +438,6 @@ namespace MisureRicci.Migrations
                     b.HasIndex("ClienteId");
 
                     b.ToTable("MisureCravatta", (string)null);
-                });
-
-            modelBuilder.Entity("MisureRicci.Models.DynamicMeasurementRecord", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ClienteId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedByUserId")
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("MeasurementTypeId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClienteId");
-
-                    b.HasIndex("CreatedByUserId");
-
-                    b.HasIndex("MeasurementTypeId");
-
-                    b.ToTable("DynamicMeasurementRecords", (string)null);
-                });
-
-            modelBuilder.Entity("MisureRicci.Models.DynamicMeasurementValue", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("DynamicMeasurementRecordId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MeasurementFieldDefinitionId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Valore")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DynamicMeasurementRecordId");
-
-                    b.HasIndex("MeasurementFieldDefinitionId");
-
-                    b.ToTable("DynamicMeasurementValues", (string)null);
                 });
 
             modelBuilder.Entity("MisureRicci.Models.GiaccaMeasurement", b =>
@@ -618,103 +557,6 @@ namespace MisureRicci.Migrations
                     b.ToTable("MisureMaglie", (string)null);
                 });
 
-            modelBuilder.Entity("MisureRicci.Models.MeasurementFieldDefinition", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Etichetta")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Gruppo")
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
-
-                    b.Property<string>("HelpText")
-                        .HasMaxLength(160)
-                        .HasColumnType("nvarchar(160)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("MeasurementTypeId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("NomeCampo")
-                        .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
-
-                    b.Property<bool>("Obbligatorio")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Ordine")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OrdineGruppo")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Placeholder")
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.Property<int>("Template")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TipoDato")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UnitaMisura")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MeasurementTypeId", "NomeCampo")
-                        .IsUnique();
-
-                    b.ToTable("MeasurementFieldDefinitions", (string)null);
-                });
-
-            modelBuilder.Entity("MisureRicci.Models.MeasurementType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Descrizione")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsSystem")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Nome")
-                        .IsUnique();
-
-                    b.ToTable("MeasurementTypes", (string)null);
-                });
-
             modelBuilder.Entity("MisureRicci.Models.MisureCliente", b =>
                 {
                     b.Property<int>("Id")
@@ -728,9 +570,6 @@ namespace MisureRicci.Migrations
 
                     b.Property<DateTime>("DataCreazione")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDynamic")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
@@ -1052,15 +891,6 @@ namespace MisureRicci.Migrations
                     b.Navigation("Cliente");
                 });
 
-            modelBuilder.Entity("MisureRicci.Models.Cliente", b =>
-                {
-                    b.HasOne("MisureRicci.Models.Negozio", "Negozio")
-                        .WithMany()
-                        .HasForeignKey("NegozioId");
-
-                    b.Navigation("Negozio");
-                });
-
             modelBuilder.Entity("MisureRicci.Models.CravattaMeasurement", b =>
                 {
                     b.HasOne("MisureRicci.Models.Cliente", "Cliente")
@@ -1070,51 +900,6 @@ namespace MisureRicci.Migrations
                         .IsRequired();
 
                     b.Navigation("Cliente");
-                });
-
-            modelBuilder.Entity("MisureRicci.Models.DynamicMeasurementRecord", b =>
-                {
-                    b.HasOne("MisureRicci.Models.Cliente", "Cliente")
-                        .WithMany()
-                        .HasForeignKey("ClienteId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("MisureRicci.Models.ApplicationUser", "CreatedByUser")
-                        .WithMany()
-                        .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("MisureRicci.Models.MeasurementType", "MeasurementType")
-                        .WithMany()
-                        .HasForeignKey("MeasurementTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Cliente");
-
-                    b.Navigation("CreatedByUser");
-
-                    b.Navigation("MeasurementType");
-                });
-
-            modelBuilder.Entity("MisureRicci.Models.DynamicMeasurementValue", b =>
-                {
-                    b.HasOne("MisureRicci.Models.DynamicMeasurementRecord", "DynamicMeasurementRecord")
-                        .WithMany("Values")
-                        .HasForeignKey("DynamicMeasurementRecordId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MisureRicci.Models.MeasurementFieldDefinition", "MeasurementFieldDefinition")
-                        .WithMany("Values")
-                        .HasForeignKey("MeasurementFieldDefinitionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("DynamicMeasurementRecord");
-
-                    b.Navigation("MeasurementFieldDefinition");
                 });
 
             modelBuilder.Entity("MisureRicci.Models.GiaccaMeasurement", b =>
@@ -1148,17 +933,6 @@ namespace MisureRicci.Migrations
                         .IsRequired();
 
                     b.Navigation("Cliente");
-                });
-
-            modelBuilder.Entity("MisureRicci.Models.MeasurementFieldDefinition", b =>
-                {
-                    b.HasOne("MisureRicci.Models.MeasurementType", "MeasurementType")
-                        .WithMany("Campi")
-                        .HasForeignKey("MeasurementTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("MeasurementType");
                 });
 
             modelBuilder.Entity("MisureRicci.Models.MisureCliente", b =>
@@ -1212,21 +986,6 @@ namespace MisureRicci.Migrations
                         .HasForeignKey("NegozioId");
 
                     b.Navigation("Negozio");
-                });
-
-            modelBuilder.Entity("MisureRicci.Models.DynamicMeasurementRecord", b =>
-                {
-                    b.Navigation("Values");
-                });
-
-            modelBuilder.Entity("MisureRicci.Models.MeasurementFieldDefinition", b =>
-                {
-                    b.Navigation("Values");
-                });
-
-            modelBuilder.Entity("MisureRicci.Models.MeasurementType", b =>
-                {
-                    b.Navigation("Campi");
                 });
 #pragma warning restore 612, 618
         }

@@ -27,7 +27,13 @@ namespace MisureRicci.Controllers
                 await _context.MisureGiacca.CountAsync() +
                 await _context.MisurePantalone.CountAsync() +
                 await _context.MisureCamicia.CountAsync() +
-                await _context.MisureAbitoCompleto.CountAsync();
+                await _context.MisureAbitoCompleto.CountAsync() +
+                await _context.MisureGilet.CountAsync() +
+                await _context.MisureMaglie.CountAsync() +
+                await _context.MisureOutdoor.CountAsync() +
+                await _context.MisureScarpe.CountAsync() +
+                await _context.MisureCravatta.CountAsync() +
+                await _context.MisureCintura.CountAsync();
 
             return View();
         }

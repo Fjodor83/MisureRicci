@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+    @using Microsoft.AspNetCore.Identity
+    @inject SignInManager<MisureRicci.Models.ApplicationUser> SignInManager
+    @inject UserManager<MisureRicci.Models.ApplicationUser> UserManager
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - STEFANO RICCI Misure</title>
@@ -19,7 +22,11 @@
     <link rel="stylesheet" href="~/MisureRicci.styles.css" asp-append-version="true" />
 </head>
 <body class="dx-viewport theme-dark">
-    
+    <!-- Page Load Indicator -->
+    <div id="page-loader"></div>
+    <!-- Mobile Sidebar Overlay -->
+    <div id="sidebar-overlay"></div>
+
     <div class="app-layout">
         <!-- Premium Sidebar -->
         <aside class="app-sidebar">
@@ -43,6 +50,12 @@
                 <a class="sidebar-link" asp-area="" asp-controller="Utenti" asp-action="Index">
                     <i class="bi bi-person-badge-fill"></i> Staff SaaS
                 </a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a class="sidebar-link" asp-area="" asp-controller="AdminMeasurementTypes" asp-action="Index">
+                        <i class="bi bi-sliders2"></i> Tipologie Dinamiche
+                    </a>
+                }
             </nav>
             
             <div class="mt-auto p-4 border-top border-gold-dim text-center">
@@ -59,13 +72,22 @@
         <div class="app-content">
             <header class="app-header">
                 <div>
-                    <span class="text-muted small text-uppercase letter-spacing-1">Current Workspace / <strong>@ViewContext.RouteData.Values["controller"]</strong></span>
+                    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu"><i class="bi bi-list"></i></button>
+                    <span class="text-muted small text-uppercase letter-spacing-1 d-none d-md-inline">Workspace / <strong>@ViewContext.RouteData.Values["controller"]</strong></span>
                 </div>
                 <div class="d-flex align-items-center">
-                    <span class="badge bg-gold text-dark me-3"><i class="bi bi-shield-lock-fill"></i> ADMIN</span>
-                    <div class="rounded-circle bg-dark border border-gold d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                        <i class="bi bi-person-fill text-gold"></i>
-                    </div>
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        var _currentUser = await UserManager.GetUserAsync(User);
+                        var _initials = string.Concat((_currentUser?.NomeCompleto ?? _currentUser?.UserName ?? "?").Split(' ', System.StringSplitOptions.RemoveEmptyEntries).Take(2).Select(s => char.ToUpperInvariant(s[0])));
+                        var _isAdmin = User.IsInRole("Admin");
+                        <span class="badge @(_isAdmin ? "bg-gold text-dark" : "bg-success") me-3">
+                            <i class="bi @(_isAdmin ? "bi-shield-lock-fill" : "bi-person-check-fill")"></i>&nbsp;@(_isAdmin ? "ADMIN" : "STAFF")
+                        </span>
+                        <div class="rounded-circle bg-dark border border-gold d-flex align-items-center justify-content-center" style="width:40px;height:40px;" title="@(_currentUser?.NomeCompleto ?? _currentUser?.Email)">
+                            <span class="font-cinzel" style="font-size:0.70rem;color:var(--sr-gold);font-weight:700;">@_initials</span>
+                        </div>
+                    }
                 </div>
             </header>
             
@@ -86,57 +108,6 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    
-    <script>
-        const themeToggleBtn = document.getElementById('themeToggleBtn');
-        const lightTheme = document.getElementById('dx-theme-light');
-        const darkTheme = document.getElementById('dx-theme-dark');
-        const themeIcon = document.getElementById('themeIcon');
-        
-        let isDarkMode = true;
-
-        function setTheme(isDark) {
-            isDarkMode = isDark;
-            if (isDark) {
-                lightTheme.disabled = true;
-                darkTheme.disabled = false;
-                document.body.classList.add('theme-dark');
-                document.body.classList.remove('theme-light');
-                themeIcon.className = 'bi bi-moon-stars-fill';
-                localStorage.setItem('sr-theme', 'dark');
-            } else {
-                lightTheme.disabled = false;
-                darkTheme.disabled = true;
-                document.body.classList.add('theme-light');
-                document.body.classList.remove('theme-dark');
-                themeIcon.className = 'bi bi-sun-fill';
-                localStorage.setItem('sr-theme', 'light');
-            }
-        }
-
-        themeToggleBtn.addEventListener('click', () => {
-            setTheme(!isDarkMode);
-        });
-
-        // Initialize active link styling
-        $(document).ready(function() {
-            var currentPath = window.location.pathname;
-            $('.sidebar-link').each(function() {
-                var $this = $(this);
-                if ($this.attr('href') === currentPath || (currentPath === "/" && $this.attr('href') === "/Home/Index")) {
-                    $this.addClass('active');
-                }
-            });
-            
-            // Theme init
-            const savedTheme = localStorage.getItem('sr-theme');
-            if (savedTheme === 'light') {
-                setTheme(false);
-            } else {
-                setTheme(true);
-            }
-        });
-    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
