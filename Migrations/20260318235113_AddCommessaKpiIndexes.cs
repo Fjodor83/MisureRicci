@@ -15,8 +15,8 @@ namespace MisureRicci.Migrations
                 table: "RegistroMisure");
 
             migrationBuilder.DropIndex(
-                name: "IX_CommesseSartoriali_ClienteId",
-                table: "CommesseSartoriali");
+                name: "IX_CommissioniSartoriali_ClienteId",
+                table: "CommissioniSartoriali");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RegistroMisure_ClienteId_DataCreazione",
@@ -24,13 +24,13 @@ namespace MisureRicci.Migrations
                 columns: new[] { "ClienteId", "DataCreazione" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommesseSartoriali_ClienteId_DataApertura",
-                table: "CommesseSartoriali",
+                name: "IX_CommissioniSartoriali_ClienteId_DataApertura",
+                table: "CommissioniSartoriali",
                 columns: new[] { "ClienteId", "DataApertura" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommesseSartoriali_Stato_DataConsegnaPrevista",
-                table: "CommesseSartoriali",
+                name: "IX_CommissioniSartoriali_Stato_DataConsegnaPrevista",
+                table: "CommissioniSartoriali",
                 columns: new[] { "Stato", "DataConsegnaPrevista" });
         }
 
@@ -42,12 +42,12 @@ namespace MisureRicci.Migrations
                 table: "RegistroMisure");
 
             migrationBuilder.DropIndex(
-                name: "IX_CommesseSartoriali_ClienteId_DataApertura",
-                table: "CommesseSartoriali");
+                name: "IX_CommissioniSartoriali_ClienteId_DataApertura",
+                table: "CommissioniSartoriali");
 
             migrationBuilder.DropIndex(
-                name: "IX_CommesseSartoriali_Stato_DataConsegnaPrevista",
-                table: "CommesseSartoriali");
+                name: "IX_CommissioniSartoriali_Stato_DataConsegnaPrevista",
+                table: "CommissioniSartoriali");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RegistroMisure_ClienteId",
@@ -55,8 +55,8 @@ namespace MisureRicci.Migrations
                 column: "ClienteId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommesseSartoriali_ClienteId",
-                table: "CommesseSartoriali",
+                name: "IX_CommissioniSartoriali_ClienteId",
+                table: "CommissioniSartoriali",
                 column: "ClienteId");
         }
     }

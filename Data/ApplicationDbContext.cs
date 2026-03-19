@@ -32,9 +32,9 @@ namespace MisureRicci.Data
         public DbSet<MeasurementFieldDefinition> MeasurementFieldDefinitions { get; set; }
         public DbSet<DynamicMeasurementRecord> DynamicMeasurementRecords { get; set; }
         public DbSet<DynamicMeasurementValue> DynamicMeasurementValues { get; set; }
-        public DbSet<CommessaSartoriale> CommesseSartoriali { get; set; }
-        public DbSet<CommessaEvento> CommesseEventi { get; set; }
-        public DbSet<CommessaMisuraLink> CommesseMisureLinks { get; set; }
+        public DbSet<CommessaSartoriale> CommissioniSartoriali { get; set; }
+        public DbSet<CommessaEvento> CommissioniEventi { get; set; }
+        public DbSet<CommessaMisuraLink> CommissioniMisureLinks { get; set; }
 
 
 
@@ -126,7 +126,7 @@ namespace MisureRicci.Data
 
             modelBuilder.Entity<CommessaSartoriale>(entity =>
             {
-                entity.ToTable("CommesseSartoriali");
+                entity.ToTable("CommissioniSartoriali");
                 entity.Property(x => x.TipoCapo).HasMaxLength(80);
                 entity.Property(x => x.Tessuto).HasMaxLength(120);
                 entity.Property(x => x.Collezione).HasMaxLength(120);
@@ -158,7 +158,7 @@ namespace MisureRicci.Data
 
             modelBuilder.Entity<CommessaEvento>(entity =>
             {
-                entity.ToTable("CommesseEventi");
+                entity.ToTable("CommissioniEventi");
                 entity.Property(x => x.TipoEvento).HasMaxLength(40);
                 entity.Property(x => x.Descrizione).HasMaxLength(1000);
                 entity.HasIndex(x => x.CommessaSartorialeId);
@@ -171,7 +171,7 @@ namespace MisureRicci.Data
 
             modelBuilder.Entity<CommessaMisuraLink>(entity =>
             {
-                entity.ToTable("CommesseMisureLinks");
+                entity.ToTable("CommissioniMisureLinks");
                 entity.HasIndex(x => new { x.CommessaSartorialeId, x.MisuraClienteId }).IsUnique();
 
                 entity.HasOne(x => x.CommessaSartoriale)

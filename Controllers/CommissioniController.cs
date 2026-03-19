@@ -8,13 +8,13 @@ using MisureRicci.Services;
 namespace MisureRicci.Controllers
 {
     [Authorize]
-    public class CommesseController : Controller
+    public class CommissioniController : Controller
     {
         private readonly ICommessaService _commessaService;
         private readonly IClienteService _clienteService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public CommesseController(ICommessaService commessaService, IClienteService clienteService, UserManager<ApplicationUser> userManager)
+        public CommissioniController(ICommessaService commessaService, IClienteService clienteService, UserManager<ApplicationUser> userManager)
         {
             _commessaService = commessaService;
             _clienteService = clienteService;
@@ -27,7 +27,7 @@ namespace MisureRicci.Controllers
             var isAdmin = User.IsInRole("Admin");
 
             const int pageSize = 20;
-            var result = await _commessaService.GetCommessePagedAsync(clienteId, currentUser?.NegozioId, isAdmin, page, pageSize);
+            var result = await _commessaService.GetCommissioniPagedAsync(clienteId, currentUser?.NegozioId, isAdmin, page, pageSize);
             var kpi = await _commessaService.GetKpiAsync(currentUser?.NegozioId, isAdmin);
 
             ViewBag.ClienteId = clienteId;

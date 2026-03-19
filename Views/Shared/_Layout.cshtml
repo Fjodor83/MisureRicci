@@ -39,19 +39,19 @@
             
             <nav class="sidebar-nav">
                 <a class="sidebar-link" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-grid-1x2-fill"></i> SaaS Dashboard
+                    <i class="bi bi-grid-1x2-fill"></i> Dashboard
                 </a>
                 <a class="sidebar-link" asp-area="" asp-controller="Clienti" asp-action="Index">
                     <i class="bi bi-people-fill"></i> Clienti & Misure
                 </a>
-                <a class="sidebar-link" asp-area="" asp-controller="Commesse" asp-action="Index">
-                    <i class="bi bi-journal-check"></i> Commesse
+                <a class="sidebar-link" asp-area="" asp-controller="Commissioni" asp-action="Index">
+                    <i class="bi bi-journal-check"></i> Commissioni
                 </a>
                 <a class="sidebar-link" asp-area="" asp-controller="Negozi" asp-action="Index">
                     <i class="bi bi-shop"></i> Boutique Network
                 </a>
                 <a class="sidebar-link" asp-area="" asp-controller="Utenti" asp-action="Index">
-                    <i class="bi bi-person-badge-fill"></i> Staff SaaS
+                    <i class="bi bi-person-badge-fill"></i> Staff
                 </a>
                 @if (User.IsInRole("Admin"))
                 {
@@ -90,6 +90,11 @@
                         <div class="rounded-circle bg-dark border border-gold d-flex align-items-center justify-content-center" style="width:40px;height:40px;" title="@(_currentUser?.NomeCompleto ?? _currentUser?.Email)">
                             <span class="font-cinzel" style="font-size:0.70rem;color:var(--sr-gold);font-weight:700;">@_initials</span>
                         </div>
+                        <form class="ms-3" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
+                            <button type="submit" class="btn btn-outline-gold btn-sm py-1 px-2" style="font-size: 0.6rem; border-color: rgba(212,175,55,0.4) !important;" title="Esci">
+                                <i class="bi bi-box-arrow-right"></i>
+                            </button>
+                        </form>
                     }
                 </div>
             </header>

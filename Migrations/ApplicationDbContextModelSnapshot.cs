@@ -446,7 +446,7 @@ namespace MisureRicci.Migrations
 
                     b.HasIndex("CreatedByUserId");
 
-                    b.ToTable("CommesseEventi", (string)null);
+                    b.ToTable("CommissioniEventi", (string)null);
                 });
 
             modelBuilder.Entity("MisureRicci.Models.CommessaMisuraLink", b =>
@@ -479,7 +479,7 @@ namespace MisureRicci.Migrations
                     b.HasIndex("CommessaSartorialeId", "MisuraClienteId")
                         .IsUnique();
 
-                    b.ToTable("CommesseMisureLinks", (string)null);
+                    b.ToTable("CommissioniMisureLinks", (string)null);
                 });
 
             modelBuilder.Entity("MisureRicci.Models.CommessaSartoriale", b =>
@@ -547,7 +547,7 @@ namespace MisureRicci.Migrations
 
                     b.HasIndex("Stato", "DataConsegnaPrevista");
 
-                    b.ToTable("CommesseSartoriali", (string)null);
+                    b.ToTable("CommissioniSartoriali", (string)null);
                 });
 
             modelBuilder.Entity("MisureRicci.Models.CravattaMeasurement", b =>

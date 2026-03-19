@@ -5,7 +5,7 @@ namespace MisureRicci.Services
 {
     public interface ICommessaService
     {
-        Task<(IEnumerable<CommessaSartoriale> Items, int TotalCount)> GetCommessePagedAsync(int? clienteId, int? negozioId, bool isAdmin, int page, int pageSize);
+        Task<(IEnumerable<CommessaSartoriale> Items, int TotalCount)> GetCommissioniPagedAsync(int? clienteId, int? negozioId, bool isAdmin, int page, int pageSize);
         Task<CommessaKpiViewModel> GetKpiAsync(int? negozioId, bool isAdmin);
         Task<CommessaSartoriale?> GetCommessaByIdAsync(int id, int? negozioId, bool isAdmin);
         Task<CommessaDetailsViewModel?> GetCommessaDetailsAsync(int id, int? negozioId, bool isAdmin);

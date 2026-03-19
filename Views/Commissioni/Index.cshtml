@@ -1,7 +1,7 @@
 @model IEnumerable<MisureRicci.Models.CommessaSartoriale>
 
 @{
-    ViewData["Title"] = "Commesse";
+    ViewData["Title"] = "Commissioni";
     int? clienteId = ViewBag.ClienteId as int?;
     var kpi = ViewBag.Kpi as MisureRicci.Models.ViewModels.CommessaKpiViewModel;
 }
@@ -9,7 +9,7 @@
 <div class="row g-3 mb-4">
     <div class="col-md-3">
         <div class="card p-3 h-100">
-            <div class="text-muted small">Totale Commesse</div>
+            <div class="text-muted small">Totale Commissioni</div>
             <div class="fs-3 fw-bold">@(kpi?.Totale ?? 0)</div>
         </div>
     </div>
@@ -35,7 +35,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h1 class="page-title mb-0">COMMESSE SARTORIALI</h1>
+        <h1 class="page-title mb-0">Commissioni SARTORIALI</h1>
         <p class="page-subtitle mt-2 mb-0">Monitoraggio operativo ordini e stato avanzamento</p>
     </div>
     <div class="d-flex gap-2">

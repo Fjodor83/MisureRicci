@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MisureRicci.Migrations
 {
     /// <inheritdoc />
-    public partial class AddCommesseMisureLinksAndRules : Migration
+    public partial class AddCommissioniMisureLinksAndRules : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "CommesseMisureLinks",
+                name: "CommissioniMisureLinks",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -24,21 +24,21 @@ namespace MisureRicci.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CommesseMisureLinks", x => x.Id);
+                    table.PrimaryKey("PK_CommissioniMisureLinks", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CommesseMisureLinks_AspNetUsers_LinkedByUserId",
+                        name: "FK_CommissioniMisureLinks_AspNetUsers_LinkedByUserId",
                         column: x => x.LinkedByUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
-                        name: "FK_CommesseMisureLinks_CommesseSartoriali_CommessaSartorialeId",
+                        name: "FK_CommissioniMisureLinks_CommissioniSartoriali_CommessaSartorialeId",
                         column: x => x.CommessaSartorialeId,
-                        principalTable: "CommesseSartoriali",
+                        principalTable: "CommissioniSartoriali",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CommesseMisureLinks_RegistroMisure_MisuraClienteId",
+                        name: "FK_CommissioniMisureLinks_RegistroMisure_MisuraClienteId",
                         column: x => x.MisuraClienteId,
                         principalTable: "RegistroMisure",
                         principalColumn: "Id",
@@ -46,19 +46,19 @@ namespace MisureRicci.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommesseMisureLinks_CommessaSartorialeId_MisuraClienteId",
-                table: "CommesseMisureLinks",
+                name: "IX_CommissioniMisureLinks_CommessaSartorialeId_MisuraClienteId",
+                table: "CommissioniMisureLinks",
                 columns: new[] { "CommessaSartorialeId", "MisuraClienteId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommesseMisureLinks_LinkedByUserId",
-                table: "CommesseMisureLinks",
+                name: "IX_CommissioniMisureLinks_LinkedByUserId",
+                table: "CommissioniMisureLinks",
                 column: "LinkedByUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommesseMisureLinks_MisuraClienteId",
-                table: "CommesseMisureLinks",
+                name: "IX_CommissioniMisureLinks_MisuraClienteId",
+                table: "CommissioniMisureLinks",
                 column: "MisuraClienteId");
         }
 
@@ -66,7 +66,7 @@ namespace MisureRicci.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "CommesseMisureLinks");
+                name: "CommissioniMisureLinks");
         }
     }
 }

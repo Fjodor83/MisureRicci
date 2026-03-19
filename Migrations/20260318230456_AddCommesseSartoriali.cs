@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MisureRicci.Migrations
 {
     /// <inheritdoc />
-    public partial class AddCommesseSartoriali : Migration
+    public partial class AddCommissioniSartoriali : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "CommesseSartoriali",
+                name: "CommissioniSartoriali",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -32,21 +32,21 @@ namespace MisureRicci.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CommesseSartoriali", x => x.Id);
+                    table.PrimaryKey("PK_CommissioniSartoriali", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CommesseSartoriali_AspNetUsers_CreatedByUserId",
+                        name: "FK_CommissioniSartoriali_AspNetUsers_CreatedByUserId",
                         column: x => x.CreatedByUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
-                        name: "FK_CommesseSartoriali_Clienti_ClienteId",
+                        name: "FK_CommissioniSartoriali_Clienti_ClienteId",
                         column: x => x.ClienteId,
                         principalTable: "Clienti",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_CommesseSartoriali_Negozi_NegozioId",
+                        name: "FK_CommissioniSartoriali_Negozi_NegozioId",
                         column: x => x.NegozioId,
                         principalTable: "Negozi",
                         principalColumn: "Id",
@@ -54,7 +54,7 @@ namespace MisureRicci.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CommesseEventi",
+                name: "CommissioniEventi",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -68,51 +68,51 @@ namespace MisureRicci.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CommesseEventi", x => x.Id);
+                    table.PrimaryKey("PK_CommissioniEventi", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CommesseEventi_AspNetUsers_CreatedByUserId",
+                        name: "FK_CommissioniEventi_AspNetUsers_CreatedByUserId",
                         column: x => x.CreatedByUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
-                        name: "FK_CommesseEventi_CommesseSartoriali_CommessaSartorialeId",
+                        name: "FK_CommissioniEventi_CommissioniSartoriali_CommessaSartorialeId",
                         column: x => x.CommessaSartorialeId,
-                        principalTable: "CommesseSartoriali",
+                        principalTable: "CommissioniSartoriali",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommesseEventi_CommessaSartorialeId",
-                table: "CommesseEventi",
+                name: "IX_CommissioniEventi_CommessaSartorialeId",
+                table: "CommissioniEventi",
                 column: "CommessaSartorialeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommesseEventi_CreatedByUserId",
-                table: "CommesseEventi",
+                name: "IX_CommissioniEventi_CreatedByUserId",
+                table: "CommissioniEventi",
                 column: "CreatedByUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommesseSartoriali_ClienteId",
-                table: "CommesseSartoriali",
+                name: "IX_CommissioniSartoriali_ClienteId",
+                table: "CommissioniSartoriali",
                 column: "ClienteId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommesseSartoriali_CommessaCode",
-                table: "CommesseSartoriali",
+                name: "IX_CommissioniSartoriali_CommessaCode",
+                table: "CommissioniSartoriali",
                 column: "CommessaCode",
                 unique: true,
                 filter: "[CommessaCode] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommesseSartoriali_CreatedByUserId",
-                table: "CommesseSartoriali",
+                name: "IX_CommissioniSartoriali_CreatedByUserId",
+                table: "CommissioniSartoriali",
                 column: "CreatedByUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommesseSartoriali_NegozioId",
-                table: "CommesseSartoriali",
+                name: "IX_CommissioniSartoriali_NegozioId",
+                table: "CommissioniSartoriali",
                 column: "NegozioId");
         }
 
@@ -120,10 +120,10 @@ namespace MisureRicci.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "CommesseEventi");
+                name: "CommissioniEventi");
 
             migrationBuilder.DropTable(
-                name: "CommesseSartoriali");
+                name: "CommissioniSartoriali");
         }
     }
 }

@@ -12,7 +12,7 @@
     --sr-gold: #D4AF37;
     --sr-gold-light: #EDD96A;
     --sr-gold-lighter: #F7EDBB;
-    --sr-gold-dark: #9A6C14;
+    --sr-gold-dark: #825A0E;
     --sr-gold-deeper: #6B480D;
     --sr-gold-glow: rgba(212, 175, 55, 0.38);
     --sr-gold-subtle: rgba(212, 175, 55, 0.07);
@@ -72,7 +72,7 @@
     --bg-sidebar: #090F1E;
     --text-1: #F0ECE3;
     --text-2: #A8BAD0;
-    --text-3: #6A7F98;
+    --text-3: #9BA9B9;
     --border: rgba(212, 175, 55, 0.18);
     --border-hover: rgba(212, 175, 55, 0.52);
     --accent: var(--sr-gold);
@@ -89,11 +89,22 @@
     --bg-sidebar: #F7F2E8;
     --text-1: #1A1614;
     --text-2: #4A5568;
-    --text-3: #718096;
+    --text-3: #5C6B80;
     --border: rgba(154, 108, 20, 0.30);
     --border-hover: rgba(154, 108, 20, 0.58);
     --accent: var(--sr-gold-dark);
     --accent-fg: #FFFFFF;
+}
+
+/* Accessibility Overrides for Light Mode */
+.theme-light .text-gold,
+.theme-light .sr-gold,
+.theme-light .sr-gold-light {
+    color: var(--sr-gold-dark) !important;
+}
+
+.theme-light .table th {
+    color: var(--sr-gold-dark) !important;
 }
 
 
@@ -300,6 +311,11 @@ body.theme-light {
     text-shadow: 0 0 32px rgba(212, 175, 55, 0.52);
     letter-spacing: 0.28em;
     text-decoration: none;
+}
+
+.theme-light .sidebar-brand-text {
+    color: var(--sr-gold-deeper);
+    text-shadow: none;
 }
 
 .sidebar-brand-sub {
@@ -1613,4 +1629,9 @@ body.theme-light ::-webkit-scrollbar-thumb:hover {
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
+}
+
+/* Additional Accessibility Overrides */
+.theme-light .page-link.text-gold {
+    color: var(--sr-gold-dark) !important;
 }

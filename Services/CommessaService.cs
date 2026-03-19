@@ -26,9 +26,9 @@ namespace MisureRicci.Services
             _context = context;
         }
 
-        public async Task<(IEnumerable<CommessaSartoriale> Items, int TotalCount)> GetCommessePagedAsync(int? clienteId, int? negozioId, bool isAdmin, int page, int pageSize)
+        public async Task<(IEnumerable<CommessaSartoriale> Items, int TotalCount)> GetCommissioniPagedAsync(int? clienteId, int? negozioId, bool isAdmin, int page, int pageSize)
         {
-            var query = _context.CommesseSartoriali
+            var query = _context.CommissioniSartoriali
                 .AsNoTracking()
                 .Include(c => c.Cliente)
                 .Include(c => c.Negozio)
@@ -56,7 +56,7 @@ namespace MisureRicci.Services
 
         public async Task<CommessaKpiViewModel> GetKpiAsync(int? negozioId, bool isAdmin)
         {
-            var query = _context.CommesseSartoriali.AsNoTracking().AsQueryable();
+            var query = _context.CommissioniSartoriali.AsNoTracking().AsQueryable();
 
             if (!isAdmin && negozioId.HasValue)
             {
@@ -83,7 +83,7 @@ namespace MisureRicci.Services
 
         public async Task<CommessaSartoriale?> GetCommessaByIdAsync(int id, int? negozioId, bool isAdmin)
         {
-            var query = _context.CommesseSartoriali
+            var query = _context.CommissioniSartoriali
                 .AsNoTracking()
                 .Include(c => c.Cliente)
                 .Include(c => c.Negozio)
@@ -106,7 +106,7 @@ namespace MisureRicci.Services
 
         public async Task<CommessaDetailsViewModel?> GetCommessaDetailsAsync(int id, int? negozioId, bool isAdmin)
         {
-            var commessa = await _context.CommesseSartoriali
+            var commessa = await _context.CommissioniSartoriali
                 .AsNoTracking()
                 .Include(c => c.Cliente)
                 .Include(c => c.Negozio)
@@ -171,7 +171,7 @@ namespace MisureRicci.Services
                 CreatedByUserId = userId
             };
 
-            _context.CommesseSartoriali.Add(entity);
+            _context.CommissioniSartoriali.Add(entity);
             await _context.SaveChangesAsync();
 
             if (string.IsNullOrWhiteSpace(entity.CommessaCode))
@@ -179,7 +179,7 @@ namespace MisureRicci.Services
                 entity.CommessaCode = $"CM-{DateTime.UtcNow.Year}-{entity.Id:D6}";
             }
 
-            _context.CommesseEventi.Add(new CommessaEvento
+            _context.CommissioniEventi.Add(new CommessaEvento
             {
                 CommessaSartorialeId = entity.Id,
                 TipoEvento = "Apertura",
@@ -195,7 +195,7 @@ namespace MisureRicci.Services
 
         public async Task<bool> AdvanceStatoAsync(int id, StatoCommessa nuovoStato, string? note, string? userId, int? negozioId, bool isAdmin)
         {
-            var commessa = await _context.CommesseSartoriali.FirstOrDefaultAsync(c => c.Id == id);
+            var commessa = await _context.CommissioniSartoriali.FirstOrDefaultAsync(c => c.Id == id);
             if (commessa == null)
             {
                 return false;
@@ -220,7 +220,7 @@ namespace MisureRicci.Services
             // Operational safeguard: at least one linked measurement is required after data collection.
             if (RichiedeMisuraCollegata(nuovoStato))
             {
-                var hasLinkedMeasure = await _context.CommesseMisureLinks
+                var hasLinkedMeasure = await _context.CommissioniMisureLinks
                     .AnyAsync(x => x.CommessaSartorialeId == commessa.Id);
                 if (!hasLinkedMeasure)
                 {
@@ -234,7 +234,7 @@ namespace MisureRicci.Services
                 commessa.DataConsegnaEffettiva = DateTime.UtcNow;
             }
 
-            _context.CommesseEventi.Add(new CommessaEvento
+            _context.CommissioniEventi.Add(new CommessaEvento
             {
                 CommessaSartorialeId = commessa.Id,
                 TipoEvento = "CambioStato",
@@ -257,7 +257,7 @@ namespace MisureRicci.Services
                 return false;
             }
 
-            var commessa = await _context.CommesseSartoriali.FirstOrDefaultAsync(c => c.Id == id);
+            var commessa = await _context.CommissioniSartoriali.FirstOrDefaultAsync(c => c.Id == id);
             if (commessa == null)
             {
                 return false;
@@ -273,7 +273,7 @@ namespace MisureRicci.Services
                 ? notaPulita
                 : $"{commessa.NoteInterne}\n[{DateTime.UtcNow:yyyy-MM-dd HH:mm}] {notaPulita}";
 
-            _context.CommesseEventi.Add(new CommessaEvento
+            _context.CommissioniEventi.Add(new CommessaEvento
             {
                 CommessaSartorialeId = commessa.Id,
                 TipoEvento = "Nota",
@@ -289,7 +289,7 @@ namespace MisureRicci.Services
 
         public async Task<bool> LinkMisuraAsync(int id, int misuraClienteId, string? userId, int? negozioId, bool isAdmin)
         {
-            var commessa = await _context.CommesseSartoriali.FirstOrDefaultAsync(c => c.Id == id);
+            var commessa = await _context.CommissioniSartoriali.FirstOrDefaultAsync(c => c.Id == id);
             if (commessa == null)
             {
                 return false;
@@ -306,14 +306,14 @@ namespace MisureRicci.Services
                 return false;
             }
 
-            var exists = await _context.CommesseMisureLinks
+            var exists = await _context.CommissioniMisureLinks
                 .AnyAsync(x => x.CommessaSartorialeId == id && x.MisuraClienteId == misuraClienteId);
             if (exists)
             {
                 return true;
             }
 
-            _context.CommesseMisureLinks.Add(new CommessaMisuraLink
+            _context.CommissioniMisureLinks.Add(new CommessaMisuraLink
             {
                 CommessaSartorialeId = id,
                 MisuraClienteId = misuraClienteId,
@@ -321,7 +321,7 @@ namespace MisureRicci.Services
                 LinkedByUserId = userId
             });
 
-            _context.CommesseEventi.Add(new CommessaEvento
+            _context.CommissioniEventi.Add(new CommessaEvento
             {
                 CommessaSartorialeId = id,
                 TipoEvento = "LinkMisura",
@@ -336,7 +336,7 @@ namespace MisureRicci.Services
 
         public async Task<bool> UnlinkMisuraAsync(int id, int misuraClienteId, int? negozioId, bool isAdmin)
         {
-            var commessa = await _context.CommesseSartoriali.FirstOrDefaultAsync(c => c.Id == id);
+            var commessa = await _context.CommissioniSartoriali.FirstOrDefaultAsync(c => c.Id == id);
             if (commessa == null)
             {
                 return false;
@@ -347,16 +347,16 @@ namespace MisureRicci.Services
                 return false;
             }
 
-            var link = await _context.CommesseMisureLinks
+            var link = await _context.CommissioniMisureLinks
                 .FirstOrDefaultAsync(x => x.CommessaSartorialeId == id && x.MisuraClienteId == misuraClienteId);
             if (link == null)
             {
                 return false;
             }
 
-            _context.CommesseMisureLinks.Remove(link);
+            _context.CommissioniMisureLinks.Remove(link);
 
-            _context.CommesseEventi.Add(new CommessaEvento
+            _context.CommissioniEventi.Add(new CommessaEvento
             {
                 CommessaSartorialeId = id,
                 TipoEvento = "UnlinkMisura",

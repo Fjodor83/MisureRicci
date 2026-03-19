@@ -12,8 +12,8 @@ using MisureRicci.Data;
 namespace MisureRicci.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260318230456_AddCommesseSartoriali")]
-    partial class AddCommesseSartoriali
+    [Migration("20260318230456_AddCommissioniSartoriali")]
+    partial class AddCommissioniSartoriali
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -449,7 +449,7 @@ namespace MisureRicci.Migrations
 
                     b.HasIndex("CreatedByUserId");
 
-                    b.ToTable("CommesseEventi", (string)null);
+                    b.ToTable("CommissioniEventi", (string)null);
                 });
 
             modelBuilder.Entity("MisureRicci.Models.CommessaSartoriale", b =>
@@ -515,7 +515,7 @@ namespace MisureRicci.Migrations
 
                     b.HasIndex("NegozioId");
 
-                    b.ToTable("CommesseSartoriali", (string)null);
+                    b.ToTable("CommissioniSartoriali", (string)null);
                 });
 
             modelBuilder.Entity("MisureRicci.Models.CravattaMeasurement", b =>
