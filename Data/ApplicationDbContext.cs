@@ -32,6 +32,9 @@ namespace MisureRicci.Data
         public DbSet<MeasurementFieldDefinition> MeasurementFieldDefinitions { get; set; }
         public DbSet<DynamicMeasurementRecord> DynamicMeasurementRecords { get; set; }
         public DbSet<DynamicMeasurementValue> DynamicMeasurementValues { get; set; }
+        public DbSet<CommessaSartoriale> CommesseSartoriali { get; set; }
+        public DbSet<CommessaEvento> CommesseEventi { get; set; }
+        public DbSet<CommessaMisuraLink> CommesseMisureLinks { get; set; }
 
 
 
@@ -41,6 +44,8 @@ namespace MisureRicci.Data
             base.OnModelCreating(modelBuilder);
             
             modelBuilder.Entity<MisureCliente>().ToTable("RegistroMisure");
+            modelBuilder.Entity<MisureCliente>()
+                .HasIndex(x => new { x.ClienteId, x.DataCreazione });
             
             // Fix for multiple cascade paths in AbitoCompleto
             modelBuilder.Entity<AbitoCompletoMeasurement>(entity =>
@@ -117,6 +122,72 @@ namespace MisureRicci.Data
                     .WithMany(x => x.Values)
                     .HasForeignKey(x => x.MeasurementFieldDefinitionId)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<CommessaSartoriale>(entity =>
+            {
+                entity.ToTable("CommesseSartoriali");
+                entity.Property(x => x.TipoCapo).HasMaxLength(80);
+                entity.Property(x => x.Tessuto).HasMaxLength(120);
+                entity.Property(x => x.Collezione).HasMaxLength(120);
+                entity.Property(x => x.NoteInterne).HasMaxLength(2000);
+                entity.HasIndex(x => x.CommessaCode).IsUnique();
+                entity.HasIndex(x => new { x.Stato, x.DataConsegnaPrevista });
+                entity.HasIndex(x => new { x.ClienteId, x.DataApertura });
+
+                entity.HasOne(x => x.Cliente)
+                    .WithMany()
+                    .HasForeignKey(x => x.ClienteId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(x => x.Negozio)
+                    .WithMany()
+                    .HasForeignKey(x => x.NegozioId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(x => x.CreatedByUser)
+                    .WithMany()
+                    .HasForeignKey(x => x.CreatedByUserId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasMany(x => x.Eventi)
+                    .WithOne(x => x.CommessaSartoriale)
+                    .HasForeignKey(x => x.CommessaSartorialeId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<CommessaEvento>(entity =>
+            {
+                entity.ToTable("CommesseEventi");
+                entity.Property(x => x.TipoEvento).HasMaxLength(40);
+                entity.Property(x => x.Descrizione).HasMaxLength(1000);
+                entity.HasIndex(x => x.CommessaSartorialeId);
+
+                entity.HasOne(x => x.CreatedByUser)
+                    .WithMany()
+                    .HasForeignKey(x => x.CreatedByUserId)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<CommessaMisuraLink>(entity =>
+            {
+                entity.ToTable("CommesseMisureLinks");
+                entity.HasIndex(x => new { x.CommessaSartorialeId, x.MisuraClienteId }).IsUnique();
+
+                entity.HasOne(x => x.CommessaSartoriale)
+                    .WithMany(x => x.MisureCollegate)
+                    .HasForeignKey(x => x.CommessaSartorialeId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(x => x.MisuraCliente)
+                    .WithMany()
+                    .HasForeignKey(x => x.MisuraClienteId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(x => x.LinkedByUser)
+                    .WithMany()
+                    .HasForeignKey(x => x.LinkedByUserId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
         }
 

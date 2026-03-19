@@ -24,7 +24,7 @@ namespace MisureRicci.Services
 
             if (!string.IsNullOrEmpty(searchString))
             {
-                query = query.Where(s => s.Nome.Contains(searchString) || s.Cognome.Contains(searchString) || s.ClientCode.Contains(searchString));
+                query = query.Where(s => s.Nome.Contains(searchString) || s.Cognome.Contains(searchString) || (s.ClientCode ?? string.Empty).Contains(searchString));
             }
 
             var totalCount = await query.CountAsync();

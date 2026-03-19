@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MisureRicci.Data;
 
@@ -11,9 +12,11 @@ using MisureRicci.Data;
 namespace MisureRicci.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260318231317_AddCommesseMisureLinksAndRules")]
+    partial class AddCommesseMisureLinksAndRules
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -535,6 +538,8 @@ namespace MisureRicci.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ClienteId");
+
                     b.HasIndex("CommessaCode")
                         .IsUnique()
                         .HasFilter("[CommessaCode] IS NOT NULL");
@@ -542,10 +547,6 @@ namespace MisureRicci.Migrations
                     b.HasIndex("CreatedByUserId");
 
                     b.HasIndex("NegozioId");
-
-                    b.HasIndex("ClienteId", "DataApertura");
-
-                    b.HasIndex("Stato", "DataConsegnaPrevista");
 
                     b.ToTable("CommesseSartoriali", (string)null);
                 });
@@ -885,7 +886,7 @@ namespace MisureRicci.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClienteId", "DataCreazione");
+                    b.HasIndex("ClienteId");
 
                     b.ToTable("RegistroMisure", (string)null);
                 });

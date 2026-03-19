@@ -1,0 +1,116 @@
+@model IEnumerable<MisureRicci.Models.CommessaSartoriale>
+
+@{
+    ViewData["Title"] = "Commesse";
+    int? clienteId = ViewBag.ClienteId as int?;
+    var kpi = ViewBag.Kpi as MisureRicci.Models.ViewModels.CommessaKpiViewModel;
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card p-3 h-100">
+            <div class="text-muted small">Totale Commesse</div>
+            <div class="fs-3 fw-bold">@(kpi?.Totale ?? 0)</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 h-100">
+            <div class="text-muted small">In Corso</div>
+            <div class="fs-3 fw-bold">@(kpi?.InCorso ?? 0)</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 h-100">
+            <div class="text-muted small">Consegnate</div>
+            <div class="fs-3 fw-bold">@(kpi?.Consegnate ?? 0)</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 h-100">
+            <div class="text-muted small">In Ritardo</div>
+            <div class="fs-3 fw-bold text-danger">@(kpi?.InRitardo ?? 0)</div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title mb-0">COMMESSE SARTORIALI</h1>
+        <p class="page-subtitle mt-2 mb-0">Monitoraggio operativo ordini e stato avanzamento</p>
+    </div>
+    <div class="d-flex gap-2">
+        @if (clienteId.HasValue)
+        {
+            <a asp-action="Create" asp-route-clienteId="@clienteId" class="btn btn-primary">NUOVA COMMESSA</a>
+            <a asp-controller="Clienti" asp-action="Details" asp-route-id="@clienteId" class="btn btn-outline-secondary">TORNA AL CLIENTE</a>
+        }
+        else
+        {
+            <a asp-controller="Clienti" asp-action="Index" class="btn btn-outline-secondary">SELEZIONA CLIENTE</a>
+        }
+    </div>
+</div>
+
+<div class="card overflow-hidden">
+    <div class="table-responsive">
+        @if (Model.Any())
+        {
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Codice</th>
+                        <th>Cliente</th>
+                        <th>Tipo Capo</th>
+                        <th>Stato</th>
+                        <th>Consegna Prevista</th>
+                        <th class="text-end pe-4">Azioni</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="ps-4"><span class="badge rounded-pill" style="background: rgba(212, 175, 55, 0.12); color: var(--sr-gold);">@item.CommessaCode</span></td>
+                        <td>@item.Cliente?.Nome @item.Cliente?.Cognome</td>
+                        <td>@item.TipoCapo</td>
+                        <td>@item.Stato</td>
+                        <td>@(item.DataConsegnaPrevista?.ToString("dd/MM/yyyy") ?? "-")</td>
+                        <td class="text-end pe-4">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-gold">DETTAGLIO</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+
+            @if (ViewBag.TotalPages > 1)
+            {
+                <div class="card-footer bg-transparent border-top border-gold-dim py-3">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm justify-content-center mb-0">
+                            <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                                <a class="page-link bg-transparent border-gold-dim text-gold" asp-action="Index" asp-route-clienteId="@clienteId" asp-route-page="@(ViewBag.CurrentPage - 1)">Precedente</a>
+                            </li>
+                            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                    <a class="page-link @(i == ViewBag.CurrentPage ? "bg-gold text-navy" : "bg-transparent border-gold-dim text-gold")" asp-action="Index" asp-route-clienteId="@clienteId" asp-route-page="@i">@i</a>
+                                </li>
+                            }
+                            <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                                <a class="page-link bg-transparent border-gold-dim text-gold" asp-action="Index" asp-route-clienteId="@clienteId" asp-route-page="@(ViewBag.CurrentPage + 1)">Successiva</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-journal-x fs-1 text-muted opacity-50"></i>
+                <p class="text-muted mt-3">Nessuna commessa presente.</p>
+            </div>
+        }
+    </div>
+</div>

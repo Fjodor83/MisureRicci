@@ -3,8 +3,6 @@ using MisureRicci.Models;
 using MisureRicci.Services;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using MisureRicci.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace MisureRicci.Controllers
 {
@@ -14,15 +12,13 @@ namespace MisureRicci.Controllers
         private readonly IClienteService _clienteService;
         private readonly ICustomMeasurementService _customMeasurementService;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ApplicationDbContext _context;
 
-        public MeasurementsController(IMeasurementService measurementService, IClienteService clienteService, ICustomMeasurementService customMeasurementService, UserManager<ApplicationUser> userManager, ApplicationDbContext context)
+        public MeasurementsController(IMeasurementService measurementService, IClienteService clienteService, ICustomMeasurementService customMeasurementService, UserManager<ApplicationUser> userManager)
         {
             _measurementService = measurementService;
             _clienteService = clienteService;
             _customMeasurementService = customMeasurementService;
             _userManager = userManager;
-            _context = context;
         }
 
         public async Task<IActionResult> GlobalRegistry(string filter, int page = 1)
@@ -59,38 +55,32 @@ namespace MisureRicci.Controllers
         {
             if (id == null || string.IsNullOrEmpty(tipoMisura)) return NotFound();
 
-            if (registryId.HasValue)
+            var resolved = await ResolveMeasurementDisplayAsync(id.Value, tipoMisura, registryId);
+            if (resolved.DynamicRecordId.HasValue)
             {
-                var registryEntry = await _context.RegistroMisure.FirstOrDefaultAsync(x => x.Id == registryId.Value);
-                if (registryEntry?.IsDynamic == true)
-                {
-                    return RedirectToAction("Details", "DynamicMeasurements", new { id = registryEntry.RecordId });
-                }
+                return RedirectToAction("Details", "DynamicMeasurements", new { id = resolved.DynamicRecordId.Value });
             }
 
-            var model = await _measurementService.GetMeasurementAsync(id.Value, tipoMisura);
-            if (model == null)
+            if (resolved.Model == null)
             {
-                var dynamicType = (await _customMeasurementService.GetMeasurementTypesAsync(onlyActive: false))
-                    .FirstOrDefault(x => string.Equals(x.Nome, tipoMisura, StringComparison.OrdinalIgnoreCase));
-
-                if (dynamicType != null)
-                {
-                    return RedirectToAction("Details", "DynamicMeasurements", new { id = id.Value });
-                }
-
                 return NotFound();
             }
-            ViewBag.TipoMisura = tipoMisura;
-            return View(model);
+
+            ViewBag.TipoMisura = resolved.TipoMisura;
+            return View(resolved.Model);
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(int? id, string tipoMisura)
         {
             if (id == null || string.IsNullOrEmpty(tipoMisura)) return NotFound();
-            var model = await _measurementService.GetMeasurementAsync(id.Value, tipoMisura);
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            bool isAdmin = User.IsInRole("Admin");
+
+            var model = await _measurementService.GetMeasurementScopedAsync(id.Value, tipoMisura, currentUser?.NegozioId, isAdmin);
             if (model == null) return NotFound();
+
             ViewBag.TipoMisura = tipoMisura;
             return View(model);
         }
@@ -100,21 +90,22 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> Edit(int id, string tipoMisura, Microsoft.AspNetCore.Http.IFormCollection form)
         {
             if (string.IsNullOrEmpty(tipoMisura)) return NotFound();
-            var model = await _measurementService.GetMeasurementAsync(id, tipoMisura);
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            bool isAdmin = User.IsInRole("Admin");
+
+            var model = await _measurementService.GetMeasurementScopedAsync(id, tipoMisura, currentUser?.NegozioId, isAdmin);
             if (model == null) return NotFound();
 
             if (await TryUpdateModelAsync(model, model.GetType(), ""))
             {
-                try
+                if (await _measurementService.UpdateMeasurementAsync(model, tipoMisura))
                 {
-                    await _context.SaveChangesAsync();
                     int clienteId = (int)model.GetType().GetProperty("ClienteId")!.GetValue(model)!;
                     return RedirectToAction("Details", "Clienti", new { id = clienteId });
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    return NotFound();
-                }
+
+                return NotFound();
             }
 
             ViewBag.TipoMisura = tipoMisura;
@@ -126,38 +117,43 @@ namespace MisureRicci.Controllers
         {
             if (id == null || string.IsNullOrEmpty(tipoMisura)) return NotFound();
 
-            if (registryId.HasValue)
+            var resolved = await ResolveMeasurementDisplayAsync(id.Value, tipoMisura, registryId);
+            if (resolved.DynamicRecordId.HasValue)
             {
-                var registryEntry = await _context.RegistroMisure.FirstOrDefaultAsync(x => x.Id == registryId.Value);
-                if (registryEntry?.IsDynamic == true)
-                {
-                    return RedirectToAction("Details", "DynamicMeasurements", new { id = registryEntry.RecordId });
-                }
+                return RedirectToAction("Details", "DynamicMeasurements", new { id = resolved.DynamicRecordId.Value });
             }
 
-            var model = await _measurementService.GetMeasurementAsync(id.Value, tipoMisura);
-            if (model == null)
+            if (resolved.Model == null)
             {
-                var dynamicType = (await _customMeasurementService.GetMeasurementTypesAsync(onlyActive: false))
-                    .FirstOrDefault(x => string.Equals(x.Nome, tipoMisura, StringComparison.OrdinalIgnoreCase));
-
-                if (dynamicType != null)
-                {
-                    return RedirectToAction("Details", "DynamicMeasurements", new { id = id.Value });
-                }
-
                 return NotFound();
             }
-            ViewBag.TipoMisura = tipoMisura;
-            return View(model);
+
+            ViewBag.TipoMisura = resolved.TipoMisura;
+            ViewBag.RegistryId = resolved.RegistryId;
+            return View(resolved.Model);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id, string tipoMisura)
+        public async Task<IActionResult> DeleteConfirmed(int id, string tipoMisura, int? registryId)
         {
             if (string.IsNullOrEmpty(tipoMisura)) return NotFound();
-            var model = await _measurementService.GetMeasurementAsync(id, tipoMisura);
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            bool isAdmin = User.IsInRole("Admin");
+
+            if (registryId.HasValue)
+            {
+                var clienteIdFromRegistry = await _measurementService.DeleteByRegistryEntryAsync(registryId.Value, currentUser?.NegozioId, isAdmin);
+                if (clienteIdFromRegistry.HasValue)
+                {
+                    return RedirectToAction("Details", "Clienti", new { id = clienteIdFromRegistry.Value });
+                }
+
+                return RedirectToAction(nameof(Index), "Clienti");
+            }
+
+            var model = await _measurementService.GetMeasurementScopedAsync(id, tipoMisura, currentUser?.NegozioId, isAdmin);
             if (model != null)
             {
                 int clienteId = (int)model.GetType().GetProperty("ClienteId")!.GetValue(model)!;
@@ -167,11 +163,43 @@ namespace MisureRicci.Controllers
             return RedirectToAction(nameof(Index), "Clienti");
         }
 
-        private async Task<int> GetTypeIdByNameAsync(string typeName)
+        private async Task<(object? Model, string TipoMisura, int? RegistryId, int? DynamicRecordId)> ResolveMeasurementDisplayAsync(int id, string tipoMisura, int? registryId)
         {
-            var type = (await _customMeasurementService.GetMeasurementTypesAsync(onlyActive: false))
-                .First(x => string.Equals(x.Nome, typeName, StringComparison.OrdinalIgnoreCase));
-            return type.Id;
+            var currentUser = await _userManager.GetUserAsync(User);
+            bool isAdmin = User.IsInRole("Admin");
+
+            if (registryId.HasValue)
+            {
+                var registryEntry = await _measurementService.GetRegistryEntryAsync(registryId.Value, currentUser?.NegozioId, isAdmin);
+                if (registryEntry == null)
+                {
+                    return (null, tipoMisura, null, null);
+                }
+
+                if (registryEntry.IsDynamic)
+                {
+                    return (null, registryEntry.TipoMisura, registryEntry.Id, registryEntry.RecordId);
+                }
+
+                var legacyModel = await _measurementService.GetMeasurementByRegistryEntryAsync(registryId.Value, currentUser?.NegozioId, isAdmin);
+                return (legacyModel, registryEntry.TipoMisura, registryEntry.Id, null);
+            }
+
+            var model = await _measurementService.GetMeasurementScopedAsync(id, tipoMisura, currentUser?.NegozioId, isAdmin);
+            if (model != null)
+            {
+                return (model, tipoMisura, registryId, null);
+            }
+
+            var dynamicType = (await _customMeasurementService.GetMeasurementTypesAsync(onlyActive: false))
+                .FirstOrDefault(x => string.Equals(x.Nome, tipoMisura, StringComparison.OrdinalIgnoreCase));
+
+            if (dynamicType != null)
+            {
+                return (null, tipoMisura, registryId, id);
+            }
+
+            return (null, tipoMisura, registryId, null);
         }
     }
 }

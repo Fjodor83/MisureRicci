@@ -1,0 +1,55 @@
+@model MisureRicci.Models.ViewModels.CommessaCreateViewModel
+
+@{
+    ViewData["Title"] = "Nuova Commessa";
+}
+
+<div class="mb-4">
+    <h1 class="page-title">NUOVA COMMESSA</h1>
+    <p class="page-subtitle mb-0">Cliente: <strong>@Model.ClienteNome</strong></p>
+</div>
+
+<div class="card p-4">
+    <form asp-action="Create" method="post">
+        <input type="hidden" asp-for="ClienteId" />
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="TipoCapo" class="form-label"></label>
+                <input asp-for="TipoCapo" class="form-control" placeholder="Es. Giacca doppiopetto" />
+                <span asp-validation-for="TipoCapo" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Tessuto" class="form-label"></label>
+                <input asp-for="Tessuto" class="form-control" placeholder="Es. Lana Super 150's" />
+                <span asp-validation-for="Tessuto" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Collezione" class="form-label"></label>
+                <input asp-for="Collezione" class="form-control" placeholder="Es. Primavera Estate 2026" />
+                <span asp-validation-for="Collezione" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="DataConsegnaPrevista" class="form-label"></label>
+                <input asp-for="DataConsegnaPrevista" class="form-control" />
+                <span asp-validation-for="DataConsegnaPrevista" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="NoteInterne" class="form-label"></label>
+                <textarea asp-for="NoteInterne" class="form-control" rows="4" placeholder="Indicazioni operative, preferenze vestibilita, urgenze..."></textarea>
+                <span asp-validation-for="NoteInterne" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary me-2">APRI COMMESSA</button>
+            <a asp-controller="Clienti" asp-action="Details" asp-route-id="@Model.ClienteId" class="btn btn-outline-secondary">ANNULLA</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

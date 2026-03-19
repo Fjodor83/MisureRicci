@@ -42,6 +42,8 @@
 
             <div class="mt-auto d-grid gap-3">
                 <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.Cliente.Id" class="btn btn-outline-gold w-100"><i class="bi bi-rulers me-2"></i> NUOVA MISURA</a>
+                <a asp-controller="Commesse" asp-action="Create" asp-route-clienteId="@Model.Cliente.Id" class="btn btn-outline-gold w-100"><i class="bi bi-journal-plus me-2"></i> NUOVA COMMESSA</a>
+                <a asp-controller="Commesse" asp-action="Index" asp-route-clienteId="@Model.Cliente.Id" class="btn btn-outline-gold w-100"><i class="bi bi-list-check me-2"></i> VEDI COMMESSE</a>
                 <a href="/pdf/dossier/@Model.Cliente.Id" target="_blank" class="btn btn-outline-secondary w-100"><i class="bi bi-printer me-2"></i> STAMPA DOSSIER</a>
             </div>
         </div>

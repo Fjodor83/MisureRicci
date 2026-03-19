@@ -33,6 +33,11 @@ namespace MisureRicci.Controllers
                 return NotFound();
             }
 
+            if (!await CanAccessClienteAsync(cliente.Id, cliente.NegozioId))
+            {
+                return Forbid();
+            }
+
             var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(typeId);
             if (type == null || !type.IsActive)
             {
@@ -79,6 +84,11 @@ namespace MisureRicci.Controllers
                 return NotFound();
             }
 
+            if (!await CanAccessClienteAsync(cliente.Id, cliente.NegozioId))
+            {
+                return Forbid();
+            }
+
             model.ClienteNome = $"{cliente.Nome} {cliente.Cognome}";
             model.TipoNome = type.Nome;
 
@@ -109,12 +119,28 @@ namespace MisureRicci.Controllers
                 return NotFound();
             }
 
+            if (!await CanAccessClienteAsync(record.ClienteId, record.Cliente?.NegozioId))
+            {
+                return Forbid();
+            }
+
             return View(record);
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
+            var record = await _customMeasurementService.GetDynamicMeasurementRecordByIdAsync(id);
+            if (record == null)
+            {
+                return NotFound();
+            }
+
+            if (!await CanAccessClienteAsync(record.ClienteId, record.Cliente?.NegozioId))
+            {
+                return Forbid();
+            }
+
             var vm = await _customMeasurementService.BuildDynamicMeasurementEditViewModelAsync(id);
             if (vm == null)
             {
@@ -134,6 +160,11 @@ namespace MisureRicci.Controllers
             if (cliente == null || type == null)
             {
                 return NotFound();
+            }
+
+            if (!await CanAccessClienteAsync(cliente.Id, cliente.NegozioId))
+            {
+                return Forbid();
             }
 
             model.ClienteNome = $"{cliente.Nome} {cliente.Cognome}";
@@ -160,8 +191,37 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id, int clienteId)
         {
+            var cliente = await _clienteService.GetClienteByIdAsync(clienteId);
+            if (cliente == null)
+            {
+                return NotFound();
+            }
+
+            if (!await CanAccessClienteAsync(cliente.Id, cliente.NegozioId))
+            {
+                return Forbid();
+            }
+
             await _customMeasurementService.DeleteDynamicMeasurementAsync(id);
             return RedirectToAction("Details", "Clienti", new { id = clienteId });
+        }
+
+        private async Task<bool> CanAccessClienteAsync(int clienteId, int? clienteNegozioId)
+        {
+            if (User.IsInRole("Admin"))
+            {
+                return true;
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return false;
+            }
+
+            return currentUser.NegozioId.HasValue
+                && clienteNegozioId.HasValue
+                && currentUser.NegozioId.Value == clienteNegozioId.Value;
         }
     }
 }

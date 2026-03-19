@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MisureRicci.Data;
 
@@ -11,9 +12,11 @@ using MisureRicci.Data;
 namespace MisureRicci.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260318230456_AddCommesseSartoriali")]
+    partial class AddCommesseSartoriali
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -449,39 +452,6 @@ namespace MisureRicci.Migrations
                     b.ToTable("CommesseEventi", (string)null);
                 });
 
-            modelBuilder.Entity("MisureRicci.Models.CommessaMisuraLink", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CommessaSartorialeId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("LinkedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LinkedByUserId")
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("MisuraClienteId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LinkedByUserId");
-
-                    b.HasIndex("MisuraClienteId");
-
-                    b.HasIndex("CommessaSartorialeId", "MisuraClienteId")
-                        .IsUnique();
-
-                    b.ToTable("CommesseMisureLinks", (string)null);
-                });
-
             modelBuilder.Entity("MisureRicci.Models.CommessaSartoriale", b =>
                 {
                     b.Property<int>("Id")
@@ -535,6 +505,8 @@ namespace MisureRicci.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ClienteId");
+
                     b.HasIndex("CommessaCode")
                         .IsUnique()
                         .HasFilter("[CommessaCode] IS NOT NULL");
@@ -542,10 +514,6 @@ namespace MisureRicci.Migrations
                     b.HasIndex("CreatedByUserId");
 
                     b.HasIndex("NegozioId");
-
-                    b.HasIndex("ClienteId", "DataApertura");
-
-                    b.HasIndex("Stato", "DataConsegnaPrevista");
 
                     b.ToTable("CommesseSartoriali", (string)null);
                 });
@@ -885,7 +853,7 @@ namespace MisureRicci.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClienteId", "DataCreazione");
+                    b.HasIndex("ClienteId");
 
                     b.ToTable("RegistroMisure", (string)null);
                 });
@@ -1220,32 +1188,6 @@ namespace MisureRicci.Migrations
                     b.Navigation("CreatedByUser");
                 });
 
-            modelBuilder.Entity("MisureRicci.Models.CommessaMisuraLink", b =>
-                {
-                    b.HasOne("MisureRicci.Models.CommessaSartoriale", "CommessaSartoriale")
-                        .WithMany("MisureCollegate")
-                        .HasForeignKey("CommessaSartorialeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MisureRicci.Models.ApplicationUser", "LinkedByUser")
-                        .WithMany()
-                        .HasForeignKey("LinkedByUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("MisureRicci.Models.MisureCliente", "MisuraCliente")
-                        .WithMany()
-                        .HasForeignKey("MisuraClienteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CommessaSartoriale");
-
-                    b.Navigation("LinkedByUser");
-
-                    b.Navigation("MisuraCliente");
-                });
-
             modelBuilder.Entity("MisureRicci.Models.CommessaSartoriale", b =>
                 {
                     b.HasOne("MisureRicci.Models.Cliente", "Cliente")
@@ -1427,8 +1369,6 @@ namespace MisureRicci.Migrations
             modelBuilder.Entity("MisureRicci.Models.CommessaSartoriale", b =>
                 {
                     b.Navigation("Eventi");
-
-                    b.Navigation("MisureCollegate");
                 });
 
             modelBuilder.Entity("MisureRicci.Models.DynamicMeasurementRecord", b =>

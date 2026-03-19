@@ -41,7 +41,7 @@
                     else
                     {
                         var displayAttr = prop.GetCustomAttribute<DisplayAttribute>();
-                        string displayName = displayAttr != null ? displayAttr.Name : prop.Name;
+                        var displayName = displayAttr?.Name ?? prop.Name;
                         <div class="col-md-4 mb-3">
                             <label for="@prop.Name" class="form-label sr-gold small text-uppercase">@displayName</label>
                             <input type="text" id="@prop.Name" name="@prop.Name" value="@prop.GetValue(Model)" class="form-control" />

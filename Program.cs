@@ -34,6 +34,7 @@ try
     builder.Services.AddScoped<MisureRicci.Services.IMeasurementService, MisureRicci.Services.MeasurementService>();
     builder.Services.AddScoped<MisureRicci.Services.IPdfService, MisureRicci.Services.PdfService>();
     builder.Services.AddScoped<MisureRicci.Services.ICustomMeasurementService, MisureRicci.Services.CustomMeasurementService>();
+    builder.Services.AddScoped<MisureRicci.Services.ICommessaService, MisureRicci.Services.CommessaService>();
 
     builder.Services.ConfigureApplicationCookie(options =>
     {
@@ -55,22 +56,36 @@ try
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        
+
+        var bootstrapEnabled = builder.Configuration.GetValue<bool>("BootstrapAdmin:Enabled");
+        var bootstrapEmail = builder.Configuration["BootstrapAdmin:Email"];
+        var bootstrapPassword = builder.Configuration["BootstrapAdmin:Password"];
+        var bootstrapFullName = builder.Configuration["BootstrapAdmin:NomeCompleto"] ?? "Amministratore Sistema";
+
         if (!await roleManager.RoleExistsAsync("Admin"))
             await roleManager.CreateAsync(new IdentityRole("Admin"));
-            
-        if (await userManager.FindByEmailAsync("admin@misure.ricci") == null)
+
+        if (bootstrapEnabled &&
+            !string.IsNullOrWhiteSpace(bootstrapEmail) &&
+            !string.IsNullOrWhiteSpace(bootstrapPassword) &&
+            await userManager.FindByEmailAsync(bootstrapEmail) == null)
         {
             var admin = new ApplicationUser {
-                UserName = "admin@misure.ricci",
-                Email = "admin@misure.ricci",
-                NomeCompleto = "Amministratore Sistema",
+                UserName = bootstrapEmail,
+                Email = bootstrapEmail,
+                NomeCompleto = bootstrapFullName,
                 Ruolo = "Admin",
                 EmailConfirmed = true
             };
-            var result = await userManager.CreateAsync(admin, "Admin123!");
+            var result = await userManager.CreateAsync(admin, bootstrapPassword);
             if (result.Succeeded)
                 await userManager.AddToRoleAsync(admin, "Admin");
+            else
+                Log.Warning("Bootstrap admin user creation failed for {Email}: {Errors}", bootstrapEmail, string.Join("; ", result.Errors.Select(e => e.Description)));
+        }
+        else if (bootstrapEnabled)
+        {
+            Log.Warning("BootstrapAdmin is enabled but configuration is incomplete or user already exists.");
         }
 
         await MisureRicci.Services.MeasurementTypeSeeder.SeedDefaultsAsync(dbContext);
@@ -99,6 +114,10 @@ try
     app.MapRazorPages();
 
     app.Run();
+}
+catch (HostAbortedException)
+{
+    // Expected during design-time operations (e.g. EF migrations).
 }
 catch (Exception ex)
 {

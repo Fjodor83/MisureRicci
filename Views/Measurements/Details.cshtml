@@ -49,7 +49,7 @@
                     @foreach(var prop in giacca.GetType().GetProperties().Where(p => p.Name != "Id" && p.Name != "ClienteId" && p.Name != "Cliente" && p.Name != "CreatedAt" && p.Name != "OrderId" && p.Name != "Notes"))
                     {
                         var displayAttr = prop.GetCustomAttribute<DisplayAttribute>();
-                        string displayName = displayAttr != null ? displayAttr.Name : prop.Name;
+                        var displayName = displayAttr?.Name ?? prop.Name;
                         <p class="mb-1 text-muted small">@displayName</p>
                         <p class="mb-3 fw-bold border-bottom border-gold-dim pb-1">@prop.GetValue(giacca)</p>
                     }
@@ -61,7 +61,7 @@
                     @foreach(var prop in pantalone.GetType().GetProperties().Where(p => p.Name != "Id" && p.Name != "ClienteId" && p.Name != "Cliente" && p.Name != "CreatedAt" && p.Name != "OrderId" && p.Name != "Notes"))
                     {
                         var displayAttr = prop.GetCustomAttribute<DisplayAttribute>();
-                        string displayName = displayAttr != null ? displayAttr.Name : prop.Name;
+                        var displayName = displayAttr?.Name ?? prop.Name;
                         <p class="mb-1 text-muted small">@displayName</p>
                         <p class="mb-3 fw-bold border-bottom border-gold-dim pb-1">@prop.GetValue(pantalone)</p>
                     }
@@ -73,7 +73,7 @@
             @foreach(var prop in props)
             {
                 var displayAttr = prop.GetCustomAttribute<DisplayAttribute>();
-                string displayName = displayAttr != null ? displayAttr.Name : prop.Name;
+                var displayName = displayAttr?.Name ?? prop.Name;
                 <div class="col-md-3 col-sm-6 mb-4">
                     <p class="mb-1 sr-gold small text-uppercase">@displayName</p>
                     <p class="fw-bold mb-0 fs-5 border-bottom border-gold-dim pb-1">@prop.GetValue(Model)</p>

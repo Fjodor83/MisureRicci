@@ -34,7 +34,7 @@ namespace MisureRicci.Services
 
             if (!isAdmin && negozioId.HasValue)
             {
-                query = query.Where(m => m.Cliente.NegozioId == negozioId.Value);
+                query = query.Where(m => m.Cliente != null && m.Cliente.NegozioId == negozioId.Value);
             }
 
             return await query.OrderByDescending(m => m.DataCreazione).ToListAsync();
@@ -58,7 +58,7 @@ namespace MisureRicci.Services
 
             if (!isAdmin && negozioId.HasValue)
             {
-                query = query.Where(m => m.Cliente.NegozioId == negozioId.Value);
+                query = query.Where(m => m.Cliente != null && m.Cliente.NegozioId == negozioId.Value);
             }
 
             var totalCount = await query.CountAsync();
@@ -68,6 +68,130 @@ namespace MisureRicci.Services
                 .ToListAsync();
 
             return (items, totalCount);
+        }
+
+        public async Task<MisureCliente?> GetRegistryEntryAsync(int registryId, int? negozioId, bool isAdmin)
+        {
+            var entry = await _context.RegistroMisure
+                .Include(x => x.Cliente)
+                .FirstOrDefaultAsync(x => x.Id == registryId);
+
+            if (entry == null)
+            {
+                return null;
+            }
+
+            if (!isAdmin && negozioId.HasValue && entry.Cliente?.NegozioId != negozioId.Value)
+            {
+                return null;
+            }
+
+            return entry;
+        }
+
+        public async Task<object?> GetMeasurementByRegistryEntryAsync(int registryId, int? negozioId, bool isAdmin)
+        {
+            var entry = await GetRegistryEntryAsync(registryId, negozioId, isAdmin);
+            if (entry == null || entry.IsDynamic)
+            {
+                return null;
+            }
+
+            return await GetMeasurementAsync(entry.RecordId, entry.TipoMisura);
+        }
+
+        public async Task<int?> DeleteByRegistryEntryAsync(int registryId, int? negozioId, bool isAdmin)
+        {
+            var entry = await GetRegistryEntryAsync(registryId, negozioId, isAdmin);
+            if (entry == null)
+            {
+                return null;
+            }
+
+            var clienteId = entry.ClienteId;
+
+            if (entry.IsDynamic)
+            {
+                var dynamicRecord = await _context.DynamicMeasurementRecords
+                    .FirstOrDefaultAsync(x => x.Id == entry.RecordId);
+                if (dynamicRecord != null)
+                {
+                    _context.DynamicMeasurementRecords.Remove(dynamicRecord);
+                }
+
+                _context.RegistroMisure.Remove(entry);
+                await _context.SaveChangesAsync();
+                return clienteId;
+            }
+
+            var model = await GetMeasurementAsync(entry.RecordId, entry.TipoMisura);
+            if (model != null)
+            {
+                _context.Remove(model);
+            }
+
+            _context.RegistroMisure.Remove(entry);
+            await _context.SaveChangesAsync();
+            return clienteId;
+        }
+
+        public async Task<object?> GetMeasurementScopedAsync(int id, string tipoMisura, int? negozioId, bool isAdmin)
+        {
+            var model = await GetMeasurementAsync(id, tipoMisura);
+            if (model == null)
+            {
+                return null;
+            }
+
+            if (!isAdmin && negozioId.HasValue)
+            {
+                var baseMeasurement = model as BaseMeasurement;
+                if (baseMeasurement?.Cliente?.NegozioId != negozioId.Value)
+                {
+                    return null;
+                }
+            }
+
+            return model;
+        }
+
+        public async Task<bool> UpdateMeasurementAsync(object model, string tipoMisura)
+        {
+            switch (tipoMisura.ToLowerInvariant())
+            {
+                case "giacca" when model is GiaccaMeasurement giacca:
+                    await UpdateGiaccaAsync(giacca);
+                    return true;
+                case "pantalone" when model is PantaloneMeasurement pantalone:
+                    await UpdatePantaloneAsync(pantalone);
+                    return true;
+                case "abito" when model is AbitoCompletoMeasurement abito:
+                    await UpdateAbitoAsync(abito);
+                    return true;
+                case "gilet" when model is GiletMeasurement gilet:
+                    await UpdateGiletAsync(gilet);
+                    return true;
+                case "maglie" when model is MaglieMeasurement maglie:
+                    await UpdateMaglieAsync(maglie);
+                    return true;
+                case "outdoor" when model is OutdoorMeasurement outdoor:
+                    await UpdateOutdoorAsync(outdoor);
+                    return true;
+                case "camicia" when model is CamiciaMeasurement camicia:
+                    await UpdateCamiciaAsync(camicia);
+                    return true;
+                case "scarpe" when model is ScarpeMeasurement scarpe:
+                    await UpdateScarpeAsync(scarpe);
+                    return true;
+                case "cravatta" when model is CravattaMeasurement cravatta:
+                    await UpdateCravattaAsync(cravatta);
+                    return true;
+                case "cintura" when model is CinturaMeasurement cintura:
+                    await UpdateCinturaAsync(cintura);
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         public async Task<object?> GetMeasurementAsync(int id, string tipoMisura)

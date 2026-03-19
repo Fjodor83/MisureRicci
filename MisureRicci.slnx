@@ -1,4 +1,4 @@
 <Solution>
-  <Project Path="../MisureRicci.Tests/MisureRicci.Tests.csproj" />
   <Project Path="MisureRicci.csproj" />
+  <Project Path="MisureRicci.Tests/MisureRicci.Tests.csproj" />
 </Solution>

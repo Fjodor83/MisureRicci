@@ -16,6 +16,7 @@
     <form asp-action="Delete" method="post">
         <input type="hidden" name="id" value="@id" />
         <input type="hidden" name="tipoMisura" value="@ViewBag.TipoMisura" />
+        <input type="hidden" name="registryId" value="@ViewBag.RegistryId" />
         <div class="d-flex justify-content-center gap-3 mt-3">
             <button type="submit" class="btn btn-danger btn-lg">Conferma Eliminazione</button>
             <a asp-controller="Clienti" asp-action="Details" asp-route-id="@clienteId" class="btn btn-outline-secondary btn-lg">Annulla</a>

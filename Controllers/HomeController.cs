@@ -21,19 +21,9 @@ namespace MisureRicci.Controllers
             ViewBag.TotalClients = await _context.Clienti.CountAsync();
             ViewBag.TotalStores = await _context.Negozi.CountAsync();
             ViewBag.TotalStaff = await _context.Utenti.CountAsync();
-            
-            // Total measurements count across all tables
-            ViewBag.TotalMeasurements = 
-                await _context.MisureGiacca.CountAsync() +
-                await _context.MisurePantalone.CountAsync() +
-                await _context.MisureCamicia.CountAsync() +
-                await _context.MisureAbitoCompleto.CountAsync() +
-                await _context.MisureGilet.CountAsync() +
-                await _context.MisureMaglie.CountAsync() +
-                await _context.MisureOutdoor.CountAsync() +
-                await _context.MisureScarpe.CountAsync() +
-                await _context.MisureCravatta.CountAsync() +
-                await _context.MisureCintura.CountAsync();
+
+            // Registry is the single source of truth for both legacy and dynamic measurements.
+            ViewBag.TotalMeasurements = await _context.RegistroMisure.CountAsync();
 
             return View();
         }
