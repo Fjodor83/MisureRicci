@@ -76,6 +76,7 @@
             <p class="mb-0 text-muted" style="white-space: pre-line;">@(string.IsNullOrWhiteSpace(commessa.NoteInterne) ? "Nessuna nota operativa." : commessa.NoteInterne)</p>
         </div>
 
+        @* Misure collegate *@
         <div class="card p-4 mb-4">
             <h3 class="sr-title small mb-3">MISURE COLLEGATE ALLA COMMESSA</h3>
             @if (Model.MisureCollegate.Any())
@@ -116,10 +117,94 @@
             }
         </div>
 
-        <div class="card p-4 mb-4">
-            <h3 class="sr-title small mb-3">MISURE DISPONIBILI DEL CLIENTE</h3>
-            @if (Model.MisureDisponibili.Any())
-            {
+        @* Pannello contestuale: dipende da MisuraStatus *@
+        @if (Model.MisuraStatus.RequireMisuraCreation)
+        {
+            <div class="card p-4 mb-4 border-warning">
+                <h3 class="sr-title small mb-2">NESSUNA MISURA PRESENTE</h3>
+                <p class="text-muted small mb-3">
+                    Il cliente non ha ancora misure nel registro. Per poter avanzare la commessa oltre
+                    <strong>Bozza</strong> è necessario creare e collegare almeno una misura dinamica.
+                </p>
+                @if (Model.MeasurementTypes.Any())
+                {
+                    <div class="d-flex gap-2 align-items-end flex-wrap">
+                        <div class="flex-grow-1">
+                            <label class="form-label small mb-1">Tipo di misura</label>
+                            <select id="newMisuraTypeSelect" class="form-select form-select-sm">
+                                @foreach (var t in Model.MeasurementTypes)
+                                {
+                                    <option value="@t.Id">@t.Nome</option>
+                                }
+                            </select>
+                        </div>
+                        <a id="btnCreaCollegaMisura"
+                           asp-controller="DynamicMeasurements"
+                           asp-action="Create"
+                           asp-route-clienteId="@commessa.ClienteId"
+                           asp-route-typeId="@Model.MeasurementTypes.First().Id"
+                           asp-route-returnToCommessaId="@commessa.Id"
+                           class="btn btn-warning btn-sm">
+                            CREA E COLLEGA MISURA
+                        </a>
+                    </div>
+                    <script>
+                        (function () {
+                            var sel = document.getElementById('newMisuraTypeSelect');
+                            var btn = document.getElementById('btnCreaCollegaMisura');
+                            if (!sel || !btn) return;
+                            var base = btn.href.replace(/typeId=\d+/, '');
+                            sel.addEventListener('change', function () {
+                                btn.href = base.replace(/(&|\?)typeId=\d*/, '') +
+                                    (base.includes('?') ? '&' : '?') + 'typeId=' + sel.value;
+                            });
+                        })();
+                    </script>
+                }
+                else
+                {
+                    <p class="text-danger small mb-0">Nessun tipo di misura attivo configurato. Contattare l'amministratore.</p>
+                }
+            </div>
+        }
+        else if (Model.MisuraStatus.HasMisureDisponibili)
+        {
+            <div class="card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="sr-title small mb-0">MISURE DISPONIBILI DEL CLIENTE</h3>
+                    @if (Model.MeasurementTypes.Any())
+                    {
+                        <div class="d-flex gap-2 align-items-center">
+                            <select id="addMisuraTypeSelect" class="form-select form-select-sm" style="width:auto;">
+                                @foreach (var t in Model.MeasurementTypes)
+                                {
+                                    <option value="@t.Id">@t.Nome</option>
+                                }
+                            </select>
+                            <a id="btnAggiungiMisura"
+                               asp-controller="DynamicMeasurements"
+                               asp-action="Create"
+                               asp-route-clienteId="@commessa.ClienteId"
+                               asp-route-typeId="@Model.MeasurementTypes.First().Id"
+                               asp-route-returnToCommessaId="@commessa.Id"
+                               class="btn btn-outline-gold btn-sm text-nowrap">
+                                + NUOVA MISURA
+                            </a>
+                        </div>
+                        <script>
+                            (function () {
+                                var sel = document.getElementById('addMisuraTypeSelect');
+                                var btn = document.getElementById('btnAggiungiMisura');
+                                if (!sel || !btn) return;
+                                sel.addEventListener('change', function () {
+                                    var url = new URL(btn.href, window.location.origin);
+                                    url.searchParams.set('typeId', sel.value);
+                                    btn.href = url.pathname + url.search;
+                                });
+                            })();
+                        </script>
+                    }
+                </div>
                 <div class="table-responsive">
                     <table class="table table-sm mb-0">
                         <thead>
@@ -149,12 +234,49 @@
                         </tbody>
                     </table>
                 </div>
-            }
-            else
-            {
-                <p class="text-muted mb-0">Tutte le misure del cliente sono gia collegate.</p>
-            }
-        </div>
+            </div>
+        }
+        else
+        {
+            <div class="card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h3 class="sr-title small mb-0">MISURE DISPONIBILI DEL CLIENTE</h3>
+                    @if (Model.MeasurementTypes.Any())
+                    {
+                        <div class="d-flex gap-2 align-items-center">
+                            <select id="addMisuraTypeSelectFull" class="form-select form-select-sm" style="width:auto;">
+                                @foreach (var t in Model.MeasurementTypes)
+                                {
+                                    <option value="@t.Id">@t.Nome</option>
+                                }
+                            </select>
+                            <a id="btnAggiungiMisuraFull"
+                               asp-controller="DynamicMeasurements"
+                               asp-action="Create"
+                               asp-route-clienteId="@commessa.ClienteId"
+                               asp-route-typeId="@Model.MeasurementTypes.First().Id"
+                               asp-route-returnToCommessaId="@commessa.Id"
+                               class="btn btn-outline-gold btn-sm text-nowrap">
+                                + NUOVA MISURA
+                            </a>
+                        </div>
+                        <script>
+                            (function () {
+                                var sel = document.getElementById('addMisuraTypeSelectFull');
+                                var btn = document.getElementById('btnAggiungiMisuraFull');
+                                if (!sel || !btn) return;
+                                sel.addEventListener('change', function () {
+                                    var url = new URL(btn.href, window.location.origin);
+                                    url.searchParams.set('typeId', sel.value);
+                                    btn.href = url.pathname + url.search;
+                                });
+                            })();
+                        </script>
+                    }
+                </div>
+                <p class="text-muted small mb-0">Tutte le misure del cliente sono già collegate a questa commessa.</p>
+            </div>
+        }
 
         <div class="card p-4">
             <h3 class="sr-title small mb-3">TIMELINE EVENTI</h3>

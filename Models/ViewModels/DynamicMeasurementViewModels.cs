@@ -32,6 +32,12 @@ namespace MisureRicci.Models.ViewModels
         public string ClienteNome { get; set; } = string.Empty;
         public string TipoNome { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Se valorizzato, al salvataggio la misura viene collegata automaticamente
+        /// alla commessa indicata e il redirect torna a Commissioni/Details.
+        /// </summary>
+        public int? ReturnToCommessaId { get; set; }
+
         public List<DynamicFieldInputViewModel> Fields { get; set; } = new();
     }
 

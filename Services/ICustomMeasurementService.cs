@@ -22,5 +22,11 @@ namespace MisureRicci.Services
         Task<DynamicMeasurementCreateViewModel?> BuildDynamicMeasurementEditViewModelAsync(int recordId);
         Task UpdateDynamicMeasurementAsync(DynamicMeasurementCreateViewModel model);
         Task DeleteDynamicMeasurementAsync(int recordId);
+
+        /// <summary>
+        /// Restituisce l'Id della voce RegistroMisure associata al record dinamico indicato,
+        /// necessario per collegare automaticamente la misura appena creata a una commessa.
+        /// </summary>
+        Task<int?> GetRegistroMisuraIdByDynamicRecordAsync(int dynamicRecordId);
     }
 }

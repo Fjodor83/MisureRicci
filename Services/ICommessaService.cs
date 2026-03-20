@@ -14,5 +14,11 @@ namespace MisureRicci.Services
         Task<bool> AddNotaAsync(int id, string nota, string? userId, int? negozioId, bool isAdmin);
         Task<bool> LinkMisuraAsync(int id, int misuraClienteId, string? userId, int? negozioId, bool isAdmin);
         Task<bool> UnlinkMisuraAsync(int id, int misuraClienteId, int? negozioId, bool isAdmin);
+
+        /// <summary>
+        /// Restituisce lo snapshot dello stato misure per la commessa indicata:
+        /// se il cliente ha misure disponibili, già collegate, o non ne ha ancora nessuna.
+        /// </summary>
+        Task<CommessaMisuraStatus> GetStatoMisureClienteAsync(int commessaId, int? negozioId, bool isAdmin);
     }
 }

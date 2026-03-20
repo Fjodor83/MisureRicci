@@ -10,12 +10,43 @@ namespace MisureRicci.Models.ViewModels
         public int InRitardo { get; set; }
     }
 
+    /// <summary>
+    /// Snapshot dello stato misure per la commessa: usato dalla view per scegliere
+    /// quale pannello contestuale mostrare (collega esistente vs crea nuova).
+    /// </summary>
+    public class CommessaMisuraStatus
+    {
+        /// <summary>True se alla commessa è collegata almeno una misura.</summary>
+        public bool HasMisureCollegate { get; set; }
+
+        /// <summary>True se il cliente ha misure nel RegistroMisure non ancora collegate a questa commessa.</summary>
+        public bool HasMisureDisponibili { get; set; }
+
+        /// <summary>
+        /// True se il cliente non ha ancora nessuna misura nel RegistroMisure.
+        /// In questo caso la view deve guidare l'operatore alla creazione di una nuova misura dinamica.
+        /// </summary>
+        public bool RequireMisuraCreation { get; set; }
+
+        /// <summary>Numero totale di misure nel RegistroMisure per il cliente.</summary>
+        public int TotaleMisureCliente { get; set; }
+    }
+
     public class CommessaDetailsViewModel
     {
         public CommessaSartoriale Commessa { get; set; } = new();
         public List<StatoCommessa> StatiDisponibili { get; set; } = new();
         public List<CommessaMisuraItem> MisureDisponibili { get; set; } = new();
         public List<CommessaMisuraItem> MisureCollegate { get; set; } = new();
+
+        /// <summary>Snapshot dello stato misure per questa commessa.</summary>
+        public CommessaMisuraStatus MisuraStatus { get; set; } = new();
+
+        /// <summary>
+        /// Tipi di misura dinamica attivi, popolati quando RequireMisuraCreation == true
+        /// o comunque per permettere la creazione di ulteriori misure dalla stessa pagina.
+        /// </summary>
+        public List<MeasurementType> MeasurementTypes { get; set; } = new();
     }
 
     public class CommessaCreateViewModel

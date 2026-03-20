@@ -12,20 +12,23 @@ namespace MisureRicci.Controllers
     {
         private readonly ICustomMeasurementService _customMeasurementService;
         private readonly IClienteService _clienteService;
+        private readonly ICommessaService _commessaService;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public DynamicMeasurementsController(
             ICustomMeasurementService customMeasurementService,
             IClienteService clienteService,
+            ICommessaService commessaService,
             UserManager<ApplicationUser> userManager)
         {
             _customMeasurementService = customMeasurementService;
             _clienteService = clienteService;
+            _commessaService = commessaService;
             _userManager = userManager;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create(int clienteId, int typeId)
+        public async Task<IActionResult> Create(int clienteId, int typeId, int? returnToCommessaId)
         {
             var cliente = await _clienteService.GetClienteByIdAsync(clienteId);
             if (cliente == null)
@@ -52,6 +55,7 @@ namespace MisureRicci.Controllers
                 MeasurementTypeId = typeId,
                 ClienteNome = $"{cliente.Nome} {cliente.Cognome}",
                 TipoNome = type.Nome,
+                ReturnToCommessaId = returnToCommessaId,
                 Fields = fields.Select(f => new DynamicFieldInputViewModel
                 {
                     FieldDefinitionId = f.Id,
@@ -100,7 +104,27 @@ namespace MisureRicci.Controllers
             try
             {
                 var currentUser = await _userManager.GetUserAsync(User);
-                await _customMeasurementService.CreateDynamicMeasurementAsync(model, currentUser?.Id);
+                var record = await _customMeasurementService.CreateDynamicMeasurementAsync(model, currentUser?.Id);
+
+                // Return-to-commessa flow: auto-link the newly created measure and redirect back.
+                if (model.ReturnToCommessaId.HasValue)
+                {
+                    var isAdmin = User.IsInRole("Admin");
+                    // Find the RegistroMisure entry created for this dynamic record.
+                    var misuraClienteId = await _customMeasurementService.GetRegistroMisuraIdByDynamicRecordAsync(record.Id);
+                    if (misuraClienteId.HasValue)
+                    {
+                        await _commessaService.LinkMisuraAsync(
+                            model.ReturnToCommessaId.Value,
+                            misuraClienteId.Value,
+                            currentUser?.Id,
+                            currentUser?.NegozioId,
+                            isAdmin);
+                    }
+
+                    return RedirectToAction("Details", "Commissioni", new { id = model.ReturnToCommessaId.Value });
+                }
+
                 return RedirectToAction("Details", "Clienti", new { id = model.ClienteId });
             }
             catch (InvalidOperationException ex)

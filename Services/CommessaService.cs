@@ -143,12 +143,28 @@ namespace MisureRicci.Services
             var linked = disponibili.Where(x => linkedIds.Contains(x.MisuraClienteId)).ToList();
             var free = disponibili.Where(x => !linkedIds.Contains(x.MisuraClienteId)).ToList();
 
+            var misuraStatus = new CommessaMisuraStatus
+            {
+                HasMisureCollegate = linked.Count > 0,
+                HasMisureDisponibili = free.Count > 0,
+                RequireMisuraCreation = disponibili.Count == 0,
+                TotaleMisureCliente = disponibili.Count
+            };
+
+            var measurementTypes = await _context.MeasurementTypes
+                .AsNoTracking()
+                .Where(t => t.IsActive)
+                .OrderBy(t => t.Nome)
+                .ToListAsync();
+
             return new CommessaDetailsViewModel
             {
                 Commessa = commessa,
                 StatiDisponibili = GetAllowedNextStates(commessa.Stato),
                 MisureCollegate = linked,
-                MisureDisponibili = free
+                MisureDisponibili = free,
+                MisuraStatus = misuraStatus,
+                MeasurementTypes = measurementTypes
             };
         }
 
@@ -385,6 +401,38 @@ namespace MisureRicci.Services
                 || stato == StatoCommessa.Prova2
                 || stato == StatoCommessa.ProntaConsegna
                 || stato == StatoCommessa.Consegnata;
+        }
+
+        public async Task<CommessaMisuraStatus> GetStatoMisureClienteAsync(int commessaId, int? negozioId, bool isAdmin)
+        {
+            var commessa = await _context.CommissioniSartoriali
+                .AsNoTracking()
+                .Select(c => new { c.Id, c.ClienteId, c.NegozioId })
+                .FirstOrDefaultAsync(c => c.Id == commessaId);
+
+            if (commessa == null)
+            {
+                return new CommessaMisuraStatus();
+            }
+
+            if (!isAdmin && negozioId.HasValue && commessa.NegozioId != negozioId.Value)
+            {
+                return new CommessaMisuraStatus();
+            }
+
+            var totaleMisureCliente = await _context.RegistroMisure
+                .CountAsync(m => m.ClienteId == commessa.ClienteId);
+
+            var linkedCount = await _context.CommissioniMisureLinks
+                .CountAsync(x => x.CommessaSartorialeId == commessaId);
+
+            return new CommessaMisuraStatus
+            {
+                HasMisureCollegate = linkedCount > 0,
+                HasMisureDisponibili = totaleMisureCliente > linkedCount,
+                RequireMisuraCreation = totaleMisureCliente == 0,
+                TotaleMisureCliente = totaleMisureCliente
+            };
         }
     }
 }

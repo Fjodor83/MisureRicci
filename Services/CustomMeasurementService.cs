@@ -281,5 +281,13 @@ namespace MisureRicci.Services
                 || template == DynamicFieldTemplate.Divider
                 || template == DynamicFieldTemplate.AlertNote;
         }
+
+        public async Task<int?> GetRegistroMisuraIdByDynamicRecordAsync(int dynamicRecordId)
+        {
+            return await _context.RegistroMisure
+                .Where(m => m.RecordId == dynamicRecordId && m.IsDynamic)
+                .Select(m => (int?)m.Id)
+                .FirstOrDefaultAsync();
+        }
     }
 }
