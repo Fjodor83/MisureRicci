@@ -4,15 +4,28 @@
     ViewData["Title"] = "Tipologie Misure Dinamiche";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h1 class="page-title">TIPOLOGIE MISURE</h1>
-        <p class="page-subtitle mb-0">L'amministratore gestisce categorie e struttura campi dinamici.</p>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Admin configuration</span>
+        <h1 class="page-title">Tipologie dinamiche</h1>
+        <p class="page-subtitle">Gestisci categorie, stato attivo e struttura dei form dinamici.</p>
     </div>
-    <a asp-action="CreateType" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Nuova Tipologia</a>
-</div>
+    <div class="page-actions">
+        <a asp-action="CreateType" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>Nuova tipologia
+        </a>
+    </div>
+</section>
 
-<div class="card card-static p-3">
+<section class="data-table-card">
+    <div class="table-toolbar">
+        <div>
+            <h2 class="detail-card__title">Catalogo tipologie</h2>
+            <div class="toolbar-meta">Elenco delle tipologie disponibili nel sistema.</div>
+        </div>
+        <span class="toolbar-chip">@Model.Count() tipologie</span>
+    </div>
+
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
             <thead>
@@ -38,22 +51,20 @@
                         <tr>
                             <td class="fw-bold">@item.Nome</td>
                             <td class="text-muted">@item.Descrizione</td>
-                            <td>
-                                <span class="badge @(item.IsActive ? "bg-success" : "bg-secondary")">@(item.IsActive ? "Attiva" : "Disattiva")</span>
-                            </td>
-                            <td>
-                                <span class="badge @(item.IsSystem ? "bg-warning text-dark" : "bg-secondary")">@(item.IsSystem ? "System" : "Custom")</span>
-                            </td>
+                            <td><span class="status-pill @(item.IsActive ? "status-pill--success" : "status-pill--neutral")">@(item.IsActive ? "Attiva" : "Disattiva")</span></td>
+                            <td><span class="status-pill @(item.IsSystem ? "status-pill--warning" : "status-pill--neutral")">@(item.IsSystem ? "System" : "Custom")</span></td>
                             <td class="text-end">
-                                <a asp-action="Fields" asp-route-typeId="@item.Id" class="btn btn-sm btn-outline-gold me-1">Campi</a>
-                                <a asp-action="EditType" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary me-1">Modifica</a>
-                                @if (!item.IsSystem)
-                                {
-                                    <form asp-action="DeleteType" method="post" class="d-inline">
-                                        <input type="hidden" name="id" value="@item.Id" />
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Eliminare questa tipologia e tutti i campi collegati?');">Elimina</button>
-                                    </form>
-                                }
+                                <div class="page-actions justify-content-end">
+                                    <a asp-action="Fields" asp-route-typeId="@item.Id" class="btn btn-sm btn-outline-gold">Campi</a>
+                                    <a asp-action="EditType" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Modifica</a>
+                                    @if (!item.IsSystem)
+                                    {
+                                        <form asp-action="DeleteType" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Eliminare questa tipologia e tutti i campi collegati?');">Elimina</button>
+                                        </form>
+                                    }
+                                </div>
                             </td>
                         </tr>
                     }
@@ -61,4 +72,4 @@
             </tbody>
         </table>
     </div>
-</div>
+</section>

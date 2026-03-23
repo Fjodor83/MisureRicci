@@ -3,91 +3,64 @@
     var isAdmin = User.IsInRole("Admin");
 }
 
-<div class="container-fluid py-2">
-    <div class="row mb-5 animate__animated animate__fadeInDown">
-        <div class="col-12">
-            <div class="card p-4">
-                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-                    <div>
-                        <h1 class="page-title">REPORT OPERATIVI</h1>
-                        <p class="page-subtitle mt-2 mb-0">Export sicuri e coerenti con il perimetro di accesso dell'utente autenticato.</p>
-                    </div>
-                    <div class="text-lg-end">
-                        <span class="badge @(isAdmin ? "bg-gold text-dark" : "bg-success") mb-2">
-                            <i class="bi @(isAdmin ? "bi-shield-lock-fill" : "bi-person-check-fill")"></i>
-                            @(isAdmin ? " ACCESSO GLOBALE" : " ACCESSO SCOPED")
-                        </span>
-                        <div class="small text-muted">
-                            @(isAdmin
-                                ? "Gli export includono tutte le boutique abilitate."
-                                : "Gli export includono solo i dati del negozio assegnato.")
-                        </div>
-                    </div>
-                </div>
-            </div>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Reporting workspace</span>
+        <h1 class="page-title">Report operativi</h1>
+        <p class="page-subtitle">Export sicuri e coerenti con il perimetro di accesso dell'utente autenticato.</p>
+    </div>
+    <div class="page-actions">
+        <span class="status-pill @(isAdmin ? "status-pill--accent" : "status-pill--success")">
+            @(isAdmin ? "Accesso globale" : "Accesso scoped")
+        </span>
+    </div>
+</section>
+
+<section class="feature-grid">
+    <article class="feature-card">
+        <div class="feature-card__icon"><i class="bi bi-people-fill"></i></div>
+        <div>
+            <h2 class="feature-card__title">Anagrafica clienti</h2>
+            <p class="feature-card__text">Esporta codice cliente, contatti, paese e data registrazione in CSV compatibile con Excel.</p>
+        </div>
+        <div class="feature-card__actions">
+            <a asp-controller="Report" asp-action="ExportClientiCsv" class="btn btn-outline-gold">Scarica export clienti</a>
+            <a asp-controller="Clienti" asp-action="Index" class="btn btn-outline-secondary">Apri archivio clienti</a>
+        </div>
+    </article>
+
+    <article class="feature-card">
+        <div class="feature-card__icon"><i class="bi bi-rulers"></i></div>
+        <div>
+            <h2 class="feature-card__title">Storico misure</h2>
+            <p class="feature-card__text">Esporta cronologia misure, tipo record e note operative con visibilita' coerente al tenant corrente.</p>
+        </div>
+        <div class="feature-card__actions">
+            <a asp-controller="Report" asp-action="ExportMisureCsv" class="btn btn-outline-gold">Scarica export misure</a>
+            <a asp-controller="Measurements" asp-action="GlobalRegistry" class="btn btn-outline-secondary">Apri registro misure</a>
+        </div>
+    </article>
+</section>
+
+<section class="page-surface mt-4">
+    <div class="detail-list">
+        <div class="detail-row">
+            <span class="detail-row__label">Sicurezza</span>
+            <span class="detail-row__value">I CSV sono sanitizzati contro formula injection.</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-row__label">Tenant scope</span>
+            <span class="detail-row__value">
+                @(isAdmin
+                    ? "Gli export includono tutte le boutique abilitate."
+                    : "Gli export includono solo i dati del negozio assegnato.")
+            </span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-row__label">Percorso rapido</span>
+            <span class="detail-row__value">
+                <a asp-controller="Commissioni" asp-action="Index" class="btn btn-sm btn-primary">Apri commissioni</a>
+            </span>
         </div>
     </div>
-
-    <div class="row g-4 mb-4">
-        <div class="col-lg-6">
-            <div class="card h-100 p-4 animate__animated animate__fadeInLeft">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <h2 class="sr-title small mb-2">ANAGRAFICA CLIENTI</h2>
-                        <p class="text-muted small mb-0">Esporta codice cliente, contatti, paese e data registrazione in CSV compatibile con Excel.</p>
-                    </div>
-                    <i class="bi bi-people-fill sr-gold fs-3"></i>
-                </div>
-                <div class="mt-auto d-grid gap-2">
-                    <a asp-controller="Report" asp-action="ExportClientiCsv" class="btn btn-outline-gold">
-                        <i class="bi bi-download me-2"></i>Scarica export clienti
-                    </a>
-                    <a asp-controller="Clienti" asp-action="Index" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-right-circle me-2"></i>Apri archivio clienti
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-6">
-            <div class="card h-100 p-4 animate__animated animate__fadeInRight">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <h2 class="sr-title small mb-2">STORICO MISURE</h2>
-                        <p class="text-muted small mb-0">Esporta cronologia misure, tipo misura e note operative con visibilita' coerente al tenant corrente.</p>
-                    </div>
-                    <i class="bi bi-rulers sr-gold fs-3"></i>
-                </div>
-                <div class="mt-auto d-grid gap-2">
-                    <a asp-controller="Report" asp-action="ExportMisureCsv" class="btn btn-outline-gold">
-                        <i class="bi bi-download me-2"></i>Scarica export misure
-                    </a>
-                    <a asp-controller="Measurements" asp-action="GlobalRegistry" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-right-circle me-2"></i>Apri registro misure
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-12">
-            <div class="card p-4 border-0" style="background: linear-gradient(135deg, rgba(212,175,55,0.12), rgba(153,101,21,0.08)); border: 1px solid rgba(212,175,55,0.25) !important;">
-                <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
-                    <div>
-                        <h3 class="sr-title small mb-2">NOTE DI SICUREZZA</h3>
-                        <p class="text-muted small mb-0">I file CSV sono sanitizzati contro formula injection e, per i ruoli non admin, vengono filtrati automaticamente per `NegozioId`.</p>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
-                            <i class="bi bi-grid-1x2-fill me-2"></i>Torna al dashboard
-                        </a>
-                        <a asp-controller="Commissioni" asp-action="Index" class="btn btn-primary">
-                            <i class="bi bi-journal-check me-2"></i>Apri commissioni
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+</section>

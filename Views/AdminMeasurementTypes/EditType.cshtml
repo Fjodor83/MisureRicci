@@ -4,14 +4,24 @@
     ViewData["Title"] = "Modifica Tipologia";
 }
 
-<h1 class="page-title mb-4">MODIFICA TIPOLOGIA MISURA</h1>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Admin configuration</span>
+        <h1 class="page-title">Modifica tipologia</h1>
+        <p class="page-subtitle">Aggiorna nome, descrizione e stato della tipologia dinamica selezionata.</p>
+    </div>
+    <div class="page-actions">
+        <a asp-action="Index" class="btn btn-outline-secondary">Torna alle tipologie</a>
+    </div>
+</section>
 
-<div class="card card-static p-4">
-    <form asp-action="EditType" method="post">
-        <input type="hidden" asp-for="Id" />
-        <input type="hidden" asp-for="IsSystem" />
-        <input type="hidden" asp-for="CreatedAt" />
-        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+<form asp-action="EditType" method="post" class="form-shell">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="IsSystem" />
+    <input type="hidden" asp-for="CreatedAt" />
+
+    <section class="form-section">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
         <div class="mb-3">
             <label asp-for="Nome" class="form-label"></label>
@@ -25,15 +35,17 @@
             <span asp-validation-for="Descrizione" class="text-danger"></span>
         </div>
 
-        <div class="form-check form-switch mb-4">
+        <div class="form-check form-switch">
             <input asp-for="IsActive" class="form-check-input" />
             <label asp-for="IsActive" class="form-check-label"></label>
         </div>
+    </section>
 
-        <button type="submit" class="btn btn-primary me-2">Salva</button>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Salva modifiche</button>
         <a asp-action="Index" class="btn btn-outline-secondary">Annulla</a>
-    </form>
-</div>
+    </div>
+</form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

@@ -4,14 +4,25 @@
     ViewData["Title"] = "Modifica Campo";
 }
 
-<h1 class="page-title mb-4">MODIFICA CAMPO - @Model.TypeName</h1>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Admin configuration</span>
+        <h1 class="page-title">Modifica campo - @Model.TypeName</h1>
+        <p class="page-subtitle">Aggiorna struttura, tipo dato, template e suggerimenti del campo selezionato.</p>
+    </div>
+    <div class="page-actions">
+        <a asp-action="Fields" asp-route-typeId="@Model.Field.MeasurementTypeId" class="btn btn-outline-secondary">Torna ai campi</a>
+    </div>
+</section>
+
 <partial name="_FieldHelpGuide" />
 
-<div class="card card-static p-4">
-    <form asp-action="EditField" method="post">
-        <input type="hidden" asp-for="Field.Id" />
-        <input type="hidden" asp-for="Field.MeasurementTypeId" />
-        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+<form asp-action="EditField" method="post" class="form-shell">
+    <input type="hidden" asp-for="Field.Id" />
+    <input type="hidden" asp-for="Field.MeasurementTypeId" />
+
+    <section class="form-section">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
         <div class="row g-3">
             <div class="col-md-6">
@@ -105,13 +116,13 @@
                 </div>
             </div>
         </div>
+    </section>
 
-        <div class="mt-4">
-            <button type="submit" class="btn btn-primary me-2">Salva</button>
-            <a asp-action="Fields" asp-route-typeId="@Model.Field.MeasurementTypeId" class="btn btn-outline-secondary">Annulla</a>
-        </div>
-    </form>
-</div>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Salva</button>
+        <a asp-action="Fields" asp-route-typeId="@Model.Field.MeasurementTypeId" class="btn btn-outline-secondary">Annulla</a>
+    </div>
+</form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

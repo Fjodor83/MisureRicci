@@ -4,49 +4,52 @@
     ViewData["Title"] = "Gestione Negozi";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4 animate__animated animate__fadeInDown">
-    <div>
-        <h1 class="page-title">RETE BOUTIQUE</h1>
-        <p class="page-subtitle mt-2 mb-0">Gestione Sedi e Laboratori Globali</p>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Network management</span>
+        <h1 class="page-title">Rete boutique</h1>
+        <p class="page-subtitle">Presidio di sedi, laboratori e stato operativo in un'unica lista amministrativa.</p>
     </div>
-    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-shop me-2"></i> Nuova Sede</a>
-</div>
+    <div class="page-actions">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-shop me-2"></i>Nuova sede
+        </a>
+    </div>
+</section>
 
-<div class="card p-0 overflow-hidden animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+<section class="data-table-card">
+    <div class="table-toolbar">
+        <div>
+            <h2 class="detail-card__title">Boutique configurate</h2>
+            <div class="toolbar-meta">Elenco sedi con stato e codice interno.</div>
+        </div>
+        <span class="toolbar-chip">@Model.Count() sedi</span>
+    </div>
     <div class="table-responsive">
-        <table class="table table-hover mb-0">
+        <table class="table table-hover align-middle mb-0">
             <thead>
                 <tr>
-                    <th class="ps-4">NOME BOUTIQUE</th>
-                    <th>CITTÀ</th>
-                    <th>PAESE</th>
-                    <th>CODICE</th>
-                    <th>STATO</th>
-                    <th class="pe-4 text-end">AZIONI</th>
+                    <th>Nome boutique</th>
+                    <th>Citta'</th>
+                    <th>Paese</th>
+                    <th>Codice</th>
+                    <th>Stato</th>
+                    <th class="text-end">Azioni</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr style="transition: all 0.3s ease;">
-                        <td class="ps-4 text-white fw-bold font-cinzel letter-spacing-1">@item.Nome</td>
-                        <td class="text-muted">@item.Citta</td>
-                        <td class="text-muted"><i class="bi bi-globe me-1 small"></i> @item.Paese</td>
-                        <td><span class="badge" style="background: rgba(212, 175, 55, 0.1); color: var(--sr-gold); border: 1px solid rgba(212, 175, 55, 0.3); letter-spacing: 1px;">@item.CodiceNegozio</span></td>
-                        <td>
-                            @if (item.Attivo)
-                            {
-                                <span class="badge rounded-pill bg-success bg-opacity-25 text-success border border-success"><i class="bi bi-check-circle-fill me-1"></i> ATTIVA</span>
-                            }
-                            else
-                            {
-                                <span class="badge rounded-pill bg-secondary bg-opacity-25 text-secondary border border-secondary"><i class="bi bi-x-circle-fill me-1"></i> INATTIVA</span>
-                            }
-                        </td>
-                        <td class="pe-4 text-end">
-                            <div class="btn-group btn-group-sm">
-                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-gold" title="Dettagli"><i class="bi bi-eye-fill"></i> DETTAGLI</a>
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary" title="Modifica"><i class="bi bi-pencil-square"></i></a>
+                    <tr>
+                        <td class="fw-bold">@item.Nome</td>
+                        <td>@item.Citta</td>
+                        <td>@item.Paese</td>
+                        <td><span class="table-code">@item.CodiceNegozio</span></td>
+                        <td><span class="status-pill @(item.Attivo ? "status-pill--success" : "status-pill--neutral")">@(item.Attivo ? "Attiva" : "Inattiva")</span></td>
+                        <td class="text-end">
+                            <div class="page-actions justify-content-end">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-gold">Dettagli</a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Modifica</a>
                             </div>
                         </td>
                     </tr>
@@ -54,4 +57,4 @@
             </tbody>
         </table>
     </div>
-</div>
+</section>

@@ -1,27 +1,63 @@
 @model MisureRicci.Models.ViewModels.UtenteAdminPageViewModel
-@{ ViewData["Title"] = "Modifica Utente"; }
-<div class="card p-4 mx-auto" style="max-width: 600px;">
-    <h1 class="sr-title mb-4">MODIFICA UTENTE</h1>
-    <form asp-action="Edit">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+@{
+    ViewData["Title"] = "Modifica Utente";
+}
+
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Access management</span>
+        <h1 class="page-title">Modifica utente</h1>
+        <p class="page-subtitle">Aggiorna ruolo, contesto boutique e stato di attivazione dell'account.</p>
+    </div>
+    <div class="page-actions">
+        <a asp-action="Index" class="btn btn-outline-secondary">Torna alla lista</a>
+    </div>
+</section>
+
+<form asp-action="Edit" class="form-shell">
+    <section class="form-section">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
         <input type="hidden" asp-for="Form.Id" />
-        <div class="mb-3"><label asp-for="Form.NomeCompleto" class="form-label sr-gold small text-uppercase"></label><input asp-for="Form.NomeCompleto" class="form-control" /></div>
-        <div class="mb-3"><label asp-for="Form.UserName" class="form-label sr-gold small text-uppercase"></label><input asp-for="Form.UserName" class="form-control" /></div>
-        <div class="mb-3"><label asp-for="Form.Email" class="form-label sr-gold small text-uppercase"></label><input asp-for="Form.Email" class="form-control" /></div>
-        <div class="mb-3">
-            <label asp-for="Form.Ruolo" class="form-label sr-gold small text-uppercase"></label>
-            <select asp-for="Form.Ruolo" class="form-select">
-                <option value="Admin">Amministratore</option>
-                <option value="Sartoria">Mastro Sarto</option>
-                <option value="Boutique">Personale Boutique</option>
-                <option value="Manager">Regional Manager</option>
-            </select>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <label asp-for="Form.NomeCompleto" class="form-label"></label>
+                <input asp-for="Form.NomeCompleto" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Form.UserName" class="form-label"></label>
+                <input asp-for="Form.UserName" class="form-control" />
+            </div>
+            <div class="col-12">
+                <label asp-for="Form.Email" class="form-label"></label>
+                <input asp-for="Form.Email" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Form.Ruolo" class="form-label"></label>
+                <select asp-for="Form.Ruolo" class="form-select">
+                    <option value="Admin">Amministratore</option>
+                    <option value="Sartoria">Mastro Sarto</option>
+                    <option value="Boutique">Personale Boutique</option>
+                    <option value="Manager">Regional Manager</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Form.NegozioId" class="form-label"></label>
+                <select asp-for="Form.NegozioId" class="form-select" asp-items="@(new SelectList(Model.Negozi, "Id", "Nome"))">
+                    <option value="">-- Seleziona Negozio --</option>
+                </select>
+            </div>
         </div>
-        <div class="mb-3">
-            <label asp-for="Form.NegozioId" class="form-label sr-gold small text-uppercase"></label>
-            <select asp-for="Form.NegozioId" class="form-select" asp-items="@(new SelectList(Model.Negozi, "Id", "Nome"))"><option value="">-- Seleziona Negozio --</option></select>
+
+        <div class="form-check form-switch mt-4">
+            <input asp-for="Form.Attivo" class="form-check-input" />
+            <label asp-for="Form.Attivo" class="form-check-label"></label>
         </div>
-        <div class="mb-3 form-check"><input asp-for="Form.Attivo" class="form-check-input" /><label asp-for="Form.Attivo" class="form-check-label sr-gold small text-uppercase"></label></div>
-        <div class="mt-4"><button type="submit" class="btn btn-primary">Salva</button><a asp-action="Index" class="btn btn-outline-secondary ms-2">Annulla</a></div>
-    </form>
-</div>
+    </section>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Salva</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Annulla</a>
+    </div>
+</form>

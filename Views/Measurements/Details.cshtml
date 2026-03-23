@@ -4,61 +4,82 @@
     ViewData["Title"] = "Dettagli " + Model.TipoMisura;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="sr-title mb-0">DETTAGLI MISURA: @Model.TipoMisura.ToUpper()</h1>
-    <div>
-        <a asp-action="Edit" asp-route-id="@Model.Id" asp-route-tipoMisura="@Model.TipoMisura" class="btn btn-outline-gold me-2">MODIFICA</a>
-        <a asp-controller="Clienti" asp-action="Details" asp-route-id="@Model.ClienteId" class="btn btn-outline-secondary">TORNA AL CLIENTE</a>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Legacy measurement</span>
+        <h1 class="page-title">@Model.TipoMisura.ToUpper()</h1>
+        <p class="page-subtitle">Dettaglio completo del record legacy associato a @Model.ClienteNome.</p>
     </div>
-</div>
-
-<div class="card p-4 mb-4">
-    <div class="row">
-        <div class="col-md-6 bordered-right">
-            <p class="mb-1 sr-gold small text-uppercase">Cliente</p>
-            <p class="fw-bold mb-3">@Model.ClienteNome</p>
-        </div>
-        <div class="col-md-6">
-            <p class="mb-1 sr-gold small text-uppercase">Data Creazione</p>
-            <p class="mb-3">@Model.CreatedAt.ToString("f")</p>
-        </div>
+    <div class="page-actions">
+        <a asp-action="Edit" asp-route-id="@Model.Id" asp-route-tipoMisura="@Model.TipoMisura" class="btn btn-primary">Modifica</a>
+        <a asp-controller="Clienti" asp-action="Details" asp-route-id="@Model.ClienteId" class="btn btn-outline-secondary">Torna al cliente</a>
     </div>
-</div>
+</section>
 
-<div class="card p-4 mb-4">
-    <h3 class="sr-title small mb-4">VALORI MISURATI</h3>
-    <div class="row">
+<div class="detail-stack">
+    <article class="detail-card">
+        <div class="detail-grid">
+            <div class="detail-row">
+                <span class="detail-row__label">Cliente</span>
+                <span class="detail-row__value">@Model.ClienteNome</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-row__label">Data creazione</span>
+                <span class="detail-row__value">@Model.CreatedAt.ToString("f")</span>
+            </div>
+        </div>
+    </article>
+
+    <article class="detail-card">
+        <div class="detail-card__header">
+            <div>
+                <h2 class="detail-card__title">Valori misurati</h2>
+                <p class="detail-card__subtitle">Lettura strutturata della scheda legacy.</p>
+            </div>
+        </div>
         @if (Model.Sections.Any())
         {
-            @foreach (var measurementSection in Model.Sections)
-            {
-                <div class="col-md-6">
-                    <h4 class="sr-gold mb-3">@measurementSection.Title</h4>
-                    @foreach (var field in measurementSection.Fields)
-                    {
-                        <p class="mb-1 text-muted small">@field.DisplayName</p>
-                        <p class="mb-3 fw-bold border-bottom border-gold-dim pb-1">@field.Value</p>
-                    }
-                </div>
-            }
+            <div class="detail-grid">
+                @foreach (var measurementSection in Model.Sections)
+                {
+                    <div class="detail-list">
+                        <div class="detail-row">
+                            <span class="detail-row__label">@measurementSection.Title</span>
+                        </div>
+                        @foreach (var field in measurementSection.Fields)
+                        {
+                            <div class="detail-row">
+                                <span class="detail-row__label">@field.DisplayName</span>
+                                <span class="detail-row__value">@field.Value</span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
         }
         else
         {
-            @foreach (var field in Model.Fields)
-            {
-                <div class="col-md-3 col-sm-6 mb-4">
-                    <p class="mb-1 sr-gold small text-uppercase">@field.DisplayName</p>
-                    <p class="fw-bold mb-0 fs-5 border-bottom border-gold-dim pb-1">@field.Value</p>
-                </div>
-            }
+            <div class="detail-grid">
+                @foreach (var field in Model.Fields)
+                {
+                    <div class="detail-row">
+                        <span class="detail-row__label">@field.DisplayName</span>
+                        <span class="detail-row__value">@field.Value</span>
+                    </div>
+                }
+            </div>
         }
-    </div>
-</div>
+    </article>
 
-@if (!string.IsNullOrEmpty(Model.Notes))
-{
-    <div class="card p-4">
-        <h3 class="sr-title small mb-3">NOTE</h3>
-        <p class="italic text-muted mb-0">@Model.Notes</p>
-    </div>
-}
+    @if (!string.IsNullOrEmpty(Model.Notes))
+    {
+        <article class="detail-card">
+            <div class="detail-card__header">
+                <div>
+                    <h2 class="detail-card__title">Note</h2>
+                </div>
+            </div>
+            <p class="mb-0">@Model.Notes</p>
+        </article>
+    }
+</div>

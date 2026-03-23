@@ -1,21 +1,32 @@
 @model MisureRicci.Models.ViewModels.CommessaCreateViewModel
 
 @{
-    ViewData["Title"] = "NUOVA COMMISSIONE";
+    ViewData["Title"] = "Nuova Commissione";
 }
 
-<div class="mb-4">
-    <h1 class="page-title">NUOVA COMMISSIONE</h1>
-    <p class="page-subtitle mb-0">Cliente: <strong>@Model.ClienteNome</strong></p>
-</div>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Order opening</span>
+        <h1 class="page-title">Apri nuova commissione</h1>
+        <p class="page-subtitle">Cliente: <strong>@Model.ClienteNome</strong>. Definisci capo, tempi e misure da collegare subito.</p>
+    </div>
+    <div class="page-actions">
+        <a asp-controller="Clienti" asp-action="Details" asp-route-id="@Model.ClienteId" class="btn btn-outline-secondary">Torna al cliente</a>
+    </div>
+</section>
 
-<div class="card p-4">
-    <form asp-action="Create" method="post">
-        <input type="hidden" asp-for="ClienteId" />
+<form asp-action="Create" method="post" class="form-shell">
+    <input type="hidden" asp-for="ClienteId" />
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-        <div class="row g-3">
+    <section class="form-section">
+        <div class="form-section__header">
+            <div>
+                <h2 class="form-section__title">Impostazioni commessa</h2>
+                <p class="form-section__text">Descrivi il capo e definisci il perimetro operativo iniziale.</p>
+            </div>
+        </div>
+        <div class="row g-4">
             <div class="col-md-6">
                 <label asp-for="TipoCapo" class="form-label"></label>
                 <input asp-for="TipoCapo" class="form-control" placeholder="Es. Giacca doppiopetto" />
@@ -38,49 +49,63 @@
             </div>
             <div class="col-12">
                 <label asp-for="NoteInterne" class="form-label"></label>
-                <textarea asp-for="NoteInterne" class="form-control" rows="4" placeholder="Indicazioni operative, preferenze vestibilita, urgenze..."></textarea>
+                <textarea asp-for="NoteInterne"
+                          class="form-control"
+                          rows="4"
+                          placeholder="Indicazioni operative, preferenze vestibilita', urgenze..."></textarea>
                 <span asp-validation-for="NoteInterne" class="text-danger"></span>
+            </div>
+        </div>
+    </section>
+
+    <section class="form-section">
+        <div class="form-section__header">
+            <div>
+                <h2 class="form-section__title">Misure da collegare</h2>
+                <p class="form-section__text">Seleziona le misure gia' disponibili da agganciare subito alla nuova commissione.</p>
             </div>
         </div>
 
         @if (Model.MisureDisponibili.Any())
         {
-            <div class="mt-4 pt-4 border-top">
-                <h3 class="sr-title small mb-3">COLLEGA MISURE ESISTENTI</h3>
-                <p class="text-muted small mb-3">Seleziona le misure da collegare immediatamente a questa nuova commissione.</p>
-                <div class="row g-2">
-                    @foreach (var misura in Model.MisureDisponibili)
-                    {
-                        <div class="col-md-6 col-lg-4">
-                            <div class="form-check card p-2 h-100 border-gold-dim">
-                                <input class="form-check-input ms-0 me-2" type="checkbox" name="SelectedMisuraIds" value="@misura.MisuraClienteId" id="misura_@misura.MisuraClienteId">
-                                <label class="form-check-label" for="misura_@misura.MisuraClienteId">
-                                    <strong>@misura.TipoMisura</strong><br/>
-                                    <span class="text-muted small">@misura.DataCreazione.ToString("dd/MM/yyyy HH:mm")</span><br/>
-                                    @if (!string.IsNullOrEmpty(misura.Note))
-                                    {
-                                        <span class="text-muted smaller d-block text-truncate" title="@misura.Note">@misura.Note</span>
-                                    }
-                                </label>
-                            </div>
-                        </div>
-                    }
-                </div>
+            <div class="selection-grid">
+                @foreach (var misura in Model.MisureDisponibili)
+                {
+                    <label class="selection-card d-flex align-items-start gap-3">
+                        <input class="form-check-input mt-1"
+                               type="checkbox"
+                               name="SelectedMisuraIds"
+                               value="@misura.MisuraClienteId"
+                               id="misura_@misura.MisuraClienteId">
+                        <span>
+                            <span class="selection-card__title d-block">@misura.TipoMisura</span>
+                            <span class="selection-card__meta d-block">@misura.DataCreazione.ToString("dd/MM/yyyy HH:mm")</span>
+                            @if (!string.IsNullOrEmpty(misura.Note))
+                            {
+                                <span class="selection-card__meta d-block">@misura.Note</span>
+                            }
+                        </span>
+                    </label>
+                }
             </div>
         }
         else
         {
-            <div class="mt-4 pt-4 border-top">
-                <p class="text-muted small">Il cliente non ha misure precedenti nel registro. Potrai crearne e collegarne di nuove dopo aver aperto la commissione.</p>
+            <div class="empty-state">
+                <div class="empty-state__icon"><i class="bi bi-rulers"></i></div>
+                <h3 class="empty-state__title">Nessuna misura disponibile</h3>
+                <p class="empty-state__text">Potrai crearla e collegarla subito dopo l'apertura della commissione.</p>
             </div>
         }
+    </section>
 
-        <div class="mt-4">
-            <button type="submit" class="btn btn-primary me-2">APRI COMMESSA</button>
-            <a asp-controller="Clienti" asp-action="Details" asp-route-id="@Model.ClienteId" class="btn btn-outline-secondary">ANNULLA</a>
-        </div>
-    </form>
-</div>
+    <div class="form-actions">
+        <a asp-controller="Clienti" asp-action="Details" asp-route-id="@Model.ClienteId" class="btn btn-outline-secondary">Annulla</a>
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check2-circle me-2"></i>Apri commissione
+        </button>
+    </div>
+</form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

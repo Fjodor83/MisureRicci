@@ -4,49 +4,56 @@
     ViewData["Title"] = "Dettagli Negozio - " + Model.Nome;
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-10">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="sr-title">DETTAGLI NEGOZIO</h1>
-            <div>
-                <a asp-action="Index" class="btn btn-outline-secondary me-2">TORNA ALLA LISTA</a>
-                <span class="badge @(Model.Attivo ? "bg-success" : "bg-danger") fs-6 py-2 px-3">
-                    @(Model.Attivo ? "OPERATIVO" : "NON OPERATIVO")
-                </span>
-            </div>
-        </div>
-
-        <div class="row g-4">
-            <div class="col-md-5">
-                <div class="card h-100 p-4">
-                    <h3 class="sr-gold small text-uppercase fw-bold mb-4">Informazioni Principali</h3>
-                    <div class="mb-4">
-                        <label class="text-muted small d-block">NOME NEGOZIO</label>
-                        <span class="fs-4 text-white fw-bold">@Model.Nome</span>
-                    </div>
-                    <div class="mb-4">
-                        <label class="text-muted small d-block">CODICE NEGOZIO</label>
-                        <span class="fs-5 sr-gold font-cinzel">@Model.CodiceNegozio</span>
-                    </div>
-                    <hr class="border-gold opacity-25" />
-                    <div class="mt-4">
-                        <label class="text-muted small d-block">UBICAZIONE</label>
-                        <p class="mb-1 text-white">@Model.Indirizzo</p>
-                        <p class="mb-0 text-white">@Model.Citta, @Model.Paese</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-7">
-                <div class="card h-100 p-4">
-                    <h3 class="sr-gold small text-uppercase fw-bold mb-4">Statistiche & Attività</h3>
-                    <div class="text-center py-5 border border-dashed rounded-3">
-                        <i class="bi bi-graph-up sr-gold fs-1 d-block mb-3"></i>
-                        <p class="text-muted mb-0">Nessuna statistica disponibile per questo punto vendita.</p>
-                        <small class="text-uppercase letter-spacing-1">In attesa di dati operativi</small>
-                    </div>
-                </div>
-            </div>
-        </div>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Network management</span>
+        <h1 class="page-title">@Model.Nome</h1>
+        <p class="page-subtitle">Scheda boutique con stato, codice e informazioni di localizzazione.</p>
     </div>
+    <div class="page-actions">
+        <span class="status-pill @(Model.Attivo ? "status-pill--success" : "status-pill--danger")">@(Model.Attivo ? "Operativo" : "Non operativo")</span>
+        <a asp-action="Index" class="btn btn-outline-secondary">Torna alla lista</a>
+    </div>
+</section>
+
+<div class="detail-grid">
+    <article class="detail-card">
+        <div class="detail-card__header">
+            <div>
+                <h2 class="detail-card__title">Informazioni principali</h2>
+            </div>
+        </div>
+        <div class="detail-list">
+            <div class="detail-row">
+                <span class="detail-row__label">Nome boutique</span>
+                <span class="detail-row__value">@Model.Nome</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-row__label">Codice negozio</span>
+                <span class="detail-row__value"><span class="table-code">@Model.CodiceNegozio</span></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-row__label">Indirizzo</span>
+                <span class="detail-row__value">@Model.Indirizzo</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-row__label">Citta' / Paese</span>
+                <span class="detail-row__value">@Model.Citta - @Model.Paese</span>
+            </div>
+        </div>
+    </article>
+
+    <article class="detail-card">
+        <div class="detail-card__header">
+            <div>
+                <h2 class="detail-card__title">Stato operativo</h2>
+                <p class="detail-card__subtitle">Sintesi rapida della disponibilita' della sede.</p>
+            </div>
+        </div>
+        <div class="empty-state">
+            <div class="empty-state__icon"><i class="bi bi-graph-up"></i></div>
+            <h3 class="empty-state__title">Dashboard sede</h3>
+            <p class="empty-state__text">La vista e' pronta per KPI e monitoraggio locale quando saranno disponibili dati dedicati.</p>
+        </div>
+    </article>
 </div>

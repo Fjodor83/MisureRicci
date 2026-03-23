@@ -11,216 +11,175 @@
         .ToList();
 }
 
-<div class="mb-4">
-    <h1 class="page-title">@Model.TipoNome.ToUpper() — MISURA DINAMICA</h1>
-    <p class="page-subtitle mb-0">Cliente: <strong>@Model.ClienteNome</strong></p>
-</div>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Dynamic measurement</span>
+        <h1 class="page-title">@Model.TipoNome</h1>
+        <p class="page-subtitle">Cliente: <strong>@Model.ClienteNome</strong>. Compila i campi usando il layout guidato per gruppi.</p>
+    </div>
+    <div class="page-actions">
+        <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.ClienteId" class="btn btn-outline-secondary">Torna alle tipologie</a>
+    </div>
+</section>
 
-<div class="card p-4">
-    <form asp-action="@(Model.RecordId == 0 ? "Create" : "Edit")" method="post">
-        <input type="hidden" asp-for="RecordId" />
-        <input type="hidden" asp-for="ClienteId" />
-        <input type="hidden" asp-for="MeasurementTypeId" />
+<form asp-action="@(Model.RecordId == 0 ? "Create" : "Edit")" method="post" class="form-shell">
+    <input type="hidden" asp-for="RecordId" />
+    <input type="hidden" asp-for="ClienteId" />
+    <input type="hidden" asp-for="MeasurementTypeId" />
 
-        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-        @if (!Model.Fields.Any())
+    @if (!Model.Fields.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-state__icon"><i class="bi bi-sliders2"></i></div>
+            <h3 class="empty-state__title">Tipologia senza campi attivi</h3>
+            <p class="empty-state__text">Configura i campi da area amministrativa prima di registrare questa misura.</p>
+        </div>
+    }
+    else
+    {
+        @for (int i = 0; i < Model.Fields.Count; i++)
         {
-            <div class="alert alert-warning">
-                Questa tipologia non ha ancora campi attivi. Configura i campi da area admin.
-            </div>
+            <input type="hidden" asp-for="Fields[i].FieldDefinitionId" />
+            <input type="hidden" asp-for="Fields[i].NomeCampo" />
+            <input type="hidden" asp-for="Fields[i].Etichetta" />
+            <input type="hidden" asp-for="Fields[i].Gruppo" />
+            <input type="hidden" asp-for="Fields[i].OrdineGruppo" />
+            <input type="hidden" asp-for="Fields[i].TipoDato" />
+            <input type="hidden" asp-for="Fields[i].Template" />
+            <input type="hidden" asp-for="Fields[i].UnitaMisura" />
+            <input type="hidden" asp-for="Fields[i].Placeholder" />
+            <input type="hidden" asp-for="Fields[i].HelpText" />
+            <input type="hidden" asp-for="Fields[i].Obbligatorio" />
+            <input type="hidden" asp-for="Fields[i].Ordine" />
         }
-        else
+
+        @foreach (var group in groupedFields)
         {
-            @for (int i = 0; i < Model.Fields.Count; i++)
-            {
-                <input type="hidden" asp-for="Fields[i].FieldDefinitionId" />
-                <input type="hidden" asp-for="Fields[i].NomeCampo" />
-                <input type="hidden" asp-for="Fields[i].Etichetta" />
-                <input type="hidden" asp-for="Fields[i].Gruppo" />
-                <input type="hidden" asp-for="Fields[i].OrdineGruppo" />
-                <input type="hidden" asp-for="Fields[i].TipoDato" />
-                <input type="hidden" asp-for="Fields[i].Template" />
-                <input type="hidden" asp-for="Fields[i].UnitaMisura" />
-                <input type="hidden" asp-for="Fields[i].Placeholder" />
-                <input type="hidden" asp-for="Fields[i].HelpText" />
-                <input type="hidden" asp-for="Fields[i].Obbligatorio" />
-                <input type="hidden" asp-for="Fields[i].Ordine" />
-            }
-
-            @foreach (var group in groupedFields)
-            {
-                <section class="dynamic-group mb-4">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <h3 class="sr-title small mb-0">@group.Key.Nome</h3>
-                        <span class="badge rounded-pill" style="background: rgba(212, 175, 55, 0.08); color: var(--sr-gold);">@group.Count() CAMPI</span>
+            <section class="page-surface dynamic-group">
+                <div class="table-toolbar">
+                    <div>
+                        <h2 class="detail-card__title">@group.Key.Nome</h2>
+                        <div class="toolbar-meta">Gruppo @group.Key.OrdineGruppo</div>
                     </div>
+                    <span class="toolbar-chip">@group.Count() campi</span>
+                </div>
 
-                    <div class="card p-3 mb-0 card-static">
-                        <div class="row g-3">
-                            @foreach (var field in group)
+                <div class="row g-3">
+                    @foreach (var field in group)
+                    {
+                        var fieldIndex = Model.Fields.FindIndex(x => x.FieldDefinitionId == field.FieldDefinitionId);
+                        var isStructure = field.Template == MisureRicci.Models.DynamicFieldTemplate.SectionHeader
+                            || field.Template == MisureRicci.Models.DynamicFieldTemplate.Divider
+                            || field.Template == MisureRicci.Models.DynamicFieldTemplate.AlertNote;
+                        var wrapperClass = field.Template switch
+                        {
+                            MisureRicci.Models.DynamicFieldTemplate.Compact => "col-md-4",
+                            MisureRicci.Models.DynamicFieldTemplate.Emphasis => "col-md-8",
+                            MisureRicci.Models.DynamicFieldTemplate.TwoColumnLocked => "col-md-6",
+                            MisureRicci.Models.DynamicFieldTemplate.Notes => "col-12",
+                            _ => "col-md-6"
+                        };
+
+                        if (isStructure)
+                        {
+                            wrapperClass = "col-12";
+                        }
+
+                        var shellClass = field.Template == MisureRicci.Models.DynamicFieldTemplate.Emphasis
+                            ? "dynamic-field-shell dynamic-field-shell--emphasis"
+                            : "dynamic-field-shell";
+
+                        <div class="@wrapperClass">
+                            @if (field.Template == MisureRicci.Models.DynamicFieldTemplate.SectionHeader)
                             {
-                                var fieldIndex = Model.Fields.FindIndex(x => x.FieldDefinitionId == field.FieldDefinitionId);
-                                var isStructure = field.Template == MisureRicci.Models.DynamicFieldTemplate.SectionHeader
-                                    || field.Template == MisureRicci.Models.DynamicFieldTemplate.Divider
-                                    || field.Template == MisureRicci.Models.DynamicFieldTemplate.AlertNote;
-                                var wrapperClass = field.Template switch
-                                {
-                                    MisureRicci.Models.DynamicFieldTemplate.Compact => "col-md-4",
-                                    MisureRicci.Models.DynamicFieldTemplate.Emphasis => "col-md-8",
-                                    MisureRicci.Models.DynamicFieldTemplate.TwoColumnLocked => "col-md-6 dynamic-two-col-locked",
-                                    MisureRicci.Models.DynamicFieldTemplate.Notes => "col-12",
-                                    _ => "col-md-6"
-                                };
-                                if (isStructure)
-                                {
-                                    wrapperClass = "col-12";
-                                }
-                                var shellClass = field.Template == MisureRicci.Models.DynamicFieldTemplate.Emphasis
-                                    ? "dynamic-field-shell dynamic-field-shell--emphasis"
-                                    : "dynamic-field-shell";
-
-                                <div class="@wrapperClass">
-                                    @if (field.Template == MisureRicci.Models.DynamicFieldTemplate.SectionHeader)
+                                <div class="dynamic-structure-header">
+                                    <h3 class="sr-title small mb-1">@Model.Fields[fieldIndex].Etichetta</h3>
+                                    @if (!string.IsNullOrWhiteSpace(Model.Fields[fieldIndex].HelpText))
                                     {
-                                        <div class="dynamic-structure-header">
-                                            <h4 class="sr-title small mb-1">@Model.Fields[fieldIndex].Etichetta</h4>
-                                            @if (!string.IsNullOrWhiteSpace(Model.Fields[fieldIndex].HelpText))
-                                            {
-                                                <div class="dynamic-field-help">@Model.Fields[fieldIndex].HelpText</div>
-                                            }
-                                        </div>
+                                        <div class="dynamic-field-help">@Model.Fields[fieldIndex].HelpText</div>
                                     }
-                                    else if (field.Template == MisureRicci.Models.DynamicFieldTemplate.Divider)
+                                </div>
+                            }
+                            else if (field.Template == MisureRicci.Models.DynamicFieldTemplate.Divider)
+                            {
+                                <hr class="dynamic-structure-divider" />
+                            }
+                            else if (field.Template == MisureRicci.Models.DynamicFieldTemplate.AlertNote)
+                            {
+                                <div class="dynamic-structure-alert alert alert-warning">
+                                    <div class="fw-bold">@Model.Fields[fieldIndex].Etichetta</div>
+                                    @if (!string.IsNullOrWhiteSpace(Model.Fields[fieldIndex].HelpText))
                                     {
-                                        <hr class="dynamic-structure-divider" />
+                                        <div class="dynamic-field-help">@Model.Fields[fieldIndex].HelpText</div>
                                     }
-                                    else if (field.Template == MisureRicci.Models.DynamicFieldTemplate.AlertNote)
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="@shellClass">
+                                    <label class="form-label">
+                                        @Model.Fields[fieldIndex].Etichetta
+                                        @if (!string.IsNullOrWhiteSpace(Model.Fields[fieldIndex].UnitaMisura))
+                                        {
+                                            <span class="text-muted">(@Model.Fields[fieldIndex].UnitaMisura)</span>
+                                        }
+                                        @if (Model.Fields[fieldIndex].Obbligatorio)
+                                        {
+                                            <span class="text-danger">*</span>
+                                        }
+                                    </label>
+
+                                    @switch (Model.Fields[fieldIndex].TipoDato)
                                     {
-                                        <div class="alert alert-warning dynamic-structure-alert mb-0">
-                                            <div class="fw-bold">@Model.Fields[fieldIndex].Etichetta</div>
-                                            @if (!string.IsNullOrWhiteSpace(Model.Fields[fieldIndex].HelpText))
+                                        case MisureRicci.Models.DynamicFieldType.Number:
+                                            <input asp-for="Fields[fieldIndex].Valore" type="number" step="1" class="form-control" placeholder="@Model.Fields[fieldIndex].Placeholder" />
+                                            break;
+                                        case MisureRicci.Models.DynamicFieldType.Decimal:
+                                            <input asp-for="Fields[fieldIndex].Valore" type="number" step="0.01" class="form-control" placeholder="@Model.Fields[fieldIndex].Placeholder" />
+                                            break;
+                                        case MisureRicci.Models.DynamicFieldType.Date:
+                                            <input asp-for="Fields[fieldIndex].Valore" type="date" class="form-control" />
+                                            break;
+                                        case MisureRicci.Models.DynamicFieldType.Boolean:
+                                            <select asp-for="Fields[fieldIndex].Valore" class="form-select">
+                                                <option value="">Seleziona...</option>
+                                                <option value="true">Si</option>
+                                                <option value="false">No</option>
+                                            </select>
+                                            break;
+                                        default:
+                                            if (Model.Fields[fieldIndex].Template == MisureRicci.Models.DynamicFieldTemplate.Notes)
                                             {
-                                                <div class="small">@Model.Fields[fieldIndex].HelpText</div>
+                                                <textarea asp-for="Fields[fieldIndex].Valore" rows="4" class="form-control" placeholder="@Model.Fields[fieldIndex].Placeholder"></textarea>
                                             }
-                                        </div>
+                                            else
+                                            {
+                                                <input asp-for="Fields[fieldIndex].Valore" class="form-control" placeholder="@Model.Fields[fieldIndex].Placeholder" />
+                                            }
+                                            break;
                                     }
-                                    else
+
+                                    @if (!string.IsNullOrWhiteSpace(Model.Fields[fieldIndex].HelpText))
                                     {
-                                        <div class="@shellClass">
-                                            <label class="form-label">
-                                                @Model.Fields[fieldIndex].Etichetta
-                                                @if (!string.IsNullOrWhiteSpace(Model.Fields[fieldIndex].UnitaMisura))
-                                                {
-                                                    <span class="text-muted">(@Model.Fields[fieldIndex].UnitaMisura)</span>
-                                                }
-                                                @if (Model.Fields[fieldIndex].Obbligatorio)
-                                                {
-                                                    <span class="text-danger">*</span>
-                                                }
-                                            </label>
-
-                                            @switch (Model.Fields[fieldIndex].TipoDato)
-                                            {
-                                                case MisureRicci.Models.DynamicFieldType.Number:
-                                                    <input asp-for="Fields[fieldIndex].Valore" type="number" step="1" class="form-control" placeholder="@Model.Fields[fieldIndex].Placeholder" />
-                                                    break;
-                                                case MisureRicci.Models.DynamicFieldType.Decimal:
-                                                    <input asp-for="Fields[fieldIndex].Valore" type="number" step="0.01" class="form-control" placeholder="@Model.Fields[fieldIndex].Placeholder" />
-                                                    break;
-                                                case MisureRicci.Models.DynamicFieldType.Date:
-                                                    <input asp-for="Fields[fieldIndex].Valore" type="date" class="form-control" />
-                                                    break;
-                                                case MisureRicci.Models.DynamicFieldType.Boolean:
-                                                    <select asp-for="Fields[fieldIndex].Valore" class="form-select">
-                                                        <option value="">Seleziona...</option>
-                                                        <option value="true">Sì</option>
-                                                        <option value="false">No</option>
-                                                    </select>
-                                                    break;
-                                                default:
-                                                    if (Model.Fields[fieldIndex].Template == MisureRicci.Models.DynamicFieldTemplate.Notes)
-                                                    {
-                                                        <textarea asp-for="Fields[fieldIndex].Valore" rows="4" class="form-control" placeholder="@Model.Fields[fieldIndex].Placeholder"></textarea>
-                                                    }
-                                                    else
-                                                    {
-                                                        <input asp-for="Fields[fieldIndex].Valore" class="form-control" placeholder="@Model.Fields[fieldIndex].Placeholder" />
-                                                    }
-                                                    break;
-                                            }
-
-                                            @if (!string.IsNullOrWhiteSpace(Model.Fields[fieldIndex].HelpText))
-                                            {
-                                                <div class="dynamic-field-help">@Model.Fields[fieldIndex].HelpText</div>
-                                            }
-                                        </div>
+                                        <div class="dynamic-field-help">@Model.Fields[fieldIndex].HelpText</div>
                                     }
                                 </div>
                             }
                         </div>
-                    </div>
-                </section>
-            }
+                    }
+                </div>
+            </section>
         }
+    }
 
-        <div class="mt-4">
-            <button type="submit" class="btn btn-primary me-2">@(Model.RecordId == 0 ? "Salva Misura" : "Aggiorna Misura")</button>
-            <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.ClienteId" class="btn btn-outline-secondary">Annulla</a>
-        </div>
-    </form>
-</div>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">@(Model.RecordId == 0 ? "Salva misura" : "Aggiorna misura")</button>
+        <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.ClienteId" class="btn btn-outline-secondary">Annulla</a>
+    </div>
+</form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-
-<style>
-    .dynamic-field-shell {
-        height: 100%;
-        padding: 1rem;
-        border: 1px solid rgba(212, 175, 55, 0.08);
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.01);
-    }
-
-    .dynamic-field-shell--emphasis {
-        border-color: rgba(212, 175, 55, 0.22);
-        background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(255, 255, 255, 0.01));
-        box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.06);
-    }
-
-    .dynamic-field-help {
-        margin-top: 0.45rem;
-        font-size: 0.78rem;
-        color: var(--text-muted);
-    }
-
-    .dynamic-structure-divider {
-        margin: 0.75rem 0;
-        border-color: rgba(212, 175, 55, 0.22);
-        opacity: 1;
-    }
-
-    .dynamic-structure-header {
-        padding: 0.35rem 0.2rem;
-        border-left: 3px solid rgba(212, 175, 55, 0.5);
-        padding-left: 0.75rem;
-    }
-
-    .dynamic-structure-alert {
-        border: 1px solid rgba(212, 175, 55, 0.32);
-        background: rgba(212, 175, 55, 0.08);
-    }
-
-    .dynamic-two-col-locked .dynamic-field-shell {
-        min-height: 100%;
-    }
-
-    @@media (min-width: 992px) {
-        .dynamic-two-col-locked {
-            flex: 0 0 50%;
-            max-width: 50%;
-        }
-    }
-</style>

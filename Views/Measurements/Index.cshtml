@@ -6,40 +6,46 @@
     var dynamicTypes = Model.DynamicMeasurementTypes;
 }
 
-<div class="text-center mb-5">
-    <h1 class="sr-title">GESTIONALE MISURE</h1>
-    <p class="sr-gold text-uppercase letter-spacing-2">Seleziona la categoria di abbigliamento per <strong>@Model.ClienteNome</strong></p>
-</div>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Measurement workspace</span>
+        <h1 class="page-title">Seleziona una tipologia</h1>
+        <p class="page-subtitle">
+            Cliente: <strong>@Model.ClienteNome</strong>. Scegli la categoria di misura e apri subito il form piu' adatto.
+        </p>
+    </div>
+    <div class="page-actions">
+        <a asp-controller="Clienti" asp-action="Details" asp-route-id="@clienteId" class="btn btn-outline-secondary">Torna al cliente</a>
+    </div>
+</section>
 
-<div class="row g-4">
-    @if (!dynamicTypes.Any())
-    {
-        <div class="col-12">
-            <div class="card p-5 text-center">
-                <i class="bi bi-sliders2 fs-1 sr-gold opacity-75 mb-3"></i>
-                <p class="text-muted mb-0">Nessuna tipologia attiva disponibile. Verifica il seed iniziale o la configurazione admin.</p>
-            </div>
-        </div>
-    }
-    else
-    {
+@if (!dynamicTypes.Any())
+{
+    <section class="empty-state">
+        <div class="empty-state__icon"><i class="bi bi-sliders2"></i></div>
+        <h2 class="empty-state__title">Nessuna tipologia attiva</h2>
+        <p class="empty-state__text">Verifica la configurazione amministrativa delle tipologie dinamiche prima di procedere.</p>
+    </section>
+}
+else
+{
+    <section class="feature-grid">
         @foreach (var type in dynamicTypes)
         {
-            <div class="col-md-4">
-                <a asp-controller="DynamicMeasurements" asp-action="Create" asp-route-clienteId="@clienteId" asp-route-typeId="@type.Id" class="text-decoration-none">
-                    <div class="card category-card h-100 card-glow">
-                        <i class="bi bi-sliders2-vertical sr-gold"></i>
-                        <h3 class="sr-title small">@type.Nome.ToUpper()</h3>
-                        <hr class="border-gold opacity-50 mx-4" />
-                        <p class="text-muted small px-3">@type.Descrizione</p>
-                    </div>
-                </a>
-            </div>
+            <a asp-controller="DynamicMeasurements"
+               asp-action="Create"
+               asp-route-clienteId="@clienteId"
+               asp-route-typeId="@type.Id"
+               class="feature-card">
+                <div class="feature-card__icon"><i class="bi bi-sliders2-vertical"></i></div>
+                <div>
+                    <h2 class="feature-card__title">@type.Nome</h2>
+                    <p class="feature-card__text">@type.Descrizione</p>
+                </div>
+                <div class="feature-card__actions">
+                    <span class="btn btn-outline-gold">Apri form</span>
+                </div>
+            </a>
         }
-    }
-</div>
-
-
-<div class="text-center mt-5 mb-5">
-    <a asp-controller="Clienti" asp-action="Details" asp-route-id="@clienteId" class="btn btn-outline-secondary px-5">TORNA AL PROFILO CLIENTE</a>
-</div>
+    </section>
+}

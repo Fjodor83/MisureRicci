@@ -1,22 +1,24 @@
 @model MisureRicci.Models.ViewModels.LegacyMeasurementDeleteViewModel
+
 @{
     ViewData["Title"] = "Elimina " + Model.TipoMisura;
 }
 
-<div class="card p-5 text-center mt-5" style="max-width: 600px; margin: 0 auto;">
-    <h1 class="text-danger mb-4"><i class="bi bi-exclamation-triangle-fill"></i> Elimina Misura @Model.TipoMisura</h1>
-    <p class="fs-5 mb-4">
-        Sei sicuro di voler eliminare questa misura dal profilo del cliente?<br/>
-        L'operazione rimuoverà la misura e il suo relativo tracciamento storico. <b>L'operazione non è reversibile.</b>
-    </p>
+<div class="confirm-shell">
+    <section class="confirm-card">
+        <div class="confirm-card__icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+        <h1 class="confirm-card__title">Elimina misura @Model.TipoMisura</h1>
+        <p class="confirm-card__text">
+            Stai per eliminare la misura dal profilo cliente. Il record verra' rimosso insieme al relativo tracciamento
+            storico e l'operazione non e' reversibile.
+        </p>
 
-    <form asp-action="Delete" method="post">
-        <input asp-for="Id" type="hidden" />
-        <input asp-for="TipoMisura" type="hidden" />
-        <input asp-for="RegistryId" type="hidden" />
-        <div class="d-flex justify-content-center gap-3 mt-3">
-            <button type="submit" class="btn btn-danger btn-lg">Conferma Eliminazione</button>
-            <a asp-controller="Clienti" asp-action="Details" asp-route-id="@Model.ClienteId" class="btn btn-outline-secondary btn-lg">Annulla</a>
-        </div>
-    </form>
+        <form asp-action="Delete" method="post" class="form-actions justify-content-center mt-4">
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="TipoMisura" type="hidden" />
+            <input asp-for="RegistryId" type="hidden" />
+            <button type="submit" class="btn btn-danger">Conferma eliminazione</button>
+            <a asp-controller="Clienti" asp-action="Details" asp-route-id="@Model.ClienteId" class="btn btn-outline-secondary">Annulla</a>
+        </form>
+    </section>
 </div>

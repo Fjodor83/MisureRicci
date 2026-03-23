@@ -4,117 +4,136 @@
     ViewData["Title"] = "Modifica Cliente";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-10">
-        <h1 class="sr-title">MODIFICA CLIENTE</h1>
-
-        <form asp-action="Edit" asp-route-id="@Model.Cliente.Id" class="mt-4">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input asp-for="Cliente.Id" type="hidden" />
-            <input asp-for="Cliente.ClientCode" type="hidden" />
-            <input asp-for="Cliente.DataRegistrazione" type="hidden" />
-
-            <div class="card p-4 mb-4">
-                <div class="row align-items-center">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label sr-gold">Codice Cliente</label>
-                        <input class="form-control" value="@Model.Cliente.ClientCode" readonly />
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label sr-gold">Data Registrazione</label>
-                        <input class="form-control" value="@Model.Cliente.DataRegistrazione.ToString("dd/MM/yyyy HH:mm")" readonly />
-                    </div>
-                </div>
-            </div>
-
-            <div class="card p-4 mb-4">
-                <h3 class="sr-title small mb-4">DATI PERSONALI</h3>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Cliente.Nome" class="form-label sr-gold"></label>
-                        <input asp-for="Cliente.Nome" class="form-control" />
-                        <span asp-validation-for="Cliente.Nome" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Cliente.Cognome" class="form-label sr-gold"></label>
-                        <input asp-for="Cliente.Cognome" class="form-control" />
-                        <span asp-validation-for="Cliente.Cognome" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Cliente.Email" class="form-label sr-gold"></label>
-                        <input asp-for="Cliente.Email" class="form-control" />
-                        <span asp-validation-for="Cliente.Email" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Cliente.Telefono" class="form-label sr-gold"></label>
-                        <input asp-for="Cliente.Telefono" class="form-control" />
-                        <span asp-validation-for="Cliente.Telefono" class="text-danger"></span>
-                    </div>
-                </div>
-                @if (Model.IsAdmin)
-                {
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="Cliente.NegozioId" class="form-label sr-gold"></label>
-                            <select asp-for="Cliente.NegozioId" class="form-select" asp-items="@(new Microsoft.AspNetCore.Mvc.Rendering.SelectList(Model.Negozi, "Id", "Nome"))">
-                                <option value="">Seleziona boutique</option>
-                            </select>
-                            <span asp-validation-for="Cliente.NegozioId" class="text-danger"></span>
-                        </div>
-                    </div>
-                }
-            </div>
-
-            <div class="card p-4 mb-4">
-                <h3 class="sr-title small mb-4">INDIRIZZO INTERNAZIONALE</h3>
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <label asp-for="Cliente.Indirizzo" class="form-label sr-gold"></label>
-                        <input asp-for="Cliente.Indirizzo" class="form-control" />
-                        <span asp-validation-for="Cliente.Indirizzo" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label asp-for="Cliente.Citta" class="form-label sr-gold"></label>
-                        <input asp-for="Cliente.Citta" class="form-control" />
-                        <span asp-validation-for="Cliente.Citta" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label asp-for="Cliente.StatoProvincia" class="form-label sr-gold"></label>
-                        <input asp-for="Cliente.StatoProvincia" class="form-control" />
-                        <span asp-validation-for="Cliente.StatoProvincia" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label asp-for="Cliente.CodicePostale" class="form-label sr-gold"></label>
-                        <input asp-for="Cliente.CodicePostale" class="form-control" />
-                        <span asp-validation-for="Cliente.CodicePostale" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Cliente.Paese" class="form-label sr-gold"></label>
-                        <input asp-for="Cliente.Paese" class="form-control" />
-                        <span asp-validation-for="Cliente.Paese" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card p-4 mb-4">
-                <label asp-for="Cliente.Note" class="form-label sr-gold"></label>
-                <textarea asp-for="Cliente.Note" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="Cliente.Note" class="text-danger"></span>
-            </div>
-
-            <div class="d-flex justify-content-end gap-2 mb-5">
-                <a asp-action="Index" class="btn btn-outline-secondary">ANNULLA</a>
-                <input type="submit" value="SALVA MODIFICHE" class="btn btn-primary px-5" />
-            </div>
-        </form>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Customer maintenance</span>
+        <h1 class="page-title">Aggiorna profilo cliente</h1>
+        <p class="page-subtitle">Modifica dati anagrafici, assegnazione boutique e note senza alterare lo storico.</p>
     </div>
-</div>
+    <div class="page-actions">
+        <a asp-action="Details" asp-route-id="@Model.Cliente.Id" class="btn btn-outline-secondary">Torna al dossier</a>
+    </div>
+</section>
+
+<form asp-action="Edit" asp-route-id="@Model.Cliente.Id" class="form-shell">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+    <input asp-for="Cliente.Id" type="hidden" />
+    <input asp-for="Cliente.ClientCode" type="hidden" />
+    <input asp-for="Cliente.DataRegistrazione" type="hidden" />
+
+    <section class="form-section">
+        <div class="detail-grid">
+            <div class="detail-row">
+                <span class="detail-row__label">Codice cliente</span>
+                <span class="detail-row__value">@Model.Cliente.ClientCode</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-row__label">Data registrazione</span>
+                <span class="detail-row__value">@Model.Cliente.DataRegistrazione.ToString("dd/MM/yyyy HH:mm")</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="form-section">
+        <div class="form-section__header">
+            <div>
+                <h2 class="form-section__title">Dati personali</h2>
+                <p class="form-section__text">Aggiorna anagrafica, recapiti e contesto commerciale.</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <label asp-for="Cliente.Nome" class="form-label"></label>
+                <input asp-for="Cliente.Nome" class="form-control" />
+                <span asp-validation-for="Cliente.Nome" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Cliente.Cognome" class="form-label"></label>
+                <input asp-for="Cliente.Cognome" class="form-control" />
+                <span asp-validation-for="Cliente.Cognome" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Cliente.Email" class="form-label"></label>
+                <input asp-for="Cliente.Email" class="form-control" />
+                <span asp-validation-for="Cliente.Email" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Cliente.Telefono" class="form-label"></label>
+                <input asp-for="Cliente.Telefono" class="form-control" />
+                <span asp-validation-for="Cliente.Telefono" class="text-danger"></span>
+            </div>
+            @if (Model.IsAdmin)
+            {
+                <div class="col-md-6">
+                    <label asp-for="Cliente.NegozioId" class="form-label"></label>
+                    <select asp-for="Cliente.NegozioId"
+                            class="form-select"
+                            asp-items="@(new Microsoft.AspNetCore.Mvc.Rendering.SelectList(Model.Negozi, "Id", "Nome"))">
+                        <option value="">Seleziona boutique</option>
+                    </select>
+                    <span asp-validation-for="Cliente.NegozioId" class="text-danger"></span>
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="form-section">
+        <div class="form-section__header">
+            <div>
+                <h2 class="form-section__title">Indirizzo</h2>
+                <p class="form-section__text">Mantieni coerente il profilo logistico e territoriale del cliente.</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-12">
+                <label asp-for="Cliente.Indirizzo" class="form-label"></label>
+                <input asp-for="Cliente.Indirizzo" class="form-control" />
+                <span asp-validation-for="Cliente.Indirizzo" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Cliente.Citta" class="form-label"></label>
+                <input asp-for="Cliente.Citta" class="form-control" />
+                <span asp-validation-for="Cliente.Citta" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Cliente.StatoProvincia" class="form-label"></label>
+                <input asp-for="Cliente.StatoProvincia" class="form-control" />
+                <span asp-validation-for="Cliente.StatoProvincia" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Cliente.CodicePostale" class="form-label"></label>
+                <input asp-for="Cliente.CodicePostale" class="form-control" />
+                <span asp-validation-for="Cliente.CodicePostale" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Cliente.Paese" class="form-label"></label>
+                <input asp-for="Cliente.Paese" class="form-control" />
+                <span asp-validation-for="Cliente.Paese" class="text-danger"></span>
+            </div>
+        </div>
+    </section>
+
+    <section class="form-section">
+        <div class="form-section__header">
+            <div>
+                <h2 class="form-section__title">Note operative</h2>
+                <p class="form-section__text">Preferenze di calzata, dettagli sartoriali e osservazioni interne.</p>
+            </div>
+        </div>
+        <div>
+            <label asp-for="Cliente.Note" class="form-label"></label>
+            <textarea asp-for="Cliente.Note" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="Cliente.Note" class="text-danger"></span>
+        </div>
+    </section>
+
+    <div class="form-actions">
+        <a asp-action="Details" asp-route-id="@Model.Cliente.Id" class="btn btn-outline-secondary">Annulla</a>
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save me-2"></i>Salva modifiche
+        </button>
+    </div>
+</form>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

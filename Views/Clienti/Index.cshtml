@@ -4,72 +4,129 @@
     ViewData["Title"] = "Gestione Clienti";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4 animate__animated animate__fadeInDown">
-    <div>
-        <h1 class="page-title">ANAGRAFICA CLIENTI</h1>
-        <p class="page-subtitle mt-2 mb-0">Database Sartoriale Globale</p>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Customer archive</span>
+        <h1 class="page-title">Clienti e dossier misure</h1>
+        <p class="page-subtitle">
+            Archivio clienti, ricerca rapida e accesso diretto ai dossier sartoriali senza cambiare flusso.
+        </p>
     </div>
-    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-person-plus-fill me-2"></i> Nuovo Cliente</a>
-</div>
+    <div class="page-actions">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-person-plus-fill me-2"></i>Nuovo cliente
+        </a>
+        <a asp-controller="Measurements" asp-action="GlobalRegistry" class="btn btn-outline-secondary">
+            <i class="bi bi-rulers me-2"></i>Registro globale
+        </a>
+    </div>
+</section>
 
-<div class="card p-4 mb-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
-    <form asp-action="Index" method="get" class="row g-3">
-        <div class="col-md-10">
+<section class="page-surface mb-4">
+    <form asp-action="Index" method="get" class="row g-3 align-items-end">
+        <div class="col-lg-9">
+            <label class="form-label">Ricerca</label>
             <div class="input-group">
-                <span class="input-group-text bg-transparent border-gold text-gold"><i class="bi bi-search" style="color: var(--sr-gold);"></i></span>
-                <input type="text" name="searchString" class="form-control border-start-0 ps-0" style="box-shadow: none;" placeholder="Cerca per nome, cognome o codice sartoriale..." value="@Model.SearchString" />
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text"
+                       name="searchString"
+                       class="form-control"
+                       placeholder="Cerca per nome, cognome o codice cliente..."
+                       value="@Model.SearchString" />
             </div>
         </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-outline-gold w-100 h-100">CERCA</button>
+        <div class="col-lg-3 d-grid">
+            <button type="submit" class="btn btn-outline-gold">
+                <i class="bi bi-funnel me-2"></i>Applica filtro
+            </button>
         </div>
     </form>
-</div>
+</section>
 
-<div class="card overflow-hidden animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
-    <div class="table-responsive">
-        <table class="table table-hover mb-0">
-            <thead>
-                <tr>
-                    <th>Codice</th>
-                    <th>Nome Completo</th>
-                    <th>Località</th>
-                    <th>Email / Contatto</th>
-                    <th>Primo Incontro</th>
-                    <th class="text-end">Registro Misure</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.Clienti) {
-                <tr style="transition: all 0.3s ease;">
-                    <td><span class="badge" style="background: rgba(212, 175, 55, 0.1); color: var(--sr-gold); border: 1px solid rgba(212, 175, 55, 0.3); letter-spacing: 1px;">@item.ClientCode</span></td>
-                    <td class="fw-bold font-cinzel" style="letter-spacing: 1px;">@item.Nome @item.Cognome</td>
-                    <td class="text-muted"><i class="bi bi-geo-alt-fill me-1 small"></i> @item.Paese</td>
-                    <td class="text-muted small" style="font-family: monospace;">@item.Email</td>
-                    <td class="small text-muted">@item.DataRegistrazione.ToString("dd MMMM yyyy")</td>
-                    <td class="text-end">
-                        <div class="btn-group btn-group-sm">
-                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-gold" title="Storico Misure"><i class="bi bi-folder2-open me-2"></i> DOSSIER</a>
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary" title="Modifica"><i class="bi bi-pencil-square"></i></a>
-                        </div>
-                    </td>
-                </tr>
-                }
-            </tbody>
-        </table>
+<section class="data-table-card">
+    <div class="table-toolbar">
+        <div>
+            <h2 class="detail-card__title">Elenco clienti</h2>
+            <div class="toolbar-meta">
+                @(string.IsNullOrWhiteSpace(Model.SearchString)
+                    ? "Vista completa dell'anagrafica clienti."
+                    : $"Filtro attivo: {Model.SearchString}")
+            </div>
+        </div>
+        <span class="toolbar-chip">@Model.Clienti.Count clienti visibili</span>
     </div>
-</div>
 
-<div class="d-flex justify-content-center mt-4">
-    <nav aria-label="Page navigation">
-        <ul class="pagination pagination-sm">
-            @for (int i = 1; i <= (Model.TotalPages <= 0 ? 1 : Model.TotalPages); i++)
-            {
-                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                    <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-searchString="@Model.SearchString">@i</a>
-                </li>
-            }
-        </ul>
-    </nav>
-</div>
+    @if (Model.Clienti.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Codice</th>
+                        <th>Cliente</th>
+                        <th>Localita'</th>
+                        <th>Contatto</th>
+                        <th>Registrato il</th>
+                        <th class="text-end">Azioni</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Clienti)
+                    {
+                        <tr>
+                            <td><span class="table-code">@item.ClientCode</span></td>
+                            <td>
+                                <div class="table-user">
+                                    <div class="avatar-circle">@(string.IsNullOrWhiteSpace(item.Nome) ? "?" : item.Nome.Substring(0, 1).ToUpper())</div>
+                                    <div class="table-user__body">
+                                        <span class="table-user__title">@item.Nome @item.Cognome</span>
+                                        <span class="table-user__meta">Dossier cliente e storico operativo</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@item.Citta, @item.Paese</td>
+                            <td class="text-muted">@item.Email</td>
+                            <td>@item.DataRegistrazione.ToString("dd MMM yyyy")</td>
+                            <td class="text-end">
+                                <div class="page-actions justify-content-end">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-gold">Dossier</a>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Modifica</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-state__icon"><i class="bi bi-search"></i></div>
+            <h3 class="empty-state__title">Nessun cliente trovato</h3>
+            <p class="empty-state__text">
+                Prova a rimuovere il filtro oppure registra un nuovo cliente per iniziare il flusso misure.
+            </p>
+            <a asp-action="Create" class="btn btn-primary">Registra cliente</a>
+        </div>
+    }
+</section>
 
+@if (Model.TotalPages > 1)
+{
+    <div class="d-flex justify-content-center mt-4">
+        <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@i"
+                           asp-route-searchString="@Model.SearchString">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+}

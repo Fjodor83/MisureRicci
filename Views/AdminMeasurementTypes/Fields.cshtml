@@ -4,15 +4,29 @@
     ViewData["Title"] = "Campi Tipologia";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h1 class="page-title">CAMPI: @Model.Type.Nome.ToUpper()</h1>
-        <p class="page-subtitle mb-0">Definizione dinamica dei campi per la tipologia.</p>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Admin configuration</span>
+        <h1 class="page-title">@Model.Type.Nome</h1>
+        <p class="page-subtitle">Definizione dinamica dei campi per la tipologia selezionata.</p>
     </div>
-    <a asp-action="CreateField" asp-route-typeId="@Model.Type.Id" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Nuovo Campo</a>
-</div>
+    <div class="page-actions">
+        <a asp-action="CreateField" asp-route-typeId="@Model.Type.Id" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>Nuovo campo
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">Torna alle tipologie</a>
+    </div>
+</section>
 
-<div class="card card-static p-3">
+<section class="data-table-card">
+    <div class="table-toolbar">
+        <div>
+            <h2 class="detail-card__title">Struttura campi</h2>
+            <div class="toolbar-meta">Ordine, gruppo, template e stato dei campi configurati.</div>
+        </div>
+        <span class="toolbar-chip">@Model.Fields.Count campo/i</span>
+    </div>
+
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
             <thead>
@@ -55,15 +69,17 @@
                             </td>
                             <td>@field.TipoDato</td>
                             <td>@field.Template</td>
-                            <td><span class="badge @(field.Obbligatorio ? "bg-warning text-dark" : "bg-secondary")">@(field.Obbligatorio ? "Si" : "No")</span></td>
-                            <td><span class="badge @(field.IsActive ? "bg-success" : "bg-secondary")">@(field.IsActive ? "Attivo" : "Off")</span></td>
+                            <td><span class="status-pill @(field.Obbligatorio ? "status-pill--warning" : "status-pill--neutral")">@(field.Obbligatorio ? "Si" : "No")</span></td>
+                            <td><span class="status-pill @(field.IsActive ? "status-pill--success" : "status-pill--neutral")">@(field.IsActive ? "Attivo" : "Off")</span></td>
                             <td class="text-end">
-                                <a asp-action="EditField" asp-route-id="@field.Id" class="btn btn-sm btn-outline-secondary me-1">Modifica</a>
-                                <form asp-action="DeleteField" method="post" class="d-inline">
-                                    <input type="hidden" name="id" value="@field.Id" />
-                                    <input type="hidden" name="typeId" value="@Model.Type.Id" />
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Eliminare questo campo?');">Elimina</button>
-                                </form>
+                                <div class="page-actions justify-content-end">
+                                    <a asp-action="EditField" asp-route-id="@field.Id" class="btn btn-sm btn-outline-secondary">Modifica</a>
+                                    <form asp-action="DeleteField" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@field.Id" />
+                                        <input type="hidden" name="typeId" value="@Model.Type.Id" />
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Eliminare questo campo?');">Elimina</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     }
@@ -71,8 +87,4 @@
             </tbody>
         </table>
     </div>
-</div>
-
-<div class="mt-4">
-    <a asp-action="Index" class="btn btn-outline-secondary">Torna alle Tipologie</a>
-</div>
+</section>

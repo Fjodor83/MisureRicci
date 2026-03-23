@@ -1,158 +1,186 @@
 @model MisureRicci.Models.ViewModels.DashboardKpiViewModel
 @{
-    ViewData["Title"] = "Premium SaaS Dashboard";
+    ViewData["Title"] = "Business Dashboard";
 }
 
-<div class="container-fluid py-2">
-    <!-- Header Dashboard -->
-    <div class="row mb-5 animate__animated animate__fadeInDown">
-        <div class="col-12">
-            <div class="card p-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h1 class="page-title">SISTEMA CENTRALE</h1>
-                        <p class="page-subtitle mt-2 mb-0">Controllo Globale e Analitica Operativa</p>
-                    </div>
-                    <div class="text-end">
-                        <span class="badge bg-success mb-2"><i class="bi bi-broadcast"></i> SR-SYNC ONLINE</span>
-                        <br />
-                        <span class="sr-gold font-cinzel small letter-spacing-1">@DateTime.Now.ToString("dd MMMM yyyy").ToUpper()</span>
-                    </div>
-                </div>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Business control</span>
+        <h1 class="page-title">Sartorial operations cockpit</h1>
+        <p class="page-subtitle">
+            Vista centrale per clienti, boutique, misure e flussi operativi. Il layout mette in primo piano
+            le aree di lavoro piu' usate e riduce il rumore visivo nei passaggi quotidiani.
+        </p>
+        <div class="page-actions">
+            <a asp-controller="Clienti" asp-action="Index" class="btn btn-primary">
+                <i class="bi bi-people-fill me-2"></i>Apri anagrafica clienti
+            </a>
+            <a asp-controller="Commissioni" asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-journal-check me-2"></i>Vai alle commissioni
+            </a>
+        </div>
+    </div>
+    <div class="page-hero__aside">
+        <div class="page-surface">
+            <div class="detail-row">
+                <span class="detail-row__label">Stato workspace</span>
+                <span class="detail-row__value">Online e sincronizzato</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-row__label">Aggiornato</span>
+                <span class="detail-row__value">@DateTime.Now.ToString("dd MMM yyyy")</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-row__label">Focus</span>
+                <span class="detail-row__value">Operazioni, report e archivio misure</span>
             </div>
         </div>
     </div>
+</section>
 
-    <!-- Quick Stats Cards -->
-    <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="card h-100 p-4 text-center animate__animated animate__zoomIn" style="animation-delay: 0.1s;">
-                <i class="bi bi-people-fill sr-gold fs-1 mb-3"></i>
-                <h4 class="page-subtitle">Totale Clienti</h4>
-                <div class="display-5 fw-bold font-cinzel my-2">@Model.TotalClients</div>
-                <progress class="progress w-100 mt-auto" value="70" max="100" style="height: 4px; border-radius: 2px;">70%</progress>
+<section class="metric-grid">
+    <article class="metric-card">
+        <div class="metric-card__head">
+            <div>
+                <div class="metric-label">Totale clienti</div>
+                <div class="metric-value">@Model.TotalClients</div>
             </div>
+            <div class="metric-card__icon"><i class="bi bi-people-fill"></i></div>
         </div>
-        <div class="col-md-3">
-            <div class="card h-100 p-4 text-center animate__animated animate__zoomIn" style="animation-delay: 0.2s;">
-                <i class="bi bi-shop sr-gold fs-1 mb-3"></i>
-                <h4 class="page-subtitle">Boutique Attive</h4>
-                <div class="display-5 fw-bold font-cinzel my-2">@Model.TotalStores</div>
-                <progress class="progress w-100 mt-auto" value="85" max="100" style="height: 4px; border-radius: 2px;">85%</progress>
+        <div class="metric-meta">Base clienti attiva e consultabile da archivio centrale.</div>
+        <div class="metric-bar metric-bar--78"><span></span></div>
+    </article>
+    <article class="metric-card">
+        <div class="metric-card__head">
+            <div>
+                <div class="metric-label">Boutique attive</div>
+                <div class="metric-value">@Model.TotalStores</div>
             </div>
+            <div class="metric-card__icon"><i class="bi bi-shop"></i></div>
         </div>
-        <div class="col-md-3">
-            <div class="card h-100 p-4 text-center animate__animated animate__zoomIn" style="animation-delay: 0.3s;">
-                <i class="bi bi-rulers sr-gold fs-1 mb-3"></i>
-                <h4 class="page-subtitle">Misure Sartoriali</h4>
-                <div class="display-5 fw-bold font-cinzel my-2">@Model.TotalMeasurements</div>
-                <progress class="progress w-100 mt-auto" value="60" max="100" style="height: 4px; border-radius: 2px;">60%</progress>
+        <div class="metric-meta">Presidio territoriale gestito da una singola shell operativa.</div>
+        <div class="metric-bar metric-bar--64"><span></span></div>
+    </article>
+    <article class="metric-card">
+        <div class="metric-card__head">
+            <div>
+                <div class="metric-label">Misure archiviate</div>
+                <div class="metric-value">@Model.TotalMeasurements</div>
             </div>
+            <div class="metric-card__icon"><i class="bi bi-rulers"></i></div>
         </div>
-        <div class="col-md-3">
-            <div class="card h-100 p-4 text-center animate__animated animate__zoomIn" style="animation-delay: 0.4s;">
-                <i class="bi bi-shield-lock-fill sr-gold fs-1 mb-3"></i>
-                <h4 class="page-subtitle">Staff Operativo</h4>
-                <div class="display-5 fw-bold font-cinzel my-2">@Model.TotalStaff</div>
-                <progress class="progress w-100 mt-auto" value="40" max="100" style="height: 4px; border-radius: 2px;">40%</progress>
+        <div class="metric-meta">Registro storico disponibile per tipologia, cliente e commessa.</div>
+        <div class="metric-bar metric-bar--72"><span></span></div>
+    </article>
+    <article class="metric-card">
+        <div class="metric-card__head">
+            <div>
+                <div class="metric-label">Staff operativo</div>
+                <div class="metric-value">@Model.TotalStaff</div>
             </div>
+            <div class="metric-card__icon"><i class="bi bi-person-badge-fill"></i></div>
         </div>
+        <div class="metric-meta">Utenti, ruoli e responsabilita' concentrati in un unico pannello.</div>
+        <div class="metric-bar metric-bar--58"><span></span></div>
+    </article>
+</section>
+
+<section class="page-grid page-grid--sidebar">
+    <div class="feature-grid">
+        <article class="feature-card">
+            <div class="feature-card__icon"><i class="bi bi-person-lines-fill"></i></div>
+            <div>
+                <h2 class="feature-card__title">Clienti e dossier</h2>
+                <p class="feature-card__text">Anagrafica, preferenze e storico misure raccolti in una vista chiara e leggibile.</p>
+            </div>
+            <div class="feature-card__actions">
+                <a asp-controller="Clienti" asp-action="Index" class="btn btn-outline-gold">Apri clienti</a>
+            </div>
+        </article>
+
+        <article class="feature-card">
+            <div class="feature-card__icon"><i class="bi bi-journal-text"></i></div>
+            <div>
+                <h2 class="feature-card__title">Commissioni</h2>
+                <p class="feature-card__text">Ordini, stati, note operative e timeline evento nella stessa esperienza.</p>
+            </div>
+            <div class="feature-card__actions">
+                <a asp-controller="Commissioni" asp-action="Index" class="btn btn-outline-gold">Apri commissioni</a>
+            </div>
+        </article>
+
+        <article class="feature-card">
+            <div class="feature-card__icon"><i class="bi bi-sliders2"></i></div>
+            <div>
+                <h2 class="feature-card__title">Tipologie dinamiche</h2>
+                <p class="feature-card__text">Configurazione campi e template pensata per amministrazione e manutenzione rapida.</p>
+            </div>
+            <div class="feature-card__actions">
+                <a asp-controller="AdminMeasurementTypes" asp-action="Index" class="btn btn-outline-secondary">Configura tipologie</a>
+            </div>
+        </article>
+
+        <article class="feature-card">
+            <div class="feature-card__icon"><i class="bi bi-file-earmark-arrow-down"></i></div>
+            <div>
+                <h2 class="feature-card__title">Export e report</h2>
+                <p class="feature-card__text">CSV coerenti con il tenant e accessibili senza uscire dal flusso di lavoro.</p>
+            </div>
+            <div class="feature-card__actions">
+                <a asp-controller="Report" asp-action="Index" class="btn btn-primary">Apri report</a>
+            </div>
+        </article>
     </div>
 
-    <div class="row g-5">
-        <!-- Main Management Sections -->
-        <div class="col-lg-8 animate__animated animate__fadeInLeft" style="animation-delay: 0.5s;">
-            <h2 class="sr-title small mb-4">Aree Gestionali</h2>
-            
-            <div class="row g-4">
-                <!-- Clients Sector -->
-                <div class="col-md-6">
-                    <div class="card p-4 h-100">
-                        <div class="d-flex justify-content-between">
-                            <h3 class="sr-title small mb-3">GESTIONE CLIENTI</h3>
-                            <i class="bi bi-arrow-up-right sr-gold"></i>
-                        </div>
-                        <p class="text-muted small mb-4">Anagrafica completa, storico misure e preferenze sartoriali internazionali.</p>
-                        <div class="mt-auto">
-                            <a asp-controller="Clienti" asp-action="Index" class="btn btn-outline-gold w-100">Accedi Anagrafica</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Stores Sector -->
-                <div class="col-md-6">
-                    <div class="card p-4 h-100">
-                        <div class="d-flex justify-content-between">
-                            <h3 class="sr-title small mb-3">RETE BOUTIQUE</h3>
-                            <i class="bi bi-map-fill sr-gold"></i>
-                        </div>
-                        <p class="text-muted small mb-4">Configurazione punti vendita, boutique e laboratori di sartoria globali.</p>
-                        <div class="mt-auto">
-                            <a asp-controller="Negozi" asp-action="Index" class="btn btn-outline-gold w-100">Gestisci Sedi</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Staff/Users Sector -->
-                <div class="col-md-6">
-                    <div class="card p-4 h-100" style="border-width: 2px !important; border-color: rgba(212, 175, 55, 0.4) !important;">
-                        <div class="d-flex justify-content-between">
-                            <h3 class="sr-title small mb-3">SICUREZZA & STAFF</h3>
-                            <i class="bi bi-shield-check sr-gold"></i>
-                        </div>
-                        <p class="text-muted small mb-4">Controllo accessi per sarti, manager e personale di vendita (SaaS roles).</p>
-                        <div class="mt-auto">
-                            <a asp-controller="Utenti" asp-action="Index" class="btn btn-primary w-100">Amministra Utenti</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Global Sync Sector -->
-                <div class="col-md-6">
-                    <div class="card p-4 h-100">
-                        <div class="d-flex justify-content-between">
-                            <h3 class="sr-title small mb-3">REPORT & EXPORT</h3>
-                            <i class="bi bi-file-earmark-excel sr-gold"></i>
-                        </div>
-                        <p class="text-muted small mb-4">Esportazione anagrafiche e storico misure in formato CSV per Excel.</p>
-                        <div class="mt-auto d-grid gap-2">
-                            <a asp-controller="Report" asp-action="ExportClientiCsv" class="btn btn-outline-gold"><i class="bi bi-download me-1"></i> Export Clienti</a>
-                            <a asp-controller="Report" asp-action="ExportMisureCsv" class="btn btn-outline-secondary"><i class="bi bi-download me-1"></i> Export Misure</a>
-                        </div>
-                    </div>
+    <div class="detail-stack">
+        <article class="detail-card">
+            <div class="detail-card__header">
+                <div>
+                    <h2 class="detail-card__title">Registro rapido</h2>
+                    <p class="detail-card__subtitle">Accesso diretto alle categorie di misura piu' usate.</p>
                 </div>
             </div>
-        </div>
+            <div class="quick-links">
+                <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="giacca" class="quick-link">
+                    <span><i class="bi bi-suit-spade-fill me-2 text-gold"></i>Giacche e capispalla</span>
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+                <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="pantalone" class="quick-link">
+                    <span><i class="bi bi-layout-sidebar-inset me-2 text-gold"></i>Pantaloni</span>
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+                <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="camicia" class="quick-link">
+                    <span><i class="bi bi-layers-fill me-2 text-gold"></i>Camicie</span>
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+                <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="scarpe" class="quick-link">
+                    <span><i class="bi bi-circle-square me-2 text-gold"></i>Scarpe e accessori</span>
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </article>
 
-        <!-- Measurements Quick View -->
-        <div class="col-lg-4 animate__animated animate__fadeInRight" style="animation-delay: 0.6s;">
-            <h2 class="sr-title small mb-4">Registro Rapido</h2>
-            <div class="card p-0 overflow-hidden mb-4">
-                <div class="list-group list-group-flush border">
-                    <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="giacca" class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center text-decoration-none">
-                        <span class="fw-bold font-cinzel letter-spacing-1"><i class="bi bi-suit-spade-fill me-3 sr-gold"></i> GIACCA E CAPISPALLA</span>
-                        <i class="bi bi-chevron-right text-muted"></i>
-                    </a>
-                    <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="pantalone" class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center text-decoration-none">
-                        <span class="fw-bold font-cinzel letter-spacing-1"><i class="bi bi-layout-sidebar-inset me-3 sr-gold"></i> PANTALONE SARTORIALE</span>
-                        <i class="bi bi-chevron-right text-muted"></i>
-                    </a>
-                    <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="camicia" class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center text-decoration-none">
-                        <span class="fw-bold font-cinzel letter-spacing-1"><i class="bi bi-layers-fill me-3 sr-gold"></i> CAMICERIA E MAGLIERIA</span>
-                        <i class="bi bi-chevron-right text-muted"></i>
-                    </a>
-                    <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="scarpe" class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center text-decoration-none">
-                        <span class="fw-bold font-cinzel letter-spacing-1"><i class="bi bi-vinyl-fill me-3 sr-gold"></i> SCARPE E ACCESSORI</span>
-                        <i class="bi bi-chevron-right text-muted"></i>
-                    </a>
+        <article class="detail-card">
+            <div class="detail-card__header">
+                <div>
+                    <h2 class="detail-card__title">Direzione visiva</h2>
+                    <p class="detail-card__subtitle">Interfaccia ripensata per leggibilita', densita' informativa e decisioni rapide.</p>
                 </div>
             </div>
-
-            <div class="card p-4 text-center mt-4 border-0" style="background: linear-gradient(135deg, rgba(212,175,55,0.2), rgba(153,101,21,0.1)); border: 1px solid rgba(212,175,55,0.3) !important;">
-                <i class="bi bi-cpu-fill fs-2 sr-gold animate__animated animate__pulse animate__infinite"></i>
-                <h5 class="font-cinzel mt-3 mb-1 letter-spacing-1">INTELLIGENZA ARTIGIANALE</h5>
-                <p class="small text-muted mb-0">Sincronizzazione globale sartoria C-Level attiva e monitorata H24.</p>
+            <div class="detail-list">
+                <div class="detail-row">
+                    <span class="detail-row__label">Gerarchia</span>
+                    <span class="detail-row__value">Hero chiari, tabelle pulite, form divisi per sezioni operative.</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row__label">Palette</span>
+                    <span class="detail-row__value">Neutri caldi, bronzo sartoriale e contrasti piu' controllati.</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row__label">Mobile first</span>
+                    <span class="detail-row__value">Sidebar collassabile, CTA leggibili e blocchi responsivi.</span>
+                </div>
             </div>
-        </div>
+        </article>
     </div>
-</div>
+</section>

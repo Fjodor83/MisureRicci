@@ -4,24 +4,31 @@
     ViewData["Title"] = "Modifica " + Model.TipoMisura;
 }
 
-<h1 class="sr-title mb-4">MODIFICA MISURA: @Model.TipoMisura.ToUpper()</h1>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Legacy measurement</span>
+        <h1 class="page-title">Modifica @Model.TipoMisura.ToUpper()</h1>
+        <p class="page-subtitle">Aggiorna i valori del record legacy mantenendo invariata la struttura del form.</p>
+    </div>
+    <div class="page-actions">
+        <a asp-controller="Clienti" asp-action="Details" asp-route-id="@Model.ClienteId" class="btn btn-outline-secondary">Torna al cliente</a>
+    </div>
+</section>
 
-<form asp-action="Edit" method="post">
+<form asp-action="Edit" method="post" class="form-shell">
     <input asp-for="Id" type="hidden" />
     <input asp-for="ClienteId" type="hidden" />
     <input asp-for="TipoMisura" type="hidden" />
-    
-    <div class="card p-4 mb-4">
-        <div class="row">
-            @if (!Model.CanEditFields)
-            {
-                <div class="alert alert-warning mb-0">
-                    @Model.WarningMessage
-                </div>
-            }
-            else
-            {
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <section class="form-section">
+        @if (!Model.CanEditFields)
+        {
+            <div class="alert alert-warning mb-0">@Model.WarningMessage</div>
+        }
+        else
+        {
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div class="row g-4">
                 @for (var index = 0; index < Model.Fields.Count; index++)
                 {
                     <input asp-for="Fields[index].Name" type="hidden" />
@@ -30,28 +37,30 @@
 
                     if (Model.Fields[index].IsMultiline)
                     {
-                        <div class="col-12 mb-3 mt-3">
-                            <label asp-for="Fields[index].Value" class="form-label sr-gold small text-uppercase">@Model.Fields[index].DisplayName</label>
-                            <textarea asp-for="Fields[index].Value" class="form-control" rows="3"></textarea>
+                        <div class="col-12">
+                            <label asp-for="Fields[index].Value" class="form-label">@Model.Fields[index].DisplayName</label>
+                            <textarea asp-for="Fields[index].Value" class="form-control" rows="4"></textarea>
                             <span asp-validation-for="Fields[index].Value" class="text-danger"></span>
                         </div>
                     }
                     else
                     {
-                        <div class="col-md-4 mb-3">
-                            <label asp-for="Fields[index].Value" class="form-label sr-gold small text-uppercase">@Model.Fields[index].DisplayName</label>
+                        <div class="col-md-4">
+                            <label asp-for="Fields[index].Value" class="form-label">@Model.Fields[index].DisplayName</label>
                             <input asp-for="Fields[index].Value" type="text" class="form-control" />
                             <span asp-validation-for="Fields[index].Value" class="text-danger"></span>
                         </div>
                     }
                 }
-            }
-        </div>
-    </div>
+            </div>
+        }
+    </section>
 
-    @if (Model.CanEditFields)
-    {
-        <button type="submit" class="btn btn-primary">SALVA MODIFICHE</button>
-    }
-    <a asp-controller="Clienti" asp-action="Details" asp-route-id="@Model.ClienteId" class="btn btn-outline-secondary">ANNULLA</a>
+    <div class="form-actions">
+        @if (Model.CanEditFields)
+        {
+            <button type="submit" class="btn btn-primary">Salva modifiche</button>
+        }
+        <a asp-controller="Clienti" asp-action="Details" asp-route-id="@Model.ClienteId" class="btn btn-outline-secondary">Annulla</a>
+    </div>
 </form>

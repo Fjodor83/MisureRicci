@@ -2,127 +2,155 @@
 
 @{
     ViewData["Title"] = "Dettagli Cliente";
+    var cliente = Model.Cliente;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeInDown">
-    <div>
-        <h1 class="page-title">DETTAGLI CLIENTE</h1>
-        <p class="page-subtitle mt-2 mb-0">@Model.Cliente.Nome @Model.Cliente.Cognome - @Model.Cliente.ClientCode</p>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Customer dossier</span>
+        <h1 class="page-title">@cliente.Nome @cliente.Cognome</h1>
+        <p class="page-subtitle">
+            Profilo cliente, recapiti, note sartoriali e cronologia misure in una singola vista di lavoro.
+        </p>
     </div>
-    <div>
-        <a asp-action="Edit" asp-route-id="@Model.Cliente.Id" class="btn btn-primary me-2"><i class="bi bi-pencil-fill me-2"></i> UPDATE</a>
-        <a asp-action="Index" class="btn btn-outline-secondary">INDIETRO</a>
+    <div class="page-actions">
+        <a asp-action="Edit" asp-route-id="@cliente.Id" class="btn btn-primary">
+            <i class="bi bi-pencil-square me-2"></i>Modifica
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">Torna all'elenco</a>
     </div>
-</div>
+</section>
 
 <div class="row g-4">
-    <!-- Sezione SX: Info & Azioni Rapide -->
-    <div class="col-md-4">
-        <div class="card p-4 h-100 animate__animated animate__fadeInLeft" style="animation-delay: 0.1s;">
-            <div class="text-center mb-4">
-                <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.3);">
-                    <i class="bi bi-person-bounding-box fs-1 sr-gold"></i>
+    <div class="col-xl-4">
+        <article class="detail-card h-100">
+            <div class="detail-hero mb-4">
+                <div class="detail-hero__avatar"><i class="bi bi-person-bounding-box"></i></div>
+                <div>
+                    <h2 class="detail-hero__title">@cliente.ClientCode</h2>
+                    <div class="detail-hero__meta">Cliente registrato il @cliente.DataRegistrazione.ToString("dd MMM yyyy")</div>
                 </div>
-                <h3 class="font-cinzel text-white letter-spacing-1 mb-0">@Model.Cliente.Nome @Model.Cliente.Cognome</h3>
-                <span class="badge mt-2" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">VIP CLIENT</span>
             </div>
 
-            <hr style="border-color: rgba(212, 175, 55, 0.2);" class="mb-4">
+            <div class="detail-list mb-4">
+                <div class="detail-row">
+                    <span class="detail-row__label">Email</span>
+                    <span class="detail-row__value">@cliente.Email</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row__label">Telefono</span>
+                    <span class="detail-row__value">@(string.IsNullOrWhiteSpace(cliente.Telefono) ? "Non indicato" : cliente.Telefono)</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row__label">Stato profilo</span>
+                    <span class="detail-row__value">Attivo e disponibile per misure e commissioni</span>
+                </div>
+            </div>
 
-            <div class="mb-4">
-                <p class="mb-1 sr-gold-light small text-uppercase letter-spacing-1">Email / Telefono</p>
-                <p class="font-monospace text-muted mb-0 small">@Model.Cliente.Email</p>
-                <p class="font-monospace text-muted small">@(Model.Cliente.Telefono ?? "N/A")</p>
+            <div class="d-grid gap-2">
+                <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@cliente.Id" class="btn btn-outline-gold">
+                    <i class="bi bi-rulers me-2"></i>Nuova misura
+                </a>
+                <a asp-controller="Commissioni" asp-action="Create" asp-route-clienteId="@cliente.Id" class="btn btn-outline-gold">
+                    <i class="bi bi-journal-plus me-2"></i>Nuova commissione
+                </a>
+                <a asp-controller="Commissioni" asp-action="Index" asp-route-clienteId="@cliente.Id" class="btn btn-outline-secondary">
+                    <i class="bi bi-list-check me-2"></i>Vedi commissioni
+                </a>
+                <a href="/pdf/dossier/@cliente.Id" target="_blank" class="btn btn-outline-secondary">
+                    <i class="bi bi-printer me-2"></i>Stampa dossier
+                </a>
             </div>
-            
-            <div class="mb-4">
-                <p class="mb-1 sr-gold-light small text-uppercase letter-spacing-1">Data Registrazione</p>
-                <p class="text-white small mb-0 font-cinzel letter-spacing-1">@Model.Cliente.DataRegistrazione.ToString("dd MMMM yyyy")</p>
-            </div>
-
-            <div class="mt-auto d-grid gap-3">
-                <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.Cliente.Id" class="btn btn-outline-gold w-100"><i class="bi bi-rulers me-2"></i> NUOVA MISURA</a>
-                <a asp-controller="Commissioni" asp-action="Create" asp-route-clienteId="@Model.Cliente.Id" class="btn btn-outline-gold w-100"><i class="bi bi-journal-plus me-2"></i> NUOVA COMMISSIONE</a>
-                <a asp-controller="Commissioni" asp-action="Index" asp-route-clienteId="@Model.Cliente.Id" class="btn btn-outline-gold w-100"><i class="bi bi-list-check me-2"></i> VEDI COMMISSIONI</a>
-                <a href="/pdf/dossier/@Model.Cliente.Id" target="_blank" class="btn btn-outline-secondary w-100"><i class="bi bi-printer me-2"></i> STAMPA DETTAGLI</a>
-            </div>
-        </div>
+        </article>
     </div>
 
-    <!-- Sezione DX: Indirizzo, Note & Storico Misure -->
-    <div class="col-md-8">
-        <div class="row g-4 h-100">
-            <!-- Indirizzo e Note -->
-            <div class="col-12">
-                <div class="card p-4 animate__animated animate__fadeInRight" style="animation-delay: 0.2s;">
-                    <div class="row">
-                        <div class="col-md-6 border-end" style="border-color: var(--border-color) !important;">
-                            <h3 class="sr-title small mb-3"><i class="bi bi-geo-alt-fill me-2"></i> RESIDENZA</h3>
-                            <address class="text-muted small mb-0 lh-lg" style="font-family: inherit;">
-                                @Model.Cliente.Indirizzo<br />
-                                @Model.Cliente.CodicePostale @Model.Cliente.Citta<br />
-                                @Model.Cliente.StatoProvincia<br />
-                                <strong class="text-white letter-spacing-1">@Model.Cliente.Paese</strong>
-                            </address>
+    <div class="col-xl-8">
+        <div class="detail-stack">
+            <article class="detail-card">
+                <div class="detail-card__header">
+                    <div>
+                        <h2 class="detail-card__title">Profilo e preferenze</h2>
+                        <p class="detail-card__subtitle">Contatti, indirizzo e note sartoriali del cliente.</p>
+                    </div>
+                </div>
+                <div class="detail-grid">
+                    <div class="detail-list">
+                        <div class="detail-row">
+                            <span class="detail-row__label">Indirizzo</span>
+                            <span class="detail-row__value">@cliente.Indirizzo</span>
                         </div>
-                        <div class="col-md-6 ps-md-4 pt-4 pt-md-0">
-                            <h3 class="sr-title small mb-3"><i class="bi bi-bookmark-star-fill me-2"></i> NOTE SARTORIALI</h3>
-                            <p class="fst-italic text-muted small lh-lg mb-0 text-white-50">@(Model.Cliente.Note ?? "Nessuna preferenza sartoriale indicata.")</p>
+                        <div class="detail-row">
+                            <span class="detail-row__label">Citta' / CAP</span>
+                            <span class="detail-row__value">@cliente.Citta - @cliente.CodicePostale</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-row__label">Provincia / Paese</span>
+                            <span class="detail-row__value">@cliente.StatoProvincia - @cliente.Paese</span>
+                        </div>
+                    </div>
+                    <div class="detail-list">
+                        <div class="detail-row">
+                            <span class="detail-row__label">Note sartoriali</span>
+                            <span class="detail-row__value">
+                                @(string.IsNullOrWhiteSpace(cliente.Note)
+                                    ? "Nessuna preferenza o nota operativa registrata."
+                                    : cliente.Note)
+                            </span>
                         </div>
                     </div>
                 </div>
-            </div>
+            </article>
 
-            <!-- Storico Misure -->
-            <div class="col-12">
-                <div class="card p-0 overflow-hidden h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
-                    <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom border-gold-dim">
-                        <h3 class="sr-title small mb-0"><i class="bi bi-clock-history me-2"></i> ARCHIVIO SARTORIALE</h3>
-                        <span class="badge" style="background: rgba(212, 175, 55, 0.1); color: var(--sr-gold);">@(Model.History != null ? Model.History.Count : 0) RECORD</span>
+            <article class="data-table-card">
+                <div class="table-toolbar">
+                    <div>
+                        <h2 class="detail-card__title">Storico misure</h2>
+                        <div class="toolbar-meta">Cronologia completa delle schede associate al cliente.</div>
                     </div>
-                    
-                    <div class="card-body p-0">
-                        @if (Model.History != null && Model.History.Any())
-                        {
-                            <div class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th class="ps-4">DATA</th>
-                                            <th>CATEGORIA</th>
-                                            <th class="text-end pe-4">AZIONI</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var entry in (List<MisureRicci.Models.MisureCliente>)Model.History)
-                                        {
-                                            <tr style="transition: background-color 0.3s ease;">
-                                                <td class="ps-4 text-muted small font-cinzel">@entry.DataCreazione.ToString("dd MMM yyyy - HH:mm")</td>
-                                                <td>
-                                                    <span class="badge rounded-pill fw-normal" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.3); color: var(--sr-gold-light); letter-spacing: 1px;">@entry.TipoMisura.ToUpper()</span>
-                                                </td>
-                                                <td class="text-end pe-4">
-                                                    <a asp-controller="Measurements" asp-action="Details" asp-route-id="@entry.RecordId" asp-route-tipoMisura="@entry.TipoMisura" asp-route-registryId="@entry.Id" class="btn btn-sm btn-outline-gold"><i class="bi bi-eye-fill"></i> VEDI</a>
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="text-center py-5">
-                                <i class="bi bi-file-earmark-x fs-1 sr-gold opacity-50 mb-3 d-block"></i>
-                                <p class="text-muted small letter-spacing-1">NESSUNA SCHEDA SARTORIALE PRESENTE.</p>
-                                <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.Cliente.Id" class="btn btn-outline-gold mt-2 btn-sm">CREA SCHEDA ORA</a>
-                            </div>
-                        }
-                    </div>
+                    <span class="toolbar-chip">@((Model.History?.Count ?? 0)) record</span>
                 </div>
-            </div>
+
+                @if (Model.History != null && Model.History.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Categoria</th>
+                                    <th class="text-end">Azione</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var entry in (List<MisureRicci.Models.MisureCliente>)Model.History)
+                                {
+                                    <tr>
+                                        <td>@entry.DataCreazione.ToString("dd MMM yyyy - HH:mm")</td>
+                                        <td><span class="table-code">@entry.TipoMisura.ToUpper()</span></td>
+                                        <td class="text-end">
+                                            <a asp-controller="Measurements"
+                                               asp-action="Details"
+                                               asp-route-id="@entry.RecordId"
+                                               asp-route-tipoMisura="@entry.TipoMisura"
+                                               asp-route-registryId="@entry.Id"
+                                               class="btn btn-sm btn-outline-gold">Apri scheda</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <div class="empty-state__icon"><i class="bi bi-file-earmark-plus"></i></div>
+                        <h3 class="empty-state__title">Nessuna misura registrata</h3>
+                        <p class="empty-state__text">Il dossier e' pronto, ma non esistono ancora misure collegate a questo cliente.</p>
+                        <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@cliente.Id" class="btn btn-primary">Crea prima misura</a>
+                    </div>
+                }
+            </article>
         </div>
     </div>
 </div>
-
-

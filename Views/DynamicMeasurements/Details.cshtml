@@ -15,31 +15,36 @@
         .ToList();
 }
 
-<div class="mb-4 d-flex justify-content-between align-items-center">
-    <div>
-        <h1 class="page-title">DETTAGLIO @Model.MeasurementType?.Nome?.ToUpper()</h1>
-        <p class="page-subtitle mb-0">Cliente: <strong>@Model.Cliente?.Nome @Model.Cliente?.Cognome</strong></p>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Dynamic measurement</span>
+        <h1 class="page-title">@Model.MeasurementType?.Nome</h1>
+        <p class="page-subtitle">Cliente: <strong>@Model.Cliente?.Nome @Model.Cliente?.Cognome</strong></p>
     </div>
-    <div class="d-flex align-items-center gap-2">
-        <div class="text-muted small me-2">@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-gold">Modifica</a>
+    <div class="page-actions">
+        <span class="toolbar-chip">@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Modifica</a>
         <form asp-action="Delete" method="post" class="d-inline">
             <input type="hidden" name="id" value="@Model.Id" />
             <input type="hidden" name="clienteId" value="@Model.ClienteId" />
-            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Eliminare questa misura dinamica?');">Elimina</button>
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Eliminare questa misura dinamica?');">Elimina</button>
         </form>
     </div>
-</div>
+</section>
 
 @foreach (var group in groupedValues)
 {
-    <div class="card p-4 mb-3">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="sr-title small mb-0">@group.Key.Nome</h3>
-            <span class="badge rounded-pill" style="background: rgba(212, 175, 55, 0.08); color: var(--sr-gold);">@group.Count() VALORI</span>
+    <section class="data-table-card mb-4">
+        <div class="table-toolbar">
+            <div>
+                <h2 class="detail-card__title">@group.Key.Nome</h2>
+                <div class="toolbar-meta">Gruppo @group.Key.Ordine</div>
+            </div>
+            <span class="toolbar-chip">@group.Count() valori</span>
         </div>
+
         <div class="table-responsive">
-            <table class="table mb-0">
+            <table class="table align-middle mb-0">
                 <thead>
                     <tr>
                         <th>Campo</th>
@@ -47,25 +52,25 @@
                     </tr>
                 </thead>
                 <tbody>
-                @foreach (var value in group)
-                {
-                    <tr>
-                        <td>
-                            <div class="fw-bold">@value.MeasurementFieldDefinition?.Etichetta</div>
-                            @if (!string.IsNullOrWhiteSpace(value.MeasurementFieldDefinition?.HelpText))
-                            {
-                                <div class="text-muted small">@value.MeasurementFieldDefinition?.HelpText</div>
-                            }
-                        </td>
-                        <td>@value.Valore @(string.IsNullOrWhiteSpace(value.MeasurementFieldDefinition?.UnitaMisura) ? "" : value.MeasurementFieldDefinition?.UnitaMisura)</td>
-                    </tr>
-                }
+                    @foreach (var value in group)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-bold">@value.MeasurementFieldDefinition?.Etichetta</div>
+                                @if (!string.IsNullOrWhiteSpace(value.MeasurementFieldDefinition?.HelpText))
+                                {
+                                    <div class="text-muted small">@value.MeasurementFieldDefinition?.HelpText</div>
+                                }
+                            </td>
+                            <td>@value.Valore @(string.IsNullOrWhiteSpace(value.MeasurementFieldDefinition?.UnitaMisura) ? "" : value.MeasurementFieldDefinition?.UnitaMisura)</td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
-    </div>
+    </section>
 }
 
-<div class="mt-4">
-    <a asp-controller="Clienti" asp-action="Details" asp-route-id="@Model.ClienteId" class="btn btn-outline-secondary">Torna al Cliente</a>
+<div class="form-actions">
+    <a asp-controller="Clienti" asp-action="Details" asp-route-id="@Model.ClienteId" class="btn btn-outline-secondary">Torna al cliente</a>
 </div>

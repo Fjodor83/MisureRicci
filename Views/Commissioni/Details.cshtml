@@ -5,329 +5,390 @@
     var commessa = Model.Commessa;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h1 class="page-title mb-0">COMMESSA @commessa.CommessaCode</h1>
-        <p class="page-subtitle mt-2 mb-0">@commessa.Cliente?.Nome @commessa.Cliente?.Cognome - @commessa.TipoCapo</p>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Order tracking</span>
+        <h1 class="page-title">Commessa @commessa.CommessaCode</h1>
+        <p class="page-subtitle">@commessa.Cliente?.Nome @commessa.Cliente?.Cognome - @commessa.TipoCapo</p>
     </div>
-    <div class="d-flex gap-2">
-        <a asp-action="Index" asp-route-clienteId="@commessa.ClienteId" class="btn btn-outline-secondary">ELENCO Commissioni</a>
-        <a asp-controller="Clienti" asp-action="Details" asp-route-id="@commessa.ClienteId" class="btn btn-outline-gold">TORNA AL CLIENTE</a>
+    <div class="page-actions">
+        <a asp-action="Index" asp-route-clienteId="@commessa.ClienteId" class="btn btn-outline-secondary">Elenco commissioni</a>
+        <a asp-controller="Clienti" asp-action="Details" asp-route-id="@commessa.ClienteId" class="btn btn-outline-gold">Torna al cliente</a>
     </div>
-</div>
+</section>
 
 @if (TempData["CommessaError"] is string commessaError && !string.IsNullOrWhiteSpace(commessaError))
 {
-    <div class="alert alert-warning">@commessaError</div>
+    <div class="alert alert-warning mb-4">@commessaError</div>
 }
 
 <div class="row g-4">
-    <div class="col-lg-5">
-        <div class="card p-4 mb-4">
-            <h3 class="sr-title small mb-3">INFORMAZIONI COMMESSA</h3>
-            <p class="mb-2"><strong>Stato:</strong> @commessa.Stato</p>
-            <p class="mb-2"><strong>Aperta il:</strong> @commessa.DataApertura.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
-            <p class="mb-2"><strong>Consegna prevista:</strong> @(commessa.DataConsegnaPrevista?.ToString("dd/MM/yyyy") ?? "-")</p>
-            <p class="mb-2"><strong>Consegna effettiva:</strong> @(commessa.DataConsegnaEffettiva?.ToString("dd/MM/yyyy HH:mm") ?? "-")</p>
-            <p class="mb-0"><strong>Negozio:</strong> @(commessa.Negozio?.Nome ?? "Non assegnato")</p>
-        </div>
-
-        <div class="card p-4 mb-4">
-            <h3 class="sr-title small mb-3">AGGIORNA STATO</h3>
-            <form asp-action="AdvanceStato" method="post">
-                <input type="hidden" name="id" value="@commessa.Id" />
-                <div class="mb-3">
-                    <label class="form-label">Nuovo Stato</label>
-                    <select name="nuovoStato" class="form-select">
-                        @foreach (var stato in Model.StatiDisponibili)
-                        {
-                            <option value="@stato">@stato</option>
-                        }
-                    </select>
+    <div class="col-xl-4">
+        <div class="detail-stack">
+            <article class="detail-card">
+                <div class="detail-card__header">
+                    <div>
+                        <h2 class="detail-card__title">Informazioni commessa</h2>
+                        <p class="detail-card__subtitle">Stato, tempi e boutique associata.</p>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Nota cambio stato</label>
-                    <textarea name="note" class="form-control" rows="3" placeholder="Dettagli su avanzamento, prova o consegna..."></textarea>
+                <div class="detail-list">
+                    <div class="detail-row">
+                        <span class="detail-row__label">Stato</span>
+                        <span class="detail-row__value"><span class="status-pill status-pill--accent">@commessa.Stato</span></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-row__label">Aperta il</span>
+                        <span class="detail-row__value">@commessa.DataApertura.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-row__label">Consegna prevista</span>
+                        <span class="detail-row__value">@(commessa.DataConsegnaPrevista?.ToString("dd/MM/yyyy") ?? "-")</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-row__label">Consegna effettiva</span>
+                        <span class="detail-row__value">@(commessa.DataConsegnaEffettiva?.ToString("dd/MM/yyyy HH:mm") ?? "-")</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-row__label">Negozio</span>
+                        <span class="detail-row__value">@(commessa.Negozio?.Nome ?? "Non assegnato")</span>
+                    </div>
                 </div>
-                @if (Model.StatiDisponibili.Any())
-                {
-                    <button type="submit" class="btn btn-primary w-100">SALVA STATO</button>
-                }
-                else
-                {
-                    <button type="button" class="btn btn-secondary w-100" disabled>Nessuna transizione disponibile</button>
-                }
-            </form>
-        </div>
+            </article>
 
-        <div class="card p-4">
-            <h3 class="sr-title small mb-3">AGGIUNGI NOTA</h3>
-            <form asp-action="AddNota" method="post">
-                <input type="hidden" name="id" value="@commessa.Id" />
-                <textarea name="nota" class="form-control" rows="3" placeholder="Nota interna per laboratorio, boutique o prova cliente..."></textarea>
-                <button type="submit" class="btn btn-outline-gold w-100 mt-3">AGGIUNGI NOTA</button>
-            </form>
+            <article class="form-shell">
+                <section class="form-section">
+                    <div class="form-section__header">
+                        <div>
+                            <h2 class="form-section__title">Aggiorna stato</h2>
+                            <p class="form-section__text">Transizione guidata con nota operativa opzionale.</p>
+                        </div>
+                    </div>
+                    <form asp-action="AdvanceStato" method="post">
+                        <input type="hidden" name="id" value="@commessa.Id" />
+                        <div class="mb-3">
+                            <label class="form-label">Nuovo stato</label>
+                            <select name="nuovoStato" class="form-select">
+                                @foreach (var stato in Model.StatiDisponibili)
+                                {
+                                    <option value="@stato">@stato</option>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Nota cambio stato</label>
+                            <textarea name="note" class="form-control" rows="3" placeholder="Dettagli su avanzamento, prova o consegna..."></textarea>
+                        </div>
+                        <div class="form-actions mt-3">
+                            @if (Model.StatiDisponibili.Any())
+                            {
+                                <button type="submit" class="btn btn-primary w-100">Salva stato</button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-outline-secondary w-100" disabled>Nessuna transizione disponibile</button>
+                            }
+                        </div>
+                    </form>
+                </section>
+
+                <section class="form-section">
+                    <div class="form-section__header">
+                        <div>
+                            <h2 class="form-section__title">Aggiungi nota</h2>
+                            <p class="form-section__text">Nuove informazioni per laboratorio, boutique o prova cliente.</p>
+                        </div>
+                    </div>
+                    <form asp-action="AddNota" method="post">
+                        <input type="hidden" name="id" value="@commessa.Id" />
+                        <textarea name="nota" class="form-control" rows="3" placeholder="Nota interna per laboratorio, boutique o prova cliente..."></textarea>
+                        <div class="form-actions mt-3">
+                            <button type="submit" class="btn btn-outline-gold w-100">Aggiungi nota</button>
+                        </div>
+                    </form>
+                </section>
+            </article>
         </div>
     </div>
 
-    <div class="col-lg-7">
-        <div class="card p-4 mb-4">
-            <h3 class="sr-title small mb-3">NOTE INTERNE ATTUALI</h3>
-            <p class="mb-0 text-muted" style="white-space: pre-line;">@(string.IsNullOrWhiteSpace(commessa.NoteInterne) ? "Nessuna nota operativa." : commessa.NoteInterne)</p>
-        </div>
-
-        @* Misure collegate *@
-        <div class="card p-4 mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="sr-title small mb-0">MISURE COLLEGATE ALLA COMMESSA</h3>
-                @{
-                    bool matchFound = Model.MisureCollegate.Any(m => 
-                        commessa.TipoCapo.Contains(m.TipoMisura, StringComparison.OrdinalIgnoreCase) || 
-                        m.TipoMisura.Contains(commessa.TipoCapo.Split(' ')[0], StringComparison.OrdinalIgnoreCase));
-                }
-                @if (!matchFound && Model.MisureCollegate.Any())
-                {
-                    <span class="badge bg-soft-warning text-warning border border-warning px-2 py-1">
-                        <i class="bi bi-exclamation-triangle-fill me-1"></i> Tipo capo non corrispondente
-                    </span>
-                }
-            </div>
-            @if (Model.MisureCollegate.Any())
-            {
-                <div class="table-responsive">
-                    <table class="table table-sm mb-0">
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Tipo</th>
-                                <th>Origine</th>
-                                <th class="text-end">Azione</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @foreach (var misura in Model.MisureCollegate)
-                        {
-                            <tr>
-                                <td>@misura.DataCreazione.ToString("dd/MM/yyyy HH:mm")</td>
-                                <td>
-                                    <span class="fw-bold">@misura.TipoMisura</span>
-                                </td>
-                                <td>@(misura.IsDynamic ? "Dinamica" : "Legacy")</td>
-                                <td class="text-end">
-                                    <form asp-action="UnlinkMisura" method="post" class="d-inline">
-                                        <input type="hidden" name="id" value="@commessa.Id" />
-                                        <input type="hidden" name="misuraClienteId" value="@misura.MisuraClienteId" />
-                                        <button type="submit" class="btn btn-sm btn-outline-danger py-0 border-0" title="Scollega">
-                                            <i class="bi bi-x-circle"></i> Scollega
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        }
-                        </tbody>
-                    </table>
-                </div>
-            }
-            else
-            {
-                <div class="alert alert-soft-danger py-2 mb-0 small">
-                    <i class="bi bi-info-circle me-1"></i> Nessuna misura collegata.
-                </div>
-            }
-        </div>
-
-        @* Pannello contestuale: dipende da MisuraStatus *@
-        @if (Model.MisuraStatus.RequireMisuraCreation)
-        {
-            <div class="card p-4 mb-4 border-warning">
-                <h3 class="sr-title small mb-2">NESSUNA MISURA PRESENTE</h3>
-                <p class="text-muted small mb-3">
-                    Il cliente non ha ancora misure nel registro. Per poter avanzare la commessa oltre
-                    <strong>Bozza</strong> è necessario creare e collegare almeno una misura dinamica.
-                </p>
-                @if (Model.MeasurementTypes.Any())
-                {
-                    <div class="d-flex gap-2 align-items-end flex-wrap">
-                        <div class="flex-grow-1">
-                            <label class="form-label small mb-1">Tipo di misura</label>
-                            <select id="newMisuraTypeSelect" class="form-select form-select-sm">
-                                @foreach (var t in Model.MeasurementTypes)
-                                {
-                                    <option value="@t.Id">@t.Nome</option>
-                                }
-                            </select>
-                        </div>
-                        <a id="btnCreaCollegaMisura"
-                           asp-controller="DynamicMeasurements"
-                           asp-action="Create"
-                           asp-route-clienteId="@commessa.ClienteId"
-                           asp-route-typeId="@Model.MeasurementTypes.First().Id"
-                           asp-route-returnToCommessaId="@commessa.Id"
-                           class="btn btn-warning btn-sm">
-                            CREA E COLLEGA MISURA
-                        </a>
+    <div class="col-xl-8">
+        <div class="detail-stack">
+            <article class="detail-card">
+                <div class="detail-card__header">
+                    <div>
+                        <h2 class="detail-card__title">Note interne attuali</h2>
+                        <p class="detail-card__subtitle">Stato informativo corrente della commessa.</p>
                     </div>
-                    <script>
-                        (function () {
-                            var sel = document.getElementById('newMisuraTypeSelect');
-                            var btn = document.getElementById('btnCreaCollegaMisura');
-                            if (!sel || !btn) return;
-                            var base = btn.href.replace(/typeId=\d+/, '');
-                            sel.addEventListener('change', function () {
-                                btn.href = base.replace(/(&|\?)typeId=\d*/, '') +
-                                    (base.includes('?') ? '&' : '?') + 'typeId=' + sel.value;
-                            });
-                        })();
-                    </script>
+                </div>
+                <p class="mb-0 text-preline">
+                    @(string.IsNullOrWhiteSpace(commessa.NoteInterne) ? "Nessuna nota operativa." : commessa.NoteInterne)
+                </p>
+            </article>
+
+            <article class="data-table-card">
+                <div class="table-toolbar">
+                    <div>
+                        <h2 class="detail-card__title">Misure collegate</h2>
+                        <div class="toolbar-meta">Record attualmente agganciati alla commessa.</div>
+                    </div>
+                    @{
+                        bool matchFound = Model.MisureCollegate.Any(m =>
+                            commessa.TipoCapo.Contains(m.TipoMisura, StringComparison.OrdinalIgnoreCase) ||
+                            m.TipoMisura.Contains(commessa.TipoCapo.Split(' ')[0], StringComparison.OrdinalIgnoreCase));
+                    }
+                    @if (!matchFound && Model.MisureCollegate.Any())
+                    {
+                        <span class="status-pill status-pill--warning">Tipo capo non corrispondente</span>
+                    }
+                </div>
+
+                @if (Model.MisureCollegate.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Tipo</th>
+                                    <th>Origine</th>
+                                    <th class="text-end">Azione</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var misura in Model.MisureCollegate)
+                                {
+                                    <tr>
+                                        <td>@misura.DataCreazione.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td><span class="table-code">@misura.TipoMisura</span></td>
+                                        <td>@(misura.IsDynamic ? "Dinamica" : "Legacy")</td>
+                                        <td class="text-end">
+                                            <form asp-action="UnlinkMisura" method="post" class="d-inline">
+                                                <input type="hidden" name="id" value="@commessa.Id" />
+                                                <input type="hidden" name="misuraClienteId" value="@misura.MisuraClienteId" />
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary">Scollega</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 }
                 else
                 {
-                    <p class="text-danger small mb-0">Nessun tipo di misura attivo configurato. Contattare l'amministratore.</p>
+                    <div class="empty-state">
+                        <div class="empty-state__icon"><i class="bi bi-link-45deg"></i></div>
+                        <h3 class="empty-state__title">Nessuna misura collegata</h3>
+                        <p class="empty-state__text">La commessa non ha ancora record di misura associati.</p>
+                    </div>
                 }
-            </div>
-        }
-        else if (Model.MisuraStatus.HasMisureDisponibili)
-        {
-            <div class="card p-4 mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3 class="sr-title small mb-0">MISURE DISPONIBILI DEL CLIENTE</h3>
-                    @if (Model.MeasurementTypes.Any())
-                    {
-                        <div class="d-flex gap-2 align-items-center">
-                            <select id="addMisuraTypeSelect" class="form-select form-select-sm" style="width:auto;">
-                                @foreach (var t in Model.MeasurementTypes)
-                                {
-                                    <option value="@t.Id">@t.Nome</option>
-                                }
-                            </select>
-                            <a id="btnAggiungiMisura"
-                               asp-controller="DynamicMeasurements"
-                               asp-action="Create"
-                               asp-route-clienteId="@commessa.ClienteId"
-                               asp-route-typeId="@Model.MeasurementTypes.First().Id"
-                               asp-route-returnToCommessaId="@commessa.Id"
-                               class="btn btn-outline-gold btn-sm text-nowrap">
-                                + NUOVA MISURA
-                            </a>
-                        </div>
-                        <script>
-                            (function () {
-                                var sel = document.getElementById('addMisuraTypeSelect');
-                                var btn = document.getElementById('btnAggiungiMisura');
-                                if (!sel || !btn) return;
-                                sel.addEventListener('change', function () {
-                                    var url = new URL(btn.href, window.location.origin);
-                                    url.searchParams.set('typeId', sel.value);
-                                    btn.href = url.pathname + url.search;
-                                });
-                            })();
-                        </script>
-                    }
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-sm mb-0">
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Tipo</th>
-                                <th>Origine</th>
-                                <th class="text-end">Azione</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @foreach (var misura in Model.MisureDisponibili)
-                        {
-                            bool isRecommended = commessa.TipoCapo.Contains(misura.TipoMisura, StringComparison.OrdinalIgnoreCase) || 
-                                               misura.TipoMisura.Contains(commessa.TipoCapo.Split(' ')[0], StringComparison.OrdinalIgnoreCase);
-                            <tr class="@(isRecommended ? "bg-soft-gold" : "")">
-                                <td>@misura.DataCreazione.ToString("dd/MM/yyyy HH:mm")</td>
-                                <td>
-                                    <span class="fw-bold">@misura.TipoMisura</span>
-                                    @if (isRecommended)
-                                    {
-                                        <span class="badge bg-gold text-dark ms-1 small" style="font-size: 0.65rem;">CONSIGLIATA</span>
-                                    }
-                                </td>
-                                <td>@(misura.IsDynamic ? "Dinamica" : "Legacy")</td>
-                                <td class="text-end">
-                                    <form asp-action="LinkMisura" method="post" class="d-inline">
-                                        <input type="hidden" name="id" value="@commessa.Id" />
-                                        <input type="hidden" name="misuraClienteId" value="@misura.MisuraClienteId" />
-                                        <button type="submit" class="btn btn-sm @(isRecommended ? "btn-gold" : "btn-outline-gold")">Collega</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        }
-        else
-        {
-            <div class="card p-4 mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h3 class="sr-title small mb-0">MISURE DISPONIBILI DEL CLIENTE</h3>
-                    @if (Model.MeasurementTypes.Any())
-                    {
-                        <div class="d-flex gap-2 align-items-center">
-                            <select id="addMisuraTypeSelectFull" class="form-select form-select-sm" style="width:auto;">
-                                @foreach (var t in Model.MeasurementTypes)
-                                {
-                                    <option value="@t.Id">@t.Nome</option>
-                                }
-                            </select>
-                            <a id="btnAggiungiMisuraFull"
-                               asp-controller="DynamicMeasurements"
-                               asp-action="Create"
-                               asp-route-clienteId="@commessa.ClienteId"
-                               asp-route-typeId="@Model.MeasurementTypes.First().Id"
-                               asp-route-returnToCommessaId="@commessa.Id"
-                               class="btn btn-outline-gold btn-sm text-nowrap">
-                                + NUOVA MISURA
-                            </a>
-                        </div>
-                        <script>
-                            (function () {
-                                var sel = document.getElementById('addMisuraTypeSelectFull');
-                                var btn = document.getElementById('btnAggiungiMisuraFull');
-                                if (!sel || !btn) return;
-                                sel.addEventListener('change', function () {
-                                    var url = new URL(btn.href, window.location.origin);
-                                    url.searchParams.set('typeId', sel.value);
-                                    btn.href = url.pathname + url.search;
-                                });
-                            })();
-                        </script>
-                    }
-                </div>
-                <p class="text-muted small mb-0">Tutte le misure del cliente sono già collegate a questa commessa.</p>
-            </div>
-        }
+            </article>
 
-        <div class="card p-4">
-            <h3 class="sr-title small mb-3">TIMELINE EVENTI</h3>
-            @if (commessa.Eventi.Any())
+            @if (Model.MisuraStatus.RequireMisuraCreation)
             {
-                <ul class="list-group list-group-flush">
-                    @foreach (var evento in commessa.Eventi.OrderByDescending(e => e.CreatedAt))
+                <article class="page-surface">
+                    <div class="table-toolbar">
+                        <div>
+                            <h2 class="detail-card__title">Nessuna misura presente</h2>
+                            <div class="toolbar-meta">Prima di avanzare la commessa oltre Bozza serve almeno una misura dinamica collegata.</div>
+                        </div>
+                    </div>
+                    @if (Model.MeasurementTypes.Any())
                     {
-                        <li class="list-group-item bg-transparent px-0 border-gold-dim">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <div class="fw-bold">@evento.TipoEvento @(evento.NuovoStato.HasValue ? $"- {evento.NuovoStato}" : string.Empty)</div>
-                                    <div class="text-muted small">@evento.Descrizione</div>
-                                </div>
-                                <span class="text-muted small">@evento.CreatedAt.ToLocalTime().ToString("dd/MM HH:mm")</span>
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-7">
+                                <label class="form-label">Tipo di misura</label>
+                                <select id="newMisuraTypeSelect" class="form-select">
+                                    @foreach (var t in Model.MeasurementTypes)
+                                    {
+                                        <option value="@t.Id">@t.Nome</option>
+                                    }
+                                </select>
                             </div>
-                        </li>
+                            <div class="col-md-5 d-grid">
+                                <a id="btnCreaCollegaMisura"
+                                   asp-controller="DynamicMeasurements"
+                                   asp-action="Create"
+                                   asp-route-clienteId="@commessa.ClienteId"
+                                   asp-route-typeId="@Model.MeasurementTypes.First().Id"
+                                   asp-route-returnToCommessaId="@commessa.Id"
+                                   class="btn btn-primary">
+                                    Crea e collega misura
+                                </a>
+                            </div>
+                        </div>
+                        <script>
+                            (function () {
+                                var sel = document.getElementById('newMisuraTypeSelect');
+                                var btn = document.getElementById('btnCreaCollegaMisura');
+                                if (!sel || !btn) return;
+                                var base = btn.href.replace(/typeId=\d+/, '');
+                                sel.addEventListener('change', function () {
+                                    btn.href = base.replace(/(&|\?)typeId=\d*/, '') +
+                                        (base.includes('?') ? '&' : '?') + 'typeId=' + sel.value;
+                                });
+                            })();
+                        </script>
                     }
-                </ul>
+                    else
+                    {
+                        <div class="alert alert-danger mb-0">Nessun tipo di misura attivo configurato. Contattare l'amministratore.</div>
+                    }
+                </article>
+            }
+            else if (Model.MisuraStatus.HasMisureDisponibili)
+            {
+                <article class="data-table-card">
+                    <div class="table-toolbar">
+                        <div>
+                            <h2 class="detail-card__title">Misure disponibili del cliente</h2>
+                            <div class="toolbar-meta">Scegli il record piu' adatto oppure crea una nuova misura dinamica.</div>
+                        </div>
+                        @if (Model.MeasurementTypes.Any())
+                        {
+                            <div class="page-actions">
+                                <select id="addMisuraTypeSelect" class="form-select">
+                                    @foreach (var t in Model.MeasurementTypes)
+                                    {
+                                        <option value="@t.Id">@t.Nome</option>
+                                    }
+                                </select>
+                                <a id="btnAggiungiMisura"
+                                   asp-controller="DynamicMeasurements"
+                                   asp-action="Create"
+                                   asp-route-clienteId="@commessa.ClienteId"
+                                   asp-route-typeId="@Model.MeasurementTypes.First().Id"
+                                   asp-route-returnToCommessaId="@commessa.Id"
+                                   class="btn btn-outline-gold">
+                                    + Nuova misura
+                                </a>
+                            </div>
+                            <script>
+                                (function () {
+                                    var sel = document.getElementById('addMisuraTypeSelect');
+                                    var btn = document.getElementById('btnAggiungiMisura');
+                                    if (!sel || !btn) return;
+                                    sel.addEventListener('change', function () {
+                                        var url = new URL(btn.href, window.location.origin);
+                                        url.searchParams.set('typeId', sel.value);
+                                        btn.href = url.pathname + url.search;
+                                    });
+                                })();
+                            </script>
+                        }
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Tipo</th>
+                                    <th>Origine</th>
+                                    <th class="text-end">Azione</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var misura in Model.MisureDisponibili)
+                                {
+                                    bool isRecommended = commessa.TipoCapo.Contains(misura.TipoMisura, StringComparison.OrdinalIgnoreCase) ||
+                                                         misura.TipoMisura.Contains(commessa.TipoCapo.Split(' ')[0], StringComparison.OrdinalIgnoreCase);
+                                    <tr class="@(isRecommended ? "bg-soft-gold" : "")">
+                                        <td>@misura.DataCreazione.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>
+                                            <span class="table-code">@misura.TipoMisura</span>
+                                            @if (isRecommended)
+                                            {
+                                                <span class="badge bg-gold text-navy ms-2">Consigliata</span>
+                                            }
+                                        </td>
+                                        <td>@(misura.IsDynamic ? "Dinamica" : "Legacy")</td>
+                                        <td class="text-end">
+                                            <form asp-action="LinkMisura" method="post" class="d-inline">
+                                                <input type="hidden" name="id" value="@commessa.Id" />
+                                                <input type="hidden" name="misuraClienteId" value="@misura.MisuraClienteId" />
+                                                <button type="submit" class="btn btn-sm @(isRecommended ? "btn-gold" : "btn-outline-gold")">Collega</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
             }
             else
             {
-                <p class="text-muted mb-0">Nessun evento registrato.</p>
+                <article class="page-surface">
+                    <div class="table-toolbar">
+                        <div>
+                            <h2 class="detail-card__title">Misure disponibili del cliente</h2>
+                            <div class="toolbar-meta">Tutte le misure sono gia' state collegate a questa commessa.</div>
+                        </div>
+                        @if (Model.MeasurementTypes.Any())
+                        {
+                            <div class="page-actions">
+                                <select id="addMisuraTypeSelectFull" class="form-select">
+                                    @foreach (var t in Model.MeasurementTypes)
+                                    {
+                                        <option value="@t.Id">@t.Nome</option>
+                                    }
+                                </select>
+                                <a id="btnAggiungiMisuraFull"
+                                   asp-controller="DynamicMeasurements"
+                                   asp-action="Create"
+                                   asp-route-clienteId="@commessa.ClienteId"
+                                   asp-route-typeId="@Model.MeasurementTypes.First().Id"
+                                   asp-route-returnToCommessaId="@commessa.Id"
+                                   class="btn btn-outline-gold">
+                                    + Nuova misura
+                                </a>
+                            </div>
+                            <script>
+                                (function () {
+                                    var sel = document.getElementById('addMisuraTypeSelectFull');
+                                    var btn = document.getElementById('btnAggiungiMisuraFull');
+                                    if (!sel || !btn) return;
+                                    sel.addEventListener('change', function () {
+                                        var url = new URL(btn.href, window.location.origin);
+                                        url.searchParams.set('typeId', sel.value);
+                                        btn.href = url.pathname + url.search;
+                                    });
+                                })();
+                            </script>
+                        }
+                    </div>
+                </article>
             }
+
+            <article class="timeline-card">
+                <div class="detail-card__header">
+                    <div>
+                        <h2 class="detail-card__title">Timeline eventi</h2>
+                        <p class="detail-card__subtitle">Tracciamento cronologico di avanzamenti, note e consegne.</p>
+                    </div>
+                </div>
+                @if (commessa.Eventi.Any())
+                {
+                    <div class="timeline">
+                        @foreach (var evento in commessa.Eventi.OrderByDescending(e => e.CreatedAt))
+                        {
+                            <div class="timeline-item">
+                                <div class="timeline-item__meta">@evento.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
+                                <div class="timeline-item__title">@evento.TipoEvento @(evento.NuovoStato.HasValue ? $"- {evento.NuovoStato}" : string.Empty)</div>
+                                <div class="timeline-item__text">@evento.Descrizione</div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <div class="empty-state__icon"><i class="bi bi-clock-history"></i></div>
+                        <h3 class="empty-state__title">Nessun evento registrato</h3>
+                        <p class="empty-state__text">La timeline si popolera' con stati, note e consegne man mano che il flusso avanza.</p>
+                    </div>
+                }
+            </article>
         </div>
     </div>
 </div>

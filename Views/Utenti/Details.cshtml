@@ -1,33 +1,67 @@
 @model MisureRicci.Models.ApplicationUser
-@{ ViewData["Title"] = "Profilo Staff"; }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="sr-title">PROFILO STAFF</h1>
-    <div>
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-gold me-2">MODIFICA</a>
-        <a asp-action="Index" class="btn btn-outline-secondary">INDIETRO</a>
-    </div>
-</div>
+@{
+    ViewData["Title"] = "Profilo Staff";
+}
 
-<div class="card p-4">
-    <div class="row">
-        <div class="col-md-6">
-            <p class="sr-gold small">USERNAME</p>
-            <p class="fw-bold">@@@Model.UserName</p>
-            <p class="sr-gold small">NOME COMPLETO</p>
-            <p class="fw-bold">@Model.NomeCompleto</p>
-            <p class="sr-gold small">EMAIL</p>
-            <p class="fw-bold">@Model.Email</p>
-        </div>
-        <div class="col-md-6">
-            <p class="sr-gold small">RUOLO</p>
-            <p><span class="badge border border-gold text-gold p-2">@Model.Ruolo.ToUpper()</span></p>
-            <p class="sr-gold small">NEGOZIO</p>
-            <p class="fw-bold">@(Model.Negozio?.Nome ?? "Global HQ")</p>
-            <p class="sr-gold small">STATO</p>
-            <p>@(Model.Attivo ? "🟢 Attivo" : "⚪ Inattivo")</p>
-            <p class="sr-gold small">DATA REGISTRAZIONE</p>
-            <p class="fw-bold">@(Model.LockoutEnd.HasValue ? "—" : DateTime.UtcNow.ToString("yyyy-MM-dd"))</p>
-        </div>
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Access management</span>
+        <h1 class="page-title">@Model.NomeCompleto</h1>
+        <p class="page-subtitle">Profilo staff, ruolo effettivo, stato account e contesto organizzativo.</p>
     </div>
+    <div class="page-actions">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Modifica</a>
+        <a asp-action="Index" class="btn btn-outline-secondary">Indietro</a>
+    </div>
+</section>
+
+<div class="detail-grid">
+    <article class="detail-card">
+        <div class="detail-card__header">
+            <div>
+                <h2 class="detail-card__title">Identita'</h2>
+            </div>
+        </div>
+        <div class="detail-list">
+            <div class="detail-row">
+                <span class="detail-row__label">Username</span>
+                <span class="detail-row__value">@@@Model.UserName</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-row__label">Nome completo</span>
+                <span class="detail-row__value">@Model.NomeCompleto</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-row__label">Email</span>
+                <span class="detail-row__value">@Model.Email</span>
+            </div>
+        </div>
+    </article>
+
+    <article class="detail-card">
+        <div class="detail-card__header">
+            <div>
+                <h2 class="detail-card__title">Contesto operativo</h2>
+            </div>
+        </div>
+        <div class="detail-list">
+            <div class="detail-row">
+                <span class="detail-row__label">Ruolo</span>
+                <span class="detail-row__value"><span class="status-pill status-pill--accent">@Model.Ruolo.ToUpper()</span></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-row__label">Negozio</span>
+                <span class="detail-row__value">@(Model.Negozio?.Nome ?? "Global HQ")</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-row__label">Stato</span>
+                <span class="detail-row__value"><span class="status-pill @(Model.Attivo ? "status-pill--success" : "status-pill--neutral")">@(Model.Attivo ? "Attivo" : "Inattivo")</span></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-row__label">Riferimento data</span>
+                <span class="detail-row__value">@(Model.LockoutEnd.HasValue ? "-" : DateTime.UtcNow.ToString("yyyy-MM-dd"))</span>
+            </div>
+        </div>
+    </article>
 </div>
