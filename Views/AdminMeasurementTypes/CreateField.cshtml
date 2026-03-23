@@ -4,7 +4,8 @@
     ViewData["Title"] = "Nuovo Campo";
 }
 
-<h1 class="page-title mb-4">NUOVO CAMPO — @Model.TypeName</h1>
+<h1 class="page-title mb-4">NUOVO CAMPO - @Model.TypeName</h1>
+<partial name="_FieldHelpGuide" />
 
 <div class="card card-static p-4">
     <form asp-action="CreateField" method="post">
@@ -13,58 +14,94 @@
 
         <div class="row g-3">
             <div class="col-md-6">
-                <label asp-for="Field.NomeCampo" class="form-label"></label>
+                <div class="field-label-row">
+                    <label asp-for="Field.NomeCampo" class="form-label mb-0"></label>
+                    <button type="button" class="field-help-trigger" data-bs-toggle="popover" data-bs-trigger="manual" data-bs-placement="top" data-bs-custom-class="sr-help-popover" data-bs-title="NomeCampo" data-bs-content="Identificatore tecnico unico del campo. Usa snake_case senza spazi, ad esempio interno_gamba, note_fit o lunghezza_totale.">?</button>
+                </div>
                 <input asp-for="Field.NomeCampo" class="form-control" />
                 <span asp-validation-for="Field.NomeCampo" class="text-danger"></span>
             </div>
             <div class="col-md-6">
-                <label asp-for="Field.Etichetta" class="form-label"></label>
+                <div class="field-label-row">
+                    <label asp-for="Field.Etichetta" class="form-label mb-0"></label>
+                    <button type="button" class="field-help-trigger" data-bs-toggle="popover" data-bs-trigger="manual" data-bs-placement="top" data-bs-custom-class="sr-help-popover" data-bs-title="Etichetta" data-bs-content="Testo mostrato all'operatore nel form misure. Scrivilo come deve essere letto a video, ad esempio Interno Gamba o Note vestibilita'.">?</button>
+                </div>
                 <input asp-for="Field.Etichetta" class="form-control" />
                 <span asp-validation-for="Field.Etichetta" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
-                <label asp-for="Field.Gruppo" class="form-label"></label>
+                <div class="field-label-row">
+                    <label asp-for="Field.Gruppo" class="form-label mb-0"></label>
+                    <button type="button" class="field-help-trigger" data-bs-toggle="popover" data-bs-trigger="manual" data-bs-placement="top" data-bs-custom-class="sr-help-popover" data-bs-title="Gruppo" data-bs-content="Sezione visiva del form. I campi con lo stesso gruppo vengono mostrati insieme, ad esempio Struttura, Corpo, Lunghezze o Note sartoriali.">?</button>
+                </div>
                 <input asp-for="Field.Gruppo" class="form-control" placeholder="Es. Corpo, Lunghezze, Note sartoriali" />
             </div>
             <div class="col-md-6">
-                <label asp-for="Field.OrdineGruppo" class="form-label"></label>
+                <div class="field-label-row">
+                    <label asp-for="Field.OrdineGruppo" class="form-label mb-0"></label>
+                    <button type="button" class="field-help-trigger" data-bs-toggle="popover" data-bs-trigger="manual" data-bs-placement="top" data-bs-custom-class="sr-help-popover" data-bs-title="OrdineGruppo" data-bs-content="Ordina le sezioni del form. Regola pratica: 1 per struttura o base, 2 per corpo o volumi, 3 per lunghezze o dettagli, 5 per note.">?</button>
+                </div>
                 <input asp-for="Field.OrdineGruppo" class="form-control" />
             </div>
 
             <div class="col-md-4">
-                <label asp-for="Field.TipoDato" class="form-label"></label>
+                <div class="field-label-row">
+                    <label asp-for="Field.TipoDato" class="form-label mb-0"></label>
+                    <button type="button" class="field-help-trigger" data-bs-toggle="popover" data-bs-trigger="manual" data-bs-placement="top" data-bs-custom-class="sr-help-popover" data-bs-title="TipoDato" data-bs-content="Definisce il tipo di valore salvato. Decimal per misure in cm, Number per interi, Text per taglie o note brevi, Date per date, Boolean per si/no.">?</button>
+                </div>
                 <select asp-for="Field.TipoDato" asp-items="Html.GetEnumSelectList<MisureRicci.Models.DynamicFieldType>()" class="form-select"></select>
             </div>
             <div class="col-md-4">
-                <label asp-for="Field.Template" class="form-label"></label>
+                <div class="field-label-row">
+                    <label asp-for="Field.Template" class="form-label mb-0"></label>
+                    <button type="button" class="field-help-trigger" data-bs-toggle="popover" data-bs-trigger="manual" data-bs-placement="top" data-bs-custom-class="sr-help-popover" data-bs-title="Template" data-bs-content="Definisce aspetto e ruolo del campo nel form. Emphasis per misure chiave, Standard per campi normali, Compact per secondari, Notes per testo lungo. SectionHeader, Divider e AlertNote sono strutturali.">?</button>
+                </div>
                 <select asp-for="Field.Template" asp-items="Html.GetEnumSelectList<MisureRicci.Models.DynamicFieldTemplate>()" class="form-select"></select>
             </div>
             <div class="col-md-4">
-                <label asp-for="Field.UnitaMisura" class="form-label"></label>
+                <div class="field-label-row">
+                    <label asp-for="Field.UnitaMisura" class="form-label mb-0"></label>
+                    <button type="button" class="field-help-trigger" data-bs-toggle="popover" data-bs-trigger="manual" data-bs-placement="top" data-bs-custom-class="sr-help-popover" data-bs-title="Unita Misura" data-bs-content="Testo mostrato vicino all'etichetta del campo, ad esempio cm o pollici. Se non serve, lascialo vuoto.">?</button>
+                </div>
                 <input asp-for="Field.UnitaMisura" class="form-control" />
             </div>
             <div class="col-md-4">
-                <label asp-for="Field.Ordine" class="form-label"></label>
+                <div class="field-label-row">
+                    <label asp-for="Field.Ordine" class="form-label mb-0"></label>
+                    <button type="button" class="field-help-trigger" data-bs-toggle="popover" data-bs-trigger="manual" data-bs-placement="top" data-bs-custom-class="sr-help-popover" data-bs-title="Ordine" data-bs-content="Posizione del campo dentro il gruppo. Parti da 1 e incrementa. Usa 0 per un SectionHeader e 99 per un AlertNote finale.">?</button>
+                </div>
                 <input asp-for="Field.Ordine" class="form-control" />
             </div>
 
             <div class="col-md-12">
-                <label asp-for="Field.Placeholder" class="form-label"></label>
+                <div class="field-label-row">
+                    <label asp-for="Field.Placeholder" class="form-label mb-0"></label>
+                    <button type="button" class="field-help-trigger" data-bs-toggle="popover" data-bs-trigger="manual" data-bs-placement="top" data-bs-custom-class="sr-help-popover" data-bs-title="Placeholder" data-bs-content="Esempio breve mostrato dentro l'input prima della compilazione. Usa casi concreti come es. 46.5, es. Slim o es. 42 IT.">?</button>
+                </div>
                 <input asp-for="Field.Placeholder" class="form-control" />
             </div>
             <div class="col-md-12">
-                <label asp-for="Field.HelpText" class="form-label"></label>
+                <div class="field-label-row">
+                    <label asp-for="Field.HelpText" class="form-label mb-0"></label>
+                    <button type="button" class="field-help-trigger" data-bs-toggle="popover" data-bs-trigger="manual" data-bs-placement="top" data-bs-custom-class="sr-help-popover" data-bs-title="HelpText" data-bs-content="Suggerimento operativo visibile sotto il campo nel form misure. Tienilo corto e utile, ad esempio Dalla spalla al polso o Circonferenza piena del torace.">?</button>
+                </div>
                 <input asp-for="Field.HelpText" class="form-control" placeholder="Suggerimento operativo visibile in form" />
             </div>
 
             <div class="col-md-6 form-check form-switch mt-4">
                 <input asp-for="Field.Obbligatorio" class="form-check-input" />
-                <label asp-for="Field.Obbligatorio" class="form-check-label"></label>
+                <div class="d-inline-flex align-items-center gap-2">
+                    <label asp-for="Field.Obbligatorio" class="form-check-label"></label>
+                    <button type="button" class="field-help-trigger" data-bs-toggle="popover" data-bs-trigger="manual" data-bs-placement="top" data-bs-custom-class="sr-help-popover" data-bs-title="Obbligatorio" data-bs-content="Attivalo solo se il campo deve essere sempre compilato. Evitalo per SectionHeader, Divider e AlertNote perche' sono elementi strutturali.">?</button>
+                </div>
             </div>
             <div class="col-md-6 form-check form-switch mt-4">
                 <input asp-for="Field.IsActive" class="form-check-input" />
-                <label asp-for="Field.IsActive" class="form-check-label"></label>
+                <div class="d-inline-flex align-items-center gap-2">
+                    <label asp-for="Field.IsActive" class="form-check-label"></label>
+                    <button type="button" class="field-help-trigger" data-bs-toggle="popover" data-bs-trigger="manual" data-bs-placement="top" data-bs-custom-class="sr-help-popover" data-bs-title="IsActive" data-bs-content="Se disattivato, il campo non verra' piu' proposto nei nuovi inserimenti ma restera' disponibile nello storico dei record esistenti.">?</button>
+                </div>
             </div>
         </div>
 

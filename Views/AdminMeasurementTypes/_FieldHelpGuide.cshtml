@@ -1,0 +1,71 @@
+<div class="admin-field-help card card-static p-4 mb-4">
+    <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3">
+        <div>
+            <div class="field-help-kicker">Assistente Configurazione</div>
+            <h2 class="sr-title small mb-2">AIUTO AGGIUNTA CAMPO</h2>
+            <p class="text-muted mb-0">Passa il mouse sulle icone <strong>?</strong> accanto ai campi oppure clicca su <strong>Aiuto rapido</strong> o <strong>Guida completa</strong> per ricevere spiegazioni pratiche durante la configurazione.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <button type="button"
+                    class="btn btn-outline-gold field-help-trigger field-help-summary-trigger"
+                    data-bs-toggle="popover"
+                    data-bs-trigger="manual"
+                    data-bs-placement="bottom"
+                    data-bs-custom-class="sr-help-popover"
+                    data-bs-title="Scelta rapida"
+                    data-bs-content="Per quasi tutte le misure usa Decimal e unita' cm. Scegli Emphasis per le misure chiave, Standard per i campi normali, Compact per i secondari e Notes per testo lungo. SectionHeader, Divider e AlertNote sono elementi strutturali e non salvano un valore.">
+                <i class="bi bi-question-circle-fill me-2"></i>Aiuto rapido
+            </button>
+            <button type="button"
+                    class="btn btn-outline-secondary"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#fieldHelpGuide"
+                    aria-expanded="false"
+                    aria-controls="fieldHelpGuide">
+                <i class="bi bi-journal-text me-2"></i>Guida completa
+            </button>
+        </div>
+    </div>
+
+    <div class="collapse mt-4" id="fieldHelpGuide">
+        <div class="row g-3 field-help-guide-grid">
+            <div class="col-xl-4">
+                <div class="field-help-card">
+                    <h3 class="sr-title small mb-3">Checklist Rapida</h3>
+                    <ul class="field-help-list">
+                        <li><strong>NomeCampo</strong>: identificatore tecnico unico in <code>snake_case</code>.</li>
+                        <li><strong>Etichetta</strong>: testo leggibile dall'operatore nel form misure.</li>
+                        <li><strong>Gruppo</strong>: sezione del form, ad esempio <code>Struttura</code> o <code>Lunghezze</code>.</li>
+                        <li><strong>OrdineGruppo</strong>: ordine visivo delle sezioni.</li>
+                        <li><strong>Ordine</strong>: posizione del campo dentro il gruppo.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xl-4">
+                <div class="field-help-card">
+                    <h3 class="sr-title small mb-3">Regole Pratiche</h3>
+                    <div class="field-help-chip-list">
+                        <span class="field-help-chip">Decimal + Emphasis = misura principale</span>
+                        <span class="field-help-chip">Decimal + Standard = misura normale</span>
+                        <span class="field-help-chip">Decimal + Compact = misura secondaria</span>
+                        <span class="field-help-chip">Text + Notes = nota lunga</span>
+                        <span class="field-help-chip">Text + SectionHeader = titolo sezione</span>
+                        <span class="field-help-chip">Text + AlertNote = avviso operativo</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4">
+                <div class="field-help-card">
+                    <h3 class="sr-title small mb-3">Errori Da Evitare</h3>
+                    <ul class="field-help-list">
+                        <li>Non usare template strutturali per campi che devono salvare un valore.</li>
+                        <li>Non rendere obbligatori SectionHeader, Divider o AlertNote.</li>
+                        <li>Non usare Text per misure numeriche in centimetri.</li>
+                        <li>Non scrivere HelpText troppo lungo: una frase corta basta.</li>
+                        <li>Non duplicare NomeCampo nella stessa tipologia di misura.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

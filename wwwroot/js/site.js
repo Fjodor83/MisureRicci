@@ -264,4 +264,65 @@
 		});
 	});
 
+	/* ==========================================================
+	   13. FIELD HELP POPOVERS
+	========================================================== */
+	function hideFieldHelpPopovers(except) {
+		document.querySelectorAll('.field-help-trigger').forEach(function (trigger) {
+			if (except && trigger === except) return;
+			trigger.dataset.helpPinned = '';
+			var instance = bootstrap.Popover.getInstance(trigger);
+			if (instance) instance.hide();
+		});
+	}
+
+	if (window.bootstrap && bootstrap.Popover) {
+		document.querySelectorAll('.field-help-trigger').forEach(function (trigger) {
+			if (trigger.dataset.helpBound === '1') return;
+			trigger.dataset.helpBound = '1';
+
+			var instance = bootstrap.Popover.getOrCreateInstance(trigger, {
+				trigger: 'manual',
+				html: false,
+				sanitize: true
+			});
+
+			var hideTimer = null;
+
+			function showPopover(pin) {
+				clearTimeout(hideTimer);
+				hideFieldHelpPopovers(trigger);
+				trigger.dataset.helpPinned = pin ? '1' : '';
+				instance.show();
+			}
+
+			function hidePopoverDelayed() {
+				if (trigger.dataset.helpPinned === '1') return;
+				clearTimeout(hideTimer);
+				hideTimer = setTimeout(function () { instance.hide(); }, 120);
+			}
+
+			trigger.addEventListener('mouseenter', function () { showPopover(false); });
+			trigger.addEventListener('focus', function () { showPopover(false); });
+			trigger.addEventListener('mouseleave', hidePopoverDelayed);
+			trigger.addEventListener('blur', hidePopoverDelayed);
+			trigger.addEventListener('click', function (e) {
+				e.preventDefault();
+				clearTimeout(hideTimer);
+				if (trigger.dataset.helpPinned === '1') {
+					trigger.dataset.helpPinned = '';
+					instance.hide();
+					return;
+				}
+
+				showPopover(true);
+			});
+		});
+
+		document.addEventListener('click', function (e) {
+			if (e.target.closest('.field-help-trigger') || e.target.closest('.popover')) return;
+			hideFieldHelpPopovers();
+		});
+	}
+
 }());
