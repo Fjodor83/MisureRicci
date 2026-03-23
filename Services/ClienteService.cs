@@ -37,6 +37,24 @@ namespace MisureRicci.Services
             return (clienti, totalCount);
         }
 
+        public async Task<List<Cliente>> SearchClientiAsync(string? search, int limit = 50)
+        {
+            var query = _context.Clienti
+                .AsNoTracking()
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(c => c.Nome.Contains(search) || c.Cognome.Contains(search) || (c.ClientCode ?? string.Empty).Contains(search));
+            }
+
+            return await query
+                .OrderBy(c => c.Cognome)
+                .ThenBy(c => c.Nome)
+                .Take(limit)
+                .ToListAsync();
+        }
+
         public async Task<Cliente?> GetClienteByIdAsync(int id)
         {
             return await _context.Clienti.FirstOrDefaultAsync(m => m.Id == id);

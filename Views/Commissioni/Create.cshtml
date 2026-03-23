@@ -1,11 +1,11 @@
 @model MisureRicci.Models.ViewModels.CommessaCreateViewModel
 
 @{
-    ViewData["Title"] = "Nuova Commessa";
+    ViewData["Title"] = "NUOVA COMMISSIONE";
 }
 
 <div class="mb-4">
-    <h1 class="page-title">NUOVA COMMESSA</h1>
+    <h1 class="page-title">NUOVA COMMISSIONE</h1>
     <p class="page-subtitle mb-0">Cliente: <strong>@Model.ClienteNome</strong></p>
 </div>
 
@@ -42,6 +42,38 @@
                 <span asp-validation-for="NoteInterne" class="text-danger"></span>
             </div>
         </div>
+
+        @if (Model.MisureDisponibili.Any())
+        {
+            <div class="mt-4 pt-4 border-top">
+                <h3 class="sr-title small mb-3">COLLEGA MISURE ESISTENTI</h3>
+                <p class="text-muted small mb-3">Seleziona le misure da collegare immediatamente a questa nuova commissione.</p>
+                <div class="row g-2">
+                    @foreach (var misura in Model.MisureDisponibili)
+                    {
+                        <div class="col-md-6 col-lg-4">
+                            <div class="form-check card p-2 h-100 border-gold-dim">
+                                <input class="form-check-input ms-0 me-2" type="checkbox" name="SelectedMisuraIds" value="@misura.MisuraClienteId" id="misura_@misura.MisuraClienteId">
+                                <label class="form-check-label" for="misura_@misura.MisuraClienteId">
+                                    <strong>@misura.TipoMisura</strong><br/>
+                                    <span class="text-muted small">@misura.DataCreazione.ToString("dd/MM/yyyy HH:mm")</span><br/>
+                                    @if (!string.IsNullOrEmpty(misura.Note))
+                                    {
+                                        <span class="text-muted smaller d-block text-truncate" title="@misura.Note">@misura.Note</span>
+                                    }
+                                </label>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="mt-4 pt-4 border-top">
+                <p class="text-muted small">Il cliente non ha misure precedenti nel registro. Potrai crearne e collegarne di nuove dopo aver aperto la commissione.</p>
+            </div>
+        }
 
         <div class="mt-4">
             <button type="submit" class="btn btn-primary me-2">APRI COMMESSA</button>

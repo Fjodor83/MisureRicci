@@ -1,25 +1,14 @@
-@model object
-@using System.Reflection
-@using System.ComponentModel.DataAnnotations
-@using MisureRicci.Models
+@model MisureRicci.Models.ViewModels.LegacyMeasurementDetailsViewModel
 
 @{
-    ViewData["Title"] = "Dettagli " + ViewBag.TipoMisura;
-    var t = Model.GetType();
-    var cliente = t.GetProperty("Cliente")?.GetValue(Model) as Cliente;
-    var createdAt = (DateTime)(t.GetProperty("CreatedAt")?.GetValue(Model) ?? DateTime.MinValue);
-    var notes = t.GetProperty("Notes")?.GetValue(Model) as string;
-    var props = t.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-        .Where(p => p.Name != "Id" && p.Name != "ClienteId" && p.Name != "Cliente" && p.Name != "CreatedAt" && p.Name != "OrderId" && p.Name != "Notes")
-        .ToList();
-
+    ViewData["Title"] = "Dettagli " + Model.TipoMisura;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="sr-title mb-0">DETTAGLI MISURA: @ViewBag.TipoMisura.ToUpper()</h1>
+    <h1 class="sr-title mb-0">DETTAGLI MISURA: @Model.TipoMisura.ToUpper()</h1>
     <div>
-        <a asp-action="Edit" asp-route-id="@t.GetProperty("Id")?.GetValue(Model)" asp-route-tipoMisura="@ViewBag.TipoMisura" class="btn btn-outline-gold me-2">MODIFICA</a>
-        <a asp-controller="Clienti" asp-action="Details" asp-route-id="@(cliente?.Id ?? t.GetProperty("ClienteId")?.GetValue(Model))" class="btn btn-outline-secondary">TORNA AL CLIENTE</a>
+        <a asp-action="Edit" asp-route-id="@Model.Id" asp-route-tipoMisura="@Model.TipoMisura" class="btn btn-outline-gold me-2">MODIFICA</a>
+        <a asp-controller="Clienti" asp-action="Details" asp-route-id="@Model.ClienteId" class="btn btn-outline-secondary">TORNA AL CLIENTE</a>
     </div>
 </div>
 
@@ -27,11 +16,11 @@
     <div class="row">
         <div class="col-md-6 bordered-right">
             <p class="mb-1 sr-gold small text-uppercase">Cliente</p>
-            <p class="fw-bold mb-3">@(cliente?.Nome) @(cliente?.Cognome)</p>
+            <p class="fw-bold mb-3">@Model.ClienteNome</p>
         </div>
         <div class="col-md-6">
             <p class="mb-1 sr-gold small text-uppercase">Data Creazione</p>
-            <p class="mb-3">@createdAt.ToString("f")</p>
+            <p class="mb-3">@Model.CreatedAt.ToString("f")</p>
         </div>
     </div>
 </div>
@@ -39,54 +28,37 @@
 <div class="card p-4 mb-4">
     <h3 class="sr-title small mb-4">VALORI MISURATI</h3>
     <div class="row">
-        @if (ViewBag.TipoMisura.ToString().ToLower() == "abito")
+        @if (Model.Sections.Any())
         {
-            var giacca = t.GetProperty("Giacca")?.GetValue(Model);
-            var pantalone = t.GetProperty("Pantalone")?.GetValue(Model);
-            <div class="col-md-6">
-                <h4 class="sr-gold mb-3">Giacca</h4>
-                @if (giacca != null) {
-                    @foreach(var prop in giacca.GetType().GetProperties().Where(p => p.Name != "Id" && p.Name != "ClienteId" && p.Name != "Cliente" && p.Name != "CreatedAt" && p.Name != "OrderId" && p.Name != "Notes"))
+            @foreach (var measurementSection in Model.Sections)
+            {
+                <div class="col-md-6">
+                    <h4 class="sr-gold mb-3">@measurementSection.Title</h4>
+                    @foreach (var field in measurementSection.Fields)
                     {
-                        var displayAttr = prop.GetCustomAttribute<DisplayAttribute>();
-                        var displayName = displayAttr?.Name ?? prop.Name;
-                        <p class="mb-1 text-muted small">@displayName</p>
-                        <p class="mb-3 fw-bold border-bottom border-gold-dim pb-1">@prop.GetValue(giacca)</p>
+                        <p class="mb-1 text-muted small">@field.DisplayName</p>
+                        <p class="mb-3 fw-bold border-bottom border-gold-dim pb-1">@field.Value</p>
                     }
-                }
-            </div>
-            <div class="col-md-6">
-                <h4 class="sr-gold mb-3">Pantalone</h4>
-                @if (pantalone != null) {
-                    @foreach(var prop in pantalone.GetType().GetProperties().Where(p => p.Name != "Id" && p.Name != "ClienteId" && p.Name != "Cliente" && p.Name != "CreatedAt" && p.Name != "OrderId" && p.Name != "Notes"))
-                    {
-                        var displayAttr = prop.GetCustomAttribute<DisplayAttribute>();
-                        var displayName = displayAttr?.Name ?? prop.Name;
-                        <p class="mb-1 text-muted small">@displayName</p>
-                        <p class="mb-3 fw-bold border-bottom border-gold-dim pb-1">@prop.GetValue(pantalone)</p>
-                    }
-                }
-            </div>
+                </div>
+            }
         }
         else
         {
-            @foreach(var prop in props)
+            @foreach (var field in Model.Fields)
             {
-                var displayAttr = prop.GetCustomAttribute<DisplayAttribute>();
-                var displayName = displayAttr?.Name ?? prop.Name;
                 <div class="col-md-3 col-sm-6 mb-4">
-                    <p class="mb-1 sr-gold small text-uppercase">@displayName</p>
-                    <p class="fw-bold mb-0 fs-5 border-bottom border-gold-dim pb-1">@prop.GetValue(Model)</p>
+                    <p class="mb-1 sr-gold small text-uppercase">@field.DisplayName</p>
+                    <p class="fw-bold mb-0 fs-5 border-bottom border-gold-dim pb-1">@field.Value</p>
                 </div>
             }
         }
     </div>
 </div>
 
-@if (!string.IsNullOrEmpty(notes))
+@if (!string.IsNullOrEmpty(Model.Notes))
 {
     <div class="card p-4">
         <h3 class="sr-title small mb-3">NOTE</h3>
-        <p class="italic text-muted mb-0">@notes</p>
+        <p class="italic text-muted mb-0">@Model.Notes</p>
     </div>
 }

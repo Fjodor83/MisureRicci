@@ -41,7 +41,7 @@
     <div class="d-flex gap-2">
         @if (clienteId.HasValue)
         {
-            <a asp-action="Create" asp-route-clienteId="@clienteId" class="btn btn-primary">NUOVA COMMESSA</a>
+            <a asp-action="Create" asp-route-clienteId="@clienteId" class="btn btn-primary">NUOVA COMMISSIONE</a>
             <a asp-controller="Clienti" asp-action="Details" asp-route-id="@clienteId" class="btn btn-outline-secondary">TORNA AL CLIENTE</a>
         }
         else

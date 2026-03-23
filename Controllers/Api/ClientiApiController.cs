@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MisureRicci.Data;
+using MisureRicci.Services;
 
 namespace MisureRicci.Controllers.Api
 {
@@ -10,30 +9,31 @@ namespace MisureRicci.Controllers.Api
     [Route("api/[controller]")]
     public class ClientiApiController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IClienteService _clienteService;
 
-        public ClientiApiController(ApplicationDbContext context)
+        public ClientiApiController(IClienteService clienteService)
         {
-            _context = context;
+            _clienteService = clienteService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetClienti([FromQuery] string? search)
         {
-            var q = _context.Clienti.AsQueryable();
-            if (!string.IsNullOrEmpty(search))
-                q = q.Where(c => c.Nome.Contains(search) || c.Cognome.Contains(search));
-                
-            return Ok(await q.Select(c => new { c.Id, c.ClientCode, c.Nome, c.Cognome }).ToListAsync());
+            var clienti = await _clienteService.SearchClientiAsync(search, limit: 100);
+
+            return Ok(clienti.Select(c => new { c.Id, c.ClientCode, c.Nome, c.Cognome }));
         }
 
         [HttpGet("{id}/misure")]
         public async Task<IActionResult> GetMisure(int id)
         {
-            var misure = await _context.RegistroMisure
-                .Where(m => m.ClienteId == id)
-                .OrderByDescending(m => m.DataCreazione)
-                .ToListAsync();
+            var cliente = await _clienteService.GetClienteByIdAsync(id);
+            if (cliente == null)
+            {
+                return NotFound();
+            }
+
+            var misure = await _clienteService.GetStoricoMisureAsync(id);
 
             return Ok(misure);
         }

@@ -15,10 +15,18 @@ namespace MisureRicci.Services
             _context = context;
         }
 
-        public async Task<byte[]> GenerateDossierPdfAsync(int clienteId)
+        public async Task<byte[]> GenerateDossierPdfAsync(int clienteId, int? negozioId, bool isAdmin)
         {
             var cliente = await _context.Clienti.FindAsync(clienteId);
             if (cliente == null) return Array.Empty<byte>();
+
+            if (!isAdmin)
+            {
+                if (!negozioId.HasValue || cliente.NegozioId != negozioId.Value)
+                {
+                    throw new UnauthorizedAccessException("Tenant isolation violated.");
+                }
+            }
 
             var misure = await _context.RegistroMisure
                 .Where(m => m.ClienteId == clienteId)

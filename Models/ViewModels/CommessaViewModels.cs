@@ -76,5 +76,11 @@ namespace MisureRicci.Models.ViewModels
         [StringLength(2000)]
         [Display(Name = "Note Interne")]
         public string? NoteInterne { get; set; }
+
+        /// <summary>Lista per visualizzare le misure esistenti del cliente in fase di creazione.</summary>
+        public List<CommessaMisuraItem> MisureDisponibili { get; set; } = new();
+
+        /// <summary>ID delle misure selezionate dall'utente durante la creazione.</summary>
+        public List<int> SelectedMisuraIds { get; set; } = new();
     }
 }

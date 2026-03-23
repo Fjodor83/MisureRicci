@@ -78,7 +78,20 @@
 
         @* Misure collegate *@
         <div class="card p-4 mb-4">
-            <h3 class="sr-title small mb-3">MISURE COLLEGATE ALLA COMMESSA</h3>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="sr-title small mb-0">MISURE COLLEGATE ALLA COMMESSA</h3>
+                @{
+                    bool matchFound = Model.MisureCollegate.Any(m => 
+                        commessa.TipoCapo.Contains(m.TipoMisura, StringComparison.OrdinalIgnoreCase) || 
+                        m.TipoMisura.Contains(commessa.TipoCapo.Split(' ')[0], StringComparison.OrdinalIgnoreCase));
+                }
+                @if (!matchFound && Model.MisureCollegate.Any())
+                {
+                    <span class="badge bg-soft-warning text-warning border border-warning px-2 py-1">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i> Tipo capo non corrispondente
+                    </span>
+                }
+            </div>
             @if (Model.MisureCollegate.Any())
             {
                 <div class="table-responsive">
@@ -96,13 +109,17 @@
                         {
                             <tr>
                                 <td>@misura.DataCreazione.ToString("dd/MM/yyyy HH:mm")</td>
-                                <td>@misura.TipoMisura</td>
+                                <td>
+                                    <span class="fw-bold">@misura.TipoMisura</span>
+                                </td>
                                 <td>@(misura.IsDynamic ? "Dinamica" : "Legacy")</td>
                                 <td class="text-end">
                                     <form asp-action="UnlinkMisura" method="post" class="d-inline">
                                         <input type="hidden" name="id" value="@commessa.Id" />
                                         <input type="hidden" name="misuraClienteId" value="@misura.MisuraClienteId" />
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Scollega</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger py-0 border-0" title="Scollega">
+                                            <i class="bi bi-x-circle"></i> Scollega
+                                        </button>
                                     </form>
                                 </td>
                             </tr>
@@ -113,7 +130,9 @@
             }
             else
             {
-                <p class="text-muted mb-0">Nessuna misura collegata.</p>
+                <div class="alert alert-soft-danger py-2 mb-0 small">
+                    <i class="bi bi-info-circle me-1"></i> Nessuna misura collegata.
+                </div>
             }
         </div>
 
@@ -218,15 +237,23 @@
                         <tbody>
                         @foreach (var misura in Model.MisureDisponibili)
                         {
-                            <tr>
+                            bool isRecommended = commessa.TipoCapo.Contains(misura.TipoMisura, StringComparison.OrdinalIgnoreCase) || 
+                                               misura.TipoMisura.Contains(commessa.TipoCapo.Split(' ')[0], StringComparison.OrdinalIgnoreCase);
+                            <tr class="@(isRecommended ? "bg-soft-gold" : "")">
                                 <td>@misura.DataCreazione.ToString("dd/MM/yyyy HH:mm")</td>
-                                <td>@misura.TipoMisura</td>
+                                <td>
+                                    <span class="fw-bold">@misura.TipoMisura</span>
+                                    @if (isRecommended)
+                                    {
+                                        <span class="badge bg-gold text-dark ms-1 small" style="font-size: 0.65rem;">CONSIGLIATA</span>
+                                    }
+                                </td>
                                 <td>@(misura.IsDynamic ? "Dinamica" : "Legacy")</td>
                                 <td class="text-end">
                                     <form asp-action="LinkMisura" method="post" class="d-inline">
                                         <input type="hidden" name="id" value="@commessa.Id" />
                                         <input type="hidden" name="misuraClienteId" value="@misura.MisuraClienteId" />
-                                        <button type="submit" class="btn btn-sm btn-outline-gold">Collega</button>
+                                        <button type="submit" class="btn btn-sm @(isRecommended ? "btn-gold" : "btn-outline-gold")">Collega</button>
                                     </form>
                                 </td>
                             </tr>

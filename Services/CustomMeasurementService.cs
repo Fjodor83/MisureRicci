@@ -141,6 +141,8 @@ namespace MisureRicci.Services
                 CreatedAt = DateTime.UtcNow
             };
 
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             _context.DynamicMeasurementRecords.Add(record);
             await _context.SaveChangesAsync();
 
@@ -171,6 +173,7 @@ namespace MisureRicci.Services
             });
 
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
             return record;
         }
 
@@ -242,6 +245,8 @@ namespace MisureRicci.Services
                 }
             }
 
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             _context.DynamicMeasurementValues.RemoveRange(record.Values);
 
             var values = model.Fields
@@ -255,6 +260,7 @@ namespace MisureRicci.Services
 
             _context.DynamicMeasurementValues.AddRange(values);
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
         }
 
         public async Task DeleteDynamicMeasurementAsync(int recordId)
@@ -265,6 +271,8 @@ namespace MisureRicci.Services
                 return;
             }
 
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             var registro = await _context.RegistroMisure.FirstOrDefaultAsync(x => x.RecordId == recordId && x.IsDynamic);
             if (registro != null)
             {
@@ -273,6 +281,7 @@ namespace MisureRicci.Services
 
             _context.DynamicMeasurementRecords.Remove(record);
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
         }
 
         private static bool IsStructuralTemplate(DynamicFieldTemplate template)

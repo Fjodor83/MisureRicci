@@ -20,5 +20,10 @@ namespace MisureRicci.Services
         /// se il cliente ha misure disponibili, già collegate, o non ne ha ancora nessuna.
         /// </summary>
         Task<CommessaMisuraStatus> GetStatoMisureClienteAsync(int commessaId, int? negozioId, bool isAdmin);
+
+        /// <summary>
+        /// Restituisce tutte le misure (dinamiche e legacy) disponibili per un cliente.
+        /// </summary>
+        Task<List<CommessaMisuraItem>> GetMisureDisponibiliPerClienteAsync(int clienteId);
     }
 }

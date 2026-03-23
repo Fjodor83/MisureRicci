@@ -168,10 +168,29 @@ namespace MisureRicci.Services
             };
         }
 
+        public async Task<List<CommessaMisuraItem>> GetMisureDisponibiliPerClienteAsync(int clienteId)
+        {
+            return await _context.RegistroMisure
+                .Where(m => m.ClienteId == clienteId)
+                .OrderByDescending(m => m.DataCreazione)
+                .Select(m => new CommessaMisuraItem
+                {
+                    MisuraClienteId = m.Id,
+                    RecordId = m.RecordId,
+                    TipoMisura = m.TipoMisura,
+                    IsDynamic = m.IsDynamic,
+                    DataCreazione = m.DataCreazione,
+                    Note = m.Note
+                })
+                .ToListAsync();
+        }
+
         public async Task<CommessaSartoriale> CreateCommessaAsync(CommessaCreateViewModel model, string? userId)
         {
             var cliente = await _context.Clienti.FirstOrDefaultAsync(c => c.Id == model.ClienteId)
                 ?? throw new InvalidOperationException("Cliente non trovato.");
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
 
             var entity = new CommessaSartoriale
             {
@@ -205,7 +224,36 @@ namespace MisureRicci.Services
                 CreatedAt = DateTime.UtcNow
             });
 
+            // Link pre-selected measurements
+            if (model.SelectedMisuraIds != null && model.SelectedMisuraIds.Any())
+            {
+                foreach (var misuraId in model.SelectedMisuraIds)
+                {
+                    var misura = await _context.RegistroMisure.FindAsync(misuraId);
+                    if (misura != null && misura.ClienteId == entity.ClienteId)
+                    {
+                        _context.CommissioniMisureLinks.Add(new CommessaMisuraLink
+                        {
+                            CommessaSartorialeId = entity.Id,
+                            MisuraClienteId = misuraId,
+                            LinkedAt = DateTime.UtcNow,
+                            LinkedByUserId = userId
+                        });
+
+                        _context.CommissioniEventi.Add(new CommessaEvento
+                        {
+                            CommessaSartorialeId = entity.Id,
+                            TipoEvento = "LinkMisura",
+                            Descrizione = $"Collegata misura {misura.TipoMisura} (scelta in creazione) del {misura.DataCreazione:dd/MM/yyyy HH:mm}.",
+                            CreatedByUserId = userId,
+                            CreatedAt = DateTime.UtcNow
+                        });
+                    }
+                }
+            }
+
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
             return entity;
         }
 

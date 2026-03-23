@@ -1,25 +1,22 @@
-@model object
+@model MisureRicci.Models.ViewModels.LegacyMeasurementDeleteViewModel
 @{
-    ViewData["Title"] = "Elimina " + ViewBag.TipoMisura;
-    var t = Model.GetType();
-    var id = t.GetProperty("Id")?.GetValue(Model);
-    var clienteId = t.GetProperty("ClienteId")?.GetValue(Model);
+    ViewData["Title"] = "Elimina " + Model.TipoMisura;
 }
 
 <div class="card p-5 text-center mt-5" style="max-width: 600px; margin: 0 auto;">
-    <h1 class="text-danger mb-4"><i class="bi bi-exclamation-triangle-fill"></i> Elimina Misura @ViewBag.TipoMisura</h1>
+    <h1 class="text-danger mb-4"><i class="bi bi-exclamation-triangle-fill"></i> Elimina Misura @Model.TipoMisura</h1>
     <p class="fs-5 mb-4">
         Sei sicuro di voler eliminare questa misura dal profilo del cliente?<br/>
         L'operazione rimuoverà la misura e il suo relativo tracciamento storico. <b>L'operazione non è reversibile.</b>
     </p>
 
     <form asp-action="Delete" method="post">
-        <input type="hidden" name="id" value="@id" />
-        <input type="hidden" name="tipoMisura" value="@ViewBag.TipoMisura" />
-        <input type="hidden" name="registryId" value="@ViewBag.RegistryId" />
+        <input asp-for="Id" type="hidden" />
+        <input asp-for="TipoMisura" type="hidden" />
+        <input asp-for="RegistryId" type="hidden" />
         <div class="d-flex justify-content-center gap-3 mt-3">
             <button type="submit" class="btn btn-danger btn-lg">Conferma Eliminazione</button>
-            <a asp-controller="Clienti" asp-action="Details" asp-route-id="@clienteId" class="btn btn-outline-secondary btn-lg">Annulla</a>
+            <a asp-controller="Clienti" asp-action="Details" asp-route-id="@Model.ClienteId" class="btn btn-outline-secondary btn-lg">Annulla</a>
         </div>
     </form>
 </div>

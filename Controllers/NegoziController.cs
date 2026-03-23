@@ -1,24 +1,24 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MisureRicci.Data;
 using MisureRicci.Models;
+using MisureRicci.Services;
 
 namespace MisureRicci.Controllers
 {
     [Authorize(Roles = "Admin")]
     public class NegoziController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly INegozioService _negozioService;
 
-        public NegoziController(ApplicationDbContext context)
+        public NegoziController(INegozioService negozioService)
         {
-            _context = context;
+            _negozioService = negozioService;
         }
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Negozi.ToListAsync());
+            return View(await _negozioService.GetAllAsync());
         }
 
         public IActionResult Create()
@@ -32,8 +32,7 @@ namespace MisureRicci.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(negozio);
-                await _context.SaveChangesAsync();
+                await _negozioService.CreateAsync(negozio);
                 return RedirectToAction(nameof(Index));
             }
             return View(negozio);
@@ -42,7 +41,7 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
-            var negozio = await _context.Negozi.FirstOrDefaultAsync(m => m.Id == id);
+            var negozio = await _negozioService.GetByIdAsync(id.Value);
             if (negozio == null) return NotFound();
             return View(negozio);
         }
@@ -50,7 +49,7 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
-            var negozio = await _context.Negozi.FindAsync(id);
+            var negozio = await _negozioService.GetByIdAsync(id.Value);
             if (negozio == null) return NotFound();
             return View(negozio);
         }
@@ -65,8 +64,7 @@ namespace MisureRicci.Controllers
             {
                 try
                 {
-                    _context.Update(negozio);
-                    await _context.SaveChangesAsync();
+                    await _negozioService.UpdateAsync(negozio);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -80,13 +78,13 @@ namespace MisureRicci.Controllers
 
         private bool NegozioExists(int id)
         {
-            return _context.Negozi.Any(e => e.Id == id);
+            return _negozioService.Exists(id);
         }
 
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
-            var negozio = await _context.Negozi.FirstOrDefaultAsync(m => m.Id == id);
+            var negozio = await _negozioService.GetByIdAsync(id.Value);
             if (negozio == null) return NotFound();
             return View(negozio);
         }
@@ -95,12 +93,7 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var negozio = await _context.Negozi.FindAsync(id);
-            if (negozio != null)
-            {
-                _context.Negozi.Remove(negozio);
-                await _context.SaveChangesAsync();
-            }
+            await _negozioService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
     }

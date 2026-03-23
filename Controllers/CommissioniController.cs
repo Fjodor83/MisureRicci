@@ -50,7 +50,8 @@ namespace MisureRicci.Controllers
             var vm = new CommessaCreateViewModel
             {
                 ClienteId = cliente.Id,
-                ClienteNome = $"{cliente.Nome} {cliente.Cognome}".Trim()
+                ClienteNome = $"{cliente.Nome} {cliente.Cognome}".Trim(),
+                MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(clienteId)
             };
 
             return View(vm);
@@ -69,6 +70,7 @@ namespace MisureRicci.Controllers
             model.ClienteNome = $"{cliente.Nome} {cliente.Cognome}".Trim();
             if (!ModelState.IsValid)
             {
+                model.MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(model.ClienteId);
                 return View(model);
             }
 

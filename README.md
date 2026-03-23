@@ -5,6 +5,18 @@
 ### 1) Configura connessione DB
 Aggiorna `ConnectionStrings:DefaultConnection` in `appsettings.json` oppure via variabile ambiente.
 
+Per sviluppo locale (consigliato) usa User Secrets:
+
+```powershell
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Data Source=SERVER;Initial Catalog=DB;User ID=USER;Password=PASSWORD;Encrypt=False;TrustServerCertificate=True"
+```
+
+Oppure variabile ambiente:
+
+```powershell
+$env:ConnectionStrings__DefaultConnection="Data Source=SERVER;Initial Catalog=DB;User ID=USER;Password=PASSWORD;Encrypt=False;TrustServerCertificate=True"
+```
+
 ### 2) Bootstrap admin sicuro (senza hardcode)
 Il bootstrap admin e' gestito da configurazione in `BootstrapAdmin`.
 Per sviluppo locale, usa User Secrets:
