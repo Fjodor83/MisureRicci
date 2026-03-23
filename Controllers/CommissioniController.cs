@@ -30,18 +30,24 @@ namespace MisureRicci.Controllers
             var result = await _commessaService.GetCommissioniPagedAsync(clienteId, currentUser?.NegozioId, isAdmin, page, pageSize);
             var kpi = await _commessaService.GetKpiAsync(currentUser?.NegozioId, isAdmin);
 
-            ViewBag.ClienteId = clienteId;
-            ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = (int)Math.Ceiling(result.TotalCount / (double)pageSize);
-            ViewBag.Kpi = kpi;
+            var model = new CommessaIndexViewModel
+            {
+                Items = result.Items,
+                ClienteId = clienteId,
+                CurrentPage = result.Page,
+                TotalPages = result.TotalPages,
+                Kpi = kpi
+            };
 
-            return View(result.Items);
+            return View(model);
         }
 
         [HttpGet]
         public async Task<IActionResult> Create(int clienteId)
         {
-            var cliente = await _clienteService.GetClienteByIdAsync(clienteId);
+            var currentUser = await _userManager.GetUserAsync(User);
+            var isAdmin = User.IsInRole("Admin");
+            var cliente = await _clienteService.GetClienteScopedAsync(clienteId, currentUser?.NegozioId, isAdmin);
             if (cliente == null)
             {
                 return NotFound();
@@ -51,7 +57,7 @@ namespace MisureRicci.Controllers
             {
                 ClienteId = cliente.Id,
                 ClienteNome = $"{cliente.Nome} {cliente.Cognome}".Trim(),
-                MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(clienteId)
+                MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(clienteId, currentUser?.NegozioId, isAdmin)
             };
 
             return View(vm);
@@ -61,7 +67,9 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CommessaCreateViewModel model)
         {
-            var cliente = await _clienteService.GetClienteByIdAsync(model.ClienteId);
+            var currentUser = await _userManager.GetUserAsync(User);
+            var isAdmin = User.IsInRole("Admin");
+            var cliente = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser?.NegozioId, isAdmin);
             if (cliente == null)
             {
                 return NotFound();
@@ -70,13 +78,19 @@ namespace MisureRicci.Controllers
             model.ClienteNome = $"{cliente.Nome} {cliente.Cognome}".Trim();
             if (!ModelState.IsValid)
             {
-                model.MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(model.ClienteId);
+                model.MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(model.ClienteId, currentUser?.NegozioId, isAdmin);
                 return View(model);
             }
 
-            var currentUser = await _userManager.GetUserAsync(User);
-            var created = await _commessaService.CreateCommessaAsync(model, currentUser?.Id);
-            return RedirectToAction(nameof(Details), new { id = created.Id });
+            var result = await _commessaService.CreateCommessaAsync(model, currentUser?.Id, currentUser?.NegozioId, isAdmin);
+            if (!result.IsSuccess || result.Value == null)
+            {
+                ModelState.AddModelError(string.Empty, result.Error ?? "Impossibile creare la commessa.");
+                model.MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(model.ClienteId, currentUser?.NegozioId, isAdmin);
+                return View(model);
+            }
+
+            return RedirectToAction(nameof(Details), new { id = result.Value.Id });
         }
 
         public async Task<IActionResult> Details(int id)
@@ -100,10 +114,10 @@ namespace MisureRicci.Controllers
             var currentUser = await _userManager.GetUserAsync(User);
             var isAdmin = User.IsInRole("Admin");
 
-            var ok = await _commessaService.AdvanceStatoAsync(id, nuovoStato, note, currentUser?.Id, currentUser?.NegozioId, isAdmin);
-            if (!ok)
+            var result = await _commessaService.AdvanceStatoAsync(id, nuovoStato, note, currentUser?.Id, currentUser?.NegozioId, isAdmin);
+            if (!result.IsSuccess)
             {
-                TempData["CommessaError"] = "Transizione stato non consentita o misura non collegata alla commessa.";
+                TempData["CommessaError"] = result.Error ?? "Operazione non consentita.";
                 return RedirectToAction(nameof(Details), new { id });
             }
 
@@ -117,9 +131,10 @@ namespace MisureRicci.Controllers
             var currentUser = await _userManager.GetUserAsync(User);
             var isAdmin = User.IsInRole("Admin");
 
-            var ok = await _commessaService.AddNotaAsync(id, nota, currentUser?.Id, currentUser?.NegozioId, isAdmin);
-            if (!ok)
+            var result = await _commessaService.AddNotaAsync(id, nota, currentUser?.Id, currentUser?.NegozioId, isAdmin);
+            if (!result.IsSuccess)
             {
+                TempData["CommessaError"] = result.Error ?? "Impossibile aggiungere la nota.";
                 return RedirectToAction(nameof(Details), new { id });
             }
 
@@ -133,10 +148,11 @@ namespace MisureRicci.Controllers
             var currentUser = await _userManager.GetUserAsync(User);
             var isAdmin = User.IsInRole("Admin");
 
-            var ok = await _commessaService.LinkMisuraAsync(id, misuraClienteId, currentUser?.Id, currentUser?.NegozioId, isAdmin);
-            if (!ok)
+            var result = await _commessaService.LinkMisuraAsync(id, misuraClienteId, currentUser?.Id, currentUser?.NegozioId, isAdmin);
+            if (!result.IsSuccess)
             {
-                return NotFound();
+                TempData["CommessaError"] = result.Error ?? "Impossibile collegare la misura alla commessa.";
+                return RedirectToAction(nameof(Details), new { id });
             }
 
             return RedirectToAction(nameof(Details), new { id });
@@ -149,10 +165,11 @@ namespace MisureRicci.Controllers
             var currentUser = await _userManager.GetUserAsync(User);
             var isAdmin = User.IsInRole("Admin");
 
-            var ok = await _commessaService.UnlinkMisuraAsync(id, misuraClienteId, currentUser?.NegozioId, isAdmin);
-            if (!ok)
+            var result = await _commessaService.UnlinkMisuraAsync(id, misuraClienteId, currentUser?.NegozioId, isAdmin);
+            if (!result.IsSuccess)
             {
-                return NotFound();
+                TempData["CommessaError"] = result.Error ?? "Impossibile scollegare la misura dalla commessa.";
+                return RedirectToAction(nameof(Details), new { id });
             }
 
             return RedirectToAction(nameof(Details), new { id });

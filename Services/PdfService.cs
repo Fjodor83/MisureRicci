@@ -33,8 +33,6 @@ namespace MisureRicci.Services
                 .OrderByDescending(m => m.DataCreazione)
                 .ToListAsync();
 
-            QuestPDF.Settings.License = LicenseType.Community;
-
             var document = Document.Create(container =>
             {
                 container.Page(page =>

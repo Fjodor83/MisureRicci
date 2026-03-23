@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
@@ -67,7 +68,7 @@ public class CustomMeasurementServiceTests
 
         using (var actContext = factory.CreateContext())
         {
-            var service = new CustomMeasurementService(actContext);
+            var service = new CustomMeasurementService(actContext, new MemoryCache(new MemoryCacheOptions()));
             var model = new DynamicMeasurementCreateViewModel
             {
                 ClienteId = clienteId,
@@ -176,7 +177,7 @@ public class CustomMeasurementServiceTests
 
         using (var actContext = factory.CreateContext())
         {
-            var service = new CustomMeasurementService(actContext);
+            var service = new CustomMeasurementService(actContext, new MemoryCache(new MemoryCacheOptions()));
             var model = new DynamicMeasurementCreateViewModel
             {
                 RecordId = recordId,
@@ -206,6 +207,90 @@ public class CustomMeasurementServiceTests
 
             Assert.Single(values);
             Assert.Equal("105", values[0].Valore);
+        }
+    }
+
+    [Fact]
+    public async Task CreateDynamicMeasurementAsync_WithFieldFromAnotherType_ThrowsInvalidOperationException()
+    {
+        using var factory = new TestDbContextFactory();
+
+        int clienteId;
+        int typeId;
+        int foreignFieldId;
+
+        using (var seedContext = factory.CreateContext())
+        {
+            var cliente = new Cliente
+            {
+                Nome = "Marco",
+                Cognome = "Blu",
+                Email = "marco.blu@example.com",
+                Paese = "Italy"
+            };
+
+            var type = new MeasurementType
+            {
+                Nome = "Giubbotto",
+                IsActive = true
+            };
+
+            var altroType = new MeasurementType
+            {
+                Nome = "Soprabito",
+                IsActive = true
+            };
+
+            seedContext.Clienti.Add(cliente);
+            seedContext.MeasurementTypes.AddRange(type, altroType);
+            await seedContext.SaveChangesAsync();
+
+            seedContext.MeasurementFieldDefinitions.Add(new MeasurementFieldDefinition
+            {
+                MeasurementTypeId = type.Id,
+                NomeCampo = "Torace",
+                Etichetta = "Torace",
+                TipoDato = DynamicFieldType.Decimal,
+                Obbligatorio = true,
+                IsActive = true
+            });
+
+            var foreignField = new MeasurementFieldDefinition
+            {
+                MeasurementTypeId = altroType.Id,
+                NomeCampo = "Lunghezza",
+                Etichetta = "Lunghezza",
+                TipoDato = DynamicFieldType.Decimal,
+                Obbligatorio = false,
+                IsActive = true
+            };
+
+            seedContext.MeasurementFieldDefinitions.Add(foreignField);
+            await seedContext.SaveChangesAsync();
+
+            clienteId = cliente.Id;
+            typeId = type.Id;
+            foreignFieldId = foreignField.Id;
+        }
+
+        using (var actContext = factory.CreateContext())
+        {
+            var service = new CustomMeasurementService(actContext, new MemoryCache(new MemoryCacheOptions()));
+            var model = new DynamicMeasurementCreateViewModel
+            {
+                ClienteId = clienteId,
+                MeasurementTypeId = typeId,
+                Fields = new List<DynamicFieldInputViewModel>
+                {
+                    new()
+                    {
+                        FieldDefinitionId = foreignFieldId,
+                        Valore = "110"
+                    }
+                }
+            };
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() => service.CreateDynamicMeasurementAsync(model, "creator-1"));
         }
     }
 }

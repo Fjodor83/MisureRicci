@@ -1,16 +1,16 @@
-@model MisureRicci.Models.ViewModels.UtenteAdminViewModel
+@model MisureRicci.Models.ViewModels.UtenteAdminPageViewModel
 @{ ViewData["Title"] = "Modifica Utente"; }
 <div class="card p-4 mx-auto" style="max-width: 600px;">
     <h1 class="sr-title mb-4">MODIFICA UTENTE</h1>
     <form asp-action="Edit">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <input type="hidden" asp-for="Id" />
-        <div class="mb-3"><label asp-for="NomeCompleto" class="form-label sr-gold small text-uppercase"></label><input asp-for="NomeCompleto" class="form-control" /></div>
-        <div class="mb-3"><label asp-for="UserName" class="form-label sr-gold small text-uppercase"></label><input asp-for="UserName" class="form-control" /></div>
-        <div class="mb-3"><label asp-for="Email" class="form-label sr-gold small text-uppercase"></label><input asp-for="Email" class="form-control" /></div>
+        <input type="hidden" asp-for="Form.Id" />
+        <div class="mb-3"><label asp-for="Form.NomeCompleto" class="form-label sr-gold small text-uppercase"></label><input asp-for="Form.NomeCompleto" class="form-control" /></div>
+        <div class="mb-3"><label asp-for="Form.UserName" class="form-label sr-gold small text-uppercase"></label><input asp-for="Form.UserName" class="form-control" /></div>
+        <div class="mb-3"><label asp-for="Form.Email" class="form-label sr-gold small text-uppercase"></label><input asp-for="Form.Email" class="form-control" /></div>
         <div class="mb-3">
-            <label asp-for="Ruolo" class="form-label sr-gold small text-uppercase"></label>
-            <select asp-for="Ruolo" class="form-select">
+            <label asp-for="Form.Ruolo" class="form-label sr-gold small text-uppercase"></label>
+            <select asp-for="Form.Ruolo" class="form-select">
                 <option value="Admin">Amministratore</option>
                 <option value="Sartoria">Mastro Sarto</option>
                 <option value="Boutique">Personale Boutique</option>
@@ -18,10 +18,10 @@
             </select>
         </div>
         <div class="mb-3">
-            <label asp-for="NegozioId" class="form-label sr-gold small text-uppercase"></label>
-            <select asp-for="NegozioId" class="form-select" asp-items="@(new SelectList(ViewBag.Negozi, "Id", "Nome"))"><option value="">-- Seleziona Negozio --</option></select>
+            <label asp-for="Form.NegozioId" class="form-label sr-gold small text-uppercase"></label>
+            <select asp-for="Form.NegozioId" class="form-select" asp-items="@(new SelectList(Model.Negozi, "Id", "Nome"))"><option value="">-- Seleziona Negozio --</option></select>
         </div>
-        <div class="mb-3 form-check"><input asp-for="Attivo" class="form-check-input" /><label asp-for="Attivo" class="form-check-label sr-gold small text-uppercase"></label></div>
+        <div class="mb-3 form-check"><input asp-for="Form.Attivo" class="form-check-input" /><label asp-for="Form.Attivo" class="form-check-label sr-gold small text-uppercase"></label></div>
         <div class="mt-4"><button type="submit" class="btn btn-primary">Salva</button><a asp-action="Index" class="btn btn-outline-secondary ms-2">Annulla</a></div>
     </form>
 </div>

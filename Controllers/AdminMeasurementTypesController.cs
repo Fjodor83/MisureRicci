@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
@@ -10,10 +13,14 @@ namespace MisureRicci.Controllers
     public class AdminMeasurementTypesController : Controller
     {
         private readonly ICustomMeasurementService _customMeasurementService;
+        private readonly ILogger<AdminMeasurementTypesController> _logger;
 
-        public AdminMeasurementTypesController(ICustomMeasurementService customMeasurementService)
+        public AdminMeasurementTypesController(
+            ICustomMeasurementService customMeasurementService,
+            ILogger<AdminMeasurementTypesController> logger)
         {
             _customMeasurementService = customMeasurementService;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
@@ -42,9 +49,15 @@ namespace MisureRicci.Controllers
                 await _customMeasurementService.CreateMeasurementTypeAsync(model);
                 return RedirectToAction(nameof(Index));
             }
+            catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+            {
+                ModelState.AddModelError(nameof(model.Nome), "Esiste già una tipologia con questo nome.");
+                return View(model);
+            }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);
+                _logger.LogError(ex, "Errore durante la creazione della tipologia misura {Nome}", model.Nome);
+                ModelState.AddModelError(string.Empty, "Si è verificato un errore interno. Riprovare.");
                 return View(model);
             }
         }
@@ -79,9 +92,15 @@ namespace MisureRicci.Controllers
                 await _customMeasurementService.UpdateMeasurementTypeAsync(model);
                 return RedirectToAction(nameof(Index));
             }
+            catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+            {
+                ModelState.AddModelError(nameof(model.Nome), "Esiste già una tipologia con questo nome.");
+                return View(model);
+            }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);
+                _logger.LogError(ex, "Errore durante la modifica della tipologia misura {Id}", model.Id);
+                ModelState.AddModelError(string.Empty, "Si è verificato un errore interno. Riprovare.");
                 return View(model);
             }
         }
@@ -122,23 +141,28 @@ namespace MisureRicci.Controllers
                 return NotFound();
             }
 
-            ViewBag.TypeName = type.Nome;
-            return View(new MeasurementFieldDefinition
+            return View(new MeasurementFieldPageViewModel
             {
-                MeasurementTypeId = typeId,
-                IsActive = true
+                TypeName = type.Nome,
+                Field = new MeasurementFieldDefinition
+                {
+                    MeasurementTypeId = typeId,
+                    IsActive = true
+                }
             });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateField(MeasurementFieldDefinition model)
+        public async Task<IActionResult> CreateField(MeasurementFieldPageViewModel pageModel)
         {
+            var model = pageModel.Field;
+
             if (!ModelState.IsValid)
             {
                 var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
-                ViewBag.TypeName = type?.Nome;
-                return View(model);
+                pageModel.TypeName = type?.Nome ?? string.Empty;
+                return View(pageModel);
             }
 
             try
@@ -146,12 +170,20 @@ namespace MisureRicci.Controllers
                 await _customMeasurementService.CreateFieldAsync(model);
                 return RedirectToAction(nameof(Fields), new { typeId = model.MeasurementTypeId });
             }
+            catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+            {
+                ModelState.AddModelError(nameof(model.NomeCampo), "Esiste già un campo con questo nome per la tipologia selezionata.");
+                var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
+                pageModel.TypeName = type?.Nome ?? string.Empty;
+                return View(pageModel);
+            }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);
+                _logger.LogError(ex, "Errore durante la creazione del campo {NomeCampo} per tipo {TypeId}", model.NomeCampo, model.MeasurementTypeId);
+                ModelState.AddModelError(string.Empty, "Si è verificato un errore interno. Riprovare.");
                 var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
-                ViewBag.TypeName = type?.Nome;
-                return View(model);
+                pageModel.TypeName = type?.Nome ?? string.Empty;
+                return View(pageModel);
             }
         }
 
@@ -165,14 +197,19 @@ namespace MisureRicci.Controllers
             }
 
             var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(field.MeasurementTypeId);
-            ViewBag.TypeName = type?.Nome;
-            return View(field);
+            return View(new MeasurementFieldPageViewModel
+            {
+                TypeName = type?.Nome ?? string.Empty,
+                Field = field
+            });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditField(int id, MeasurementFieldDefinition model)
+        public async Task<IActionResult> EditField(int id, MeasurementFieldPageViewModel pageModel)
         {
+            var model = pageModel.Field;
+
             if (id != model.Id)
             {
                 return NotFound();
@@ -181,8 +218,8 @@ namespace MisureRicci.Controllers
             if (!ModelState.IsValid)
             {
                 var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
-                ViewBag.TypeName = type?.Nome;
-                return View(model);
+                pageModel.TypeName = type?.Nome ?? string.Empty;
+                return View(pageModel);
             }
 
             try
@@ -190,13 +227,33 @@ namespace MisureRicci.Controllers
                 await _customMeasurementService.UpdateFieldAsync(model);
                 return RedirectToAction(nameof(Fields), new { typeId = model.MeasurementTypeId });
             }
+            catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+            {
+                ModelState.AddModelError(nameof(model.NomeCampo), "Esiste già un campo con questo nome per la tipologia selezionata.");
+                var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
+                pageModel.TypeName = type?.Nome ?? string.Empty;
+                return View(pageModel);
+            }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);
+                _logger.LogError(ex, "Errore durante la modifica del campo {Id}", model.Id);
+                ModelState.AddModelError(string.Empty, "Si è verificato un errore interno. Riprovare.");
                 var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
-                ViewBag.TypeName = type?.Nome;
-                return View(model);
+                pageModel.TypeName = type?.Nome ?? string.Empty;
+                return View(pageModel);
             }
+        }
+
+        private static bool IsUniqueConstraintViolation(DbUpdateException ex)
+        {
+            if (ex.InnerException is SqlException sqlEx)
+            {
+                return sqlEx.Number is 2601 or 2627;
+            }
+
+            var message = ex.InnerException?.Message ?? ex.Message;
+            return message.Contains("unique", StringComparison.OrdinalIgnoreCase)
+                || message.Contains("duplicate", StringComparison.OrdinalIgnoreCase);
         }
 
         [HttpPost]

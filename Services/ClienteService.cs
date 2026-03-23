@@ -15,16 +15,15 @@ namespace MisureRicci.Services
 
         public async Task<(IEnumerable<Cliente> Items, int TotalCount)> GetClientiPagedAsync(string searchString, int? negozioId, bool isAdmin, int page, int pageSize)
         {
-            var query = _context.Clienti.AsQueryable();
+            var query = ApplyClienteScope(_context.Clienti.AsNoTracking(), negozioId, isAdmin);
 
-            if (!isAdmin && negozioId.HasValue)
+            if (!string.IsNullOrWhiteSpace(searchString))
             {
-                query = query.Where(c => c.NegozioId == negozioId.Value);
-            }
-
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                query = query.Where(s => s.Nome.Contains(searchString) || s.Cognome.Contains(searchString) || (s.ClientCode ?? string.Empty).Contains(searchString));
+                searchString = searchString.Trim();
+                query = query.Where(s =>
+                    s.Nome.Contains(searchString) ||
+                    s.Cognome.Contains(searchString) ||
+                    (s.ClientCode ?? string.Empty).Contains(searchString));
             }
 
             var totalCount = await query.CountAsync();
@@ -45,7 +44,11 @@ namespace MisureRicci.Services
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                query = query.Where(c => c.Nome.Contains(search) || c.Cognome.Contains(search) || (c.ClientCode ?? string.Empty).Contains(search));
+                search = search.Trim();
+                query = query.Where(c =>
+                    c.Nome.Contains(search) ||
+                    c.Cognome.Contains(search) ||
+                    (c.ClientCode ?? string.Empty).Contains(search));
             }
 
             return await query
@@ -57,26 +60,139 @@ namespace MisureRicci.Services
 
         public async Task<Cliente?> GetClienteByIdAsync(int id)
         {
-            return await _context.Clienti.FirstOrDefaultAsync(m => m.Id == id);
+            return await _context.Clienti
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.Id == id);
         }
 
         public async Task<List<MisureCliente>> GetStoricoMisureAsync(int clienteId)
         {
             return await _context.RegistroMisure
+                .AsNoTracking()
                 .Where(m => m.ClienteId == clienteId)
                 .OrderByDescending(m => m.DataCreazione)
                 .ToListAsync();
         }
 
+        public async Task<Cliente?> GetClienteScopedAsync(int id, int? negozioId, bool isAdmin)
+        {
+            return await ApplyClienteScope(_context.Clienti.AsNoTracking(), negozioId, isAdmin)
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
+
+        public async Task<List<MisureCliente>> GetStoricoMisureScopedAsync(int clienteId, int? negozioId, bool isAdmin)
+        {
+            return await ApplyStoricoScope(
+                    _context.RegistroMisure
+                        .AsNoTracking()
+                        .Include(m => m.Cliente),
+                    negozioId,
+                    isAdmin)
+                .Where(m => m.ClienteId == clienteId)
+                .OrderByDescending(m => m.DataCreazione)
+                .ToListAsync();
+        }
+
+        public async Task<Cliente?> CreateClienteScopedAsync(Cliente cliente, int? negozioId, bool isAdmin)
+        {
+            if (!CanAccessTenant(negozioId, isAdmin))
+            {
+                return null;
+            }
+
+            NormalizeCliente(cliente);
+            cliente.ClientCode = null;
+
+            if (isAdmin)
+            {
+                if (!cliente.NegozioId.HasValue)
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                cliente.NegozioId = negozioId;
+            }
+
+            _context.Clienti.Add(cliente);
+            await _context.SaveChangesAsync();
+            return cliente;
+        }
+
+        public async Task<bool> UpdateClienteScopedAsync(Cliente cliente, int? negozioId, bool isAdmin)
+        {
+            if (!CanAccessTenant(negozioId, isAdmin))
+            {
+                return false;
+            }
+
+            var existing = await ApplyClienteScope(_context.Clienti, negozioId, isAdmin)
+                .FirstOrDefaultAsync(c => c.Id == cliente.Id);
+
+            if (existing == null)
+            {
+                return false;
+            }
+
+            NormalizeCliente(cliente);
+
+            existing.Nome = cliente.Nome;
+            existing.Cognome = cliente.Cognome;
+            existing.Email = cliente.Email;
+            existing.Telefono = cliente.Telefono;
+            existing.Indirizzo = cliente.Indirizzo;
+            existing.Citta = cliente.Citta;
+            existing.StatoProvincia = cliente.StatoProvincia;
+            existing.CodicePostale = cliente.CodicePostale;
+            existing.Paese = cliente.Paese;
+            existing.Note = cliente.Note;
+
+            if (isAdmin)
+            {
+                if (!cliente.NegozioId.HasValue)
+                {
+                    return false;
+                }
+
+                existing.NegozioId = cliente.NegozioId;
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteClienteScopedAsync(int id, int? negozioId, bool isAdmin)
+        {
+            if (!CanAccessTenant(negozioId, isAdmin))
+            {
+                return false;
+            }
+
+            var cliente = await ApplyClienteScope(_context.Clienti, negozioId, isAdmin)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (cliente == null)
+            {
+                return false;
+            }
+
+            _context.Clienti.Remove(cliente);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<Cliente> CreateClienteAsync(Cliente cliente)
         {
-            _context.Add(cliente);
+            NormalizeCliente(cliente);
+            _context.Clienti.Add(cliente);
             await _context.SaveChangesAsync();
             return cliente;
         }
 
         public async Task UpdateClienteAsync(Cliente cliente)
         {
+            NormalizeCliente(cliente);
             _context.Update(cliente);
             await _context.SaveChangesAsync();
         }
@@ -94,6 +210,60 @@ namespace MisureRicci.Services
         public bool ClienteExists(int id)
         {
             return _context.Clienti.Any(e => e.Id == id);
+        }
+
+        private static bool CanAccessTenant(int? negozioId, bool isAdmin)
+        {
+            return isAdmin || negozioId.HasValue;
+        }
+
+        private static IQueryable<Cliente> ApplyClienteScope(IQueryable<Cliente> query, int? negozioId, bool isAdmin)
+        {
+            if (isAdmin)
+            {
+                return query;
+            }
+
+            if (!negozioId.HasValue)
+            {
+                return query.Where(_ => false);
+            }
+
+            return query.Where(c => c.NegozioId == negozioId.Value);
+        }
+
+        private static IQueryable<MisureCliente> ApplyStoricoScope(IQueryable<MisureCliente> query, int? negozioId, bool isAdmin)
+        {
+            if (isAdmin)
+            {
+                return query;
+            }
+
+            if (!negozioId.HasValue)
+            {
+                return query.Where(_ => false);
+            }
+
+            return query.Where(m => m.Cliente != null && m.Cliente.NegozioId == negozioId.Value);
+        }
+
+        private static void NormalizeCliente(Cliente cliente)
+        {
+            cliente.Nome = cliente.Nome.Trim();
+            cliente.Cognome = cliente.Cognome.Trim();
+            cliente.Email = cliente.Email.Trim();
+            cliente.Telefono = NormalizeNullable(cliente.Telefono);
+            cliente.Indirizzo = NormalizeNullable(cliente.Indirizzo);
+            cliente.Citta = NormalizeNullable(cliente.Citta);
+            cliente.StatoProvincia = NormalizeNullable(cliente.StatoProvincia);
+            cliente.CodicePostale = NormalizeNullable(cliente.CodicePostale);
+            cliente.Paese = string.IsNullOrWhiteSpace(cliente.Paese) ? "Italy" : cliente.Paese.Trim();
+            cliente.Note = NormalizeNullable(cliente.Note);
+        }
+
+        private static string? NormalizeNullable(string? value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
         }
     }
 }

@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using MisureRicci.Data;
 using MisureRicci.Models;
 
@@ -22,6 +23,12 @@ namespace MisureRicci.Services
             string createdByUserId,
             CancellationToken cancellationToken = default)
         {
+            var hasAccess = await HasTenantAccessAsync(createdByUserId, legacy.ClienteId, cancellationToken);
+            if (!hasAccess)
+            {
+                throw new UnauthorizedAccessException("Utente non autorizzato alla conversione della misura richiesta.");
+            }
+
             // Locate the matching MeasurementType by name (case-insensitive)
             var measurementType = await _context.MeasurementTypes
                 .AsNoTracking()
@@ -75,7 +82,7 @@ namespace MisureRicci.Services
             {
                 ClienteId = legacy.ClienteId,
                 TipoMisura = measurementType.Nome,
-                Note = $"Convertito da misura legacy {tipoMisura} (ID legacy: {legacy.Id})",
+                SystemNote = $"Convertito da misura legacy {tipoMisura} (ID legacy: {legacy.Id})",
                 RecordId = record.Id,
                 IsDynamic = true
             });
@@ -84,6 +91,42 @@ namespace MisureRicci.Services
             await transaction.CommitAsync(cancellationToken);
 
             return record;
+        }
+
+        private async Task<bool> HasTenantAccessAsync(string userId, int clienteId, CancellationToken cancellationToken)
+        {
+            var user = await _context.Users
+                .AsNoTracking()
+                .Where(u => u.Id == userId)
+                .Select(u => new { u.Id, u.NegozioId })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            var isAdmin = await (
+                from userRole in _context.UserRoles.AsNoTracking()
+                join role in _context.Roles.AsNoTracking() on userRole.RoleId equals role.Id
+                where userRole.UserId == userId && role.Name == "Admin"
+                select userRole.UserId
+            ).AnyAsync(cancellationToken);
+
+            if (isAdmin)
+            {
+                return true;
+            }
+
+            var clienteNegozioId = await _context.Clienti
+                .AsNoTracking()
+                .Where(c => c.Id == clienteId)
+                .Select(c => c.NegozioId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return user.NegozioId.HasValue
+                && clienteNegozioId.HasValue
+                && user.NegozioId.Value == clienteNegozioId.Value;
         }
     }
 }

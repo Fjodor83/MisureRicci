@@ -1,12 +1,12 @@
 @model MisureRicci.Models.ViewModels.ClienteDetailsViewModel
 
 @{
-    ViewData["Title"] = "Dossier Cliente";
+    ViewData["Title"] = "Dettagli Cliente";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeInDown">
     <div>
-        <h1 class="page-title">DOSSIER CLIENTE</h1>
+        <h1 class="page-title">DETTAGLI CLIENTE</h1>
         <p class="page-subtitle mt-2 mb-0">@Model.Cliente.Nome @Model.Cliente.Cognome - @Model.Cliente.ClientCode</p>
     </div>
     <div>
@@ -44,7 +44,7 @@
                 <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.Cliente.Id" class="btn btn-outline-gold w-100"><i class="bi bi-rulers me-2"></i> NUOVA MISURA</a>
                 <a asp-controller="Commissioni" asp-action="Create" asp-route-clienteId="@Model.Cliente.Id" class="btn btn-outline-gold w-100"><i class="bi bi-journal-plus me-2"></i> NUOVA COMMISSIONE</a>
                 <a asp-controller="Commissioni" asp-action="Index" asp-route-clienteId="@Model.Cliente.Id" class="btn btn-outline-gold w-100"><i class="bi bi-list-check me-2"></i> VEDI COMMISSIONI</a>
-                <a href="/pdf/dossier/@Model.Cliente.Id" target="_blank" class="btn btn-outline-secondary w-100"><i class="bi bi-printer me-2"></i> STAMPA DOSSIER</a>
+                <a href="/pdf/dossier/@Model.Cliente.Id" target="_blank" class="btn btn-outline-secondary w-100"><i class="bi bi-printer me-2"></i> STAMPA DETTAGLI</a>
             </div>
         </div>
     </div>

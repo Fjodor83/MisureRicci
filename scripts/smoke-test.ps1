@@ -1,7 +1,17 @@
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 
-$base = 'http://localhost:5129'
+param(
+    [string]$AdminEmail = $env:SR_ADMIN_EMAIL,
+    [string]$AdminPassword = $env:SR_ADMIN_PASSWORD,
+    [string]$BaseUrl = $(if ($env:SR_BASE_URL) { $env:SR_BASE_URL } else { 'http://localhost:5129' })
+)
+
+if ([string]::IsNullOrWhiteSpace($AdminEmail) -or [string]::IsNullOrWhiteSpace($AdminPassword)) {
+    throw 'Set SR_ADMIN_EMAIL and SR_ADMIN_PASSWORD (or pass -AdminEmail/-AdminPassword).'
+}
+
+$base = $BaseUrl
 $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
 
 function Get-Token([string]$html) {
@@ -75,8 +85,8 @@ function Strip-Html([string]$text) {
 $loginPage = Invoke-WebRequest -UseBasicParsing -Uri "$base/Identity/Account/Login" -WebSession $session
 $loginBody = @{
     '__RequestVerificationToken' = Get-Token $loginPage.Content
-    'Input.Email' = 'admin@misure.ricci'
-    'Input.Password' = 'Admin123!'
+    'Input.Email' = $AdminEmail
+    'Input.Password' = $AdminPassword
     'Input.RememberMe' = 'false'
 }
 $null = Invoke-WebRequest -UseBasicParsing -Uri "$base/Identity/Account/Login" -Method Post -WebSession $session -Body $loginBody -ContentType 'application/x-www-form-urlencoded'

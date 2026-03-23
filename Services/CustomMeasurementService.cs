@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using MisureRicci.Data;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
@@ -7,24 +8,36 @@ namespace MisureRicci.Services
 {
     public class CustomMeasurementService : ICustomMeasurementService
     {
-        private readonly ApplicationDbContext _context;
+        private const string ActiveMeasurementTypesCacheKey = "measurement_types_active_v1";
+        private const string AllMeasurementTypesCacheKey = "measurement_types_all_v1";
+        private const string FieldDefinitionsCacheKeyPrefix = "measurement_fields_type_";
 
-        public CustomMeasurementService(ApplicationDbContext context)
+        private readonly ApplicationDbContext _context;
+        private readonly IMemoryCache _cache;
+
+        public CustomMeasurementService(ApplicationDbContext context, IMemoryCache cache)
         {
             _context = context;
+            _cache = cache;
         }
 
         public async Task<List<MeasurementType>> GetMeasurementTypesAsync(bool onlyActive = true)
         {
-            var query = _context.MeasurementTypes.AsQueryable();
-            if (onlyActive)
+            var cacheKey = onlyActive ? ActiveMeasurementTypesCacheKey : AllMeasurementTypesCacheKey;
+            return await _cache.GetOrCreateAsync(cacheKey, async entry =>
             {
-                query = query.Where(x => x.IsActive);
-            }
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
 
-            return await query
-                .OrderBy(x => x.Nome)
-                .ToListAsync();
+                var query = _context.MeasurementTypes.AsNoTracking().AsQueryable();
+                if (onlyActive)
+                {
+                    query = query.Where(x => x.IsActive);
+                }
+
+                return await query
+                    .OrderBy(x => x.Nome)
+                    .ToListAsync();
+            }) ?? new List<MeasurementType>();
         }
 
         public async Task<MeasurementType?> GetMeasurementTypeByIdAsync(int id)
@@ -39,6 +52,7 @@ namespace MisureRicci.Services
             model.Nome = model.Nome.Trim();
             _context.MeasurementTypes.Add(model);
             await _context.SaveChangesAsync();
+            InvalidateMeasurementTypeCaches();
             return model;
         }
 
@@ -47,6 +61,8 @@ namespace MisureRicci.Services
             model.Nome = model.Nome.Trim();
             _context.MeasurementTypes.Update(model);
             await _context.SaveChangesAsync();
+            InvalidateMeasurementTypeCaches();
+            InvalidateFieldCaches(model.Id);
         }
 
         public async Task DeleteMeasurementTypeAsync(int id)
@@ -62,24 +78,33 @@ namespace MisureRicci.Services
 
             _context.MeasurementTypes.Remove(entity);
             await _context.SaveChangesAsync();
+            InvalidateMeasurementTypeCaches();
+            InvalidateFieldCaches(id);
         }
 
         public async Task<List<MeasurementFieldDefinition>> GetFieldsByTypeAsync(int measurementTypeId, bool onlyActive = true)
         {
-            var query = _context.MeasurementFieldDefinitions
-                .Where(x => x.MeasurementTypeId == measurementTypeId);
-
-            if (onlyActive)
+            var cacheKey = BuildFieldCacheKey(measurementTypeId, onlyActive);
+            return await _cache.GetOrCreateAsync(cacheKey, async entry =>
             {
-                query = query.Where(x => x.IsActive);
-            }
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
 
-            return await query
-                .OrderBy(x => x.OrdineGruppo)
-                .ThenBy(x => x.Gruppo)
-                .ThenBy(x => x.Ordine)
-                .ThenBy(x => x.Etichetta)
-                .ToListAsync();
+                var query = _context.MeasurementFieldDefinitions
+                    .AsNoTracking()
+                    .Where(x => x.MeasurementTypeId == measurementTypeId);
+
+                if (onlyActive)
+                {
+                    query = query.Where(x => x.IsActive);
+                }
+
+                return await query
+                    .OrderBy(x => x.OrdineGruppo)
+                    .ThenBy(x => x.Gruppo)
+                    .ThenBy(x => x.Ordine)
+                    .ThenBy(x => x.Etichetta)
+                    .ToListAsync();
+            }) ?? new List<MeasurementFieldDefinition>();
         }
 
         public async Task<MeasurementFieldDefinition?> GetFieldByIdAsync(int id)
@@ -95,6 +120,7 @@ namespace MisureRicci.Services
             model.HelpText = string.IsNullOrWhiteSpace(model.HelpText) ? null : model.HelpText.Trim();
             _context.MeasurementFieldDefinitions.Add(model);
             await _context.SaveChangesAsync();
+            InvalidateFieldCaches(model.MeasurementTypeId);
             return model;
         }
 
@@ -106,6 +132,7 @@ namespace MisureRicci.Services
             model.HelpText = string.IsNullOrWhiteSpace(model.HelpText) ? null : model.HelpText.Trim();
             _context.MeasurementFieldDefinitions.Update(model);
             await _context.SaveChangesAsync();
+            InvalidateFieldCaches(model.MeasurementTypeId);
         }
 
         public async Task DeleteFieldAsync(int id)
@@ -116,22 +143,18 @@ namespace MisureRicci.Services
                 return;
             }
 
+            var measurementTypeId = entity.MeasurementTypeId;
             _context.MeasurementFieldDefinitions.Remove(entity);
             await _context.SaveChangesAsync();
+            InvalidateFieldCaches(measurementTypeId);
         }
 
         public async Task<DynamicMeasurementRecord> CreateDynamicMeasurementAsync(DynamicMeasurementCreateViewModel model, string? createdByUserId)
         {
             var fields = await GetFieldsByTypeAsync(model.MeasurementTypeId, onlyActive: true);
-
-            foreach (var field in fields.Where(x => x.Obbligatorio && !IsStructuralTemplate(x.Template)))
-            {
-                var value = model.Fields.FirstOrDefault(x => x.FieldDefinitionId == field.Id)?.Valore;
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    throw new InvalidOperationException($"Il campo '{field.Etichetta}' è obbligatorio.");
-                }
-            }
+            var allowedFields = fields.ToDictionary(x => x.Id);
+            EnsureFieldPayloadIsValid(model.Fields, allowedFields);
+            ValidateRequiredFields(model.Fields, fields);
 
             var record = new DynamicMeasurementRecord
             {
@@ -146,15 +169,7 @@ namespace MisureRicci.Services
             _context.DynamicMeasurementRecords.Add(record);
             await _context.SaveChangesAsync();
 
-            var values = model.Fields
-                .Where(x => !string.IsNullOrWhiteSpace(x.Valore) && !IsStructuralTemplate(x.Template))
-                .Select(x => new DynamicMeasurementValue
-                {
-                    DynamicMeasurementRecordId = record.Id,
-                    MeasurementFieldDefinitionId = x.FieldDefinitionId,
-                    Valore = x.Valore!.Trim()
-                })
-                .ToList();
+            var values = BuildDynamicMeasurementValues(model.Fields, allowedFields, record.Id);
 
             if (values.Count > 0)
             {
@@ -166,7 +181,7 @@ namespace MisureRicci.Services
             {
                 ClienteId = model.ClienteId,
                 TipoMisura = type.Nome,
-                Note = "Misura dinamica registrata",
+                SystemNote = "Misura dinamica registrata",
                 RecordId = record.Id,
                 IsDynamic = true,
                 DataCreazione = DateTime.UtcNow
@@ -236,27 +251,15 @@ namespace MisureRicci.Services
             }
 
             var fields = await GetFieldsByTypeAsync(record.MeasurementTypeId, onlyActive: true);
-            foreach (var field in fields.Where(x => x.Obbligatorio && !IsStructuralTemplate(x.Template)))
-            {
-                var value = model.Fields.FirstOrDefault(x => x.FieldDefinitionId == field.Id)?.Valore;
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    throw new InvalidOperationException($"Il campo '{field.Etichetta}' è obbligatorio.");
-                }
-            }
+            var allowedFields = fields.ToDictionary(x => x.Id);
+            EnsureFieldPayloadIsValid(model.Fields, allowedFields);
+            ValidateRequiredFields(model.Fields, fields);
 
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             _context.DynamicMeasurementValues.RemoveRange(record.Values);
 
-            var values = model.Fields
-                .Where(x => !string.IsNullOrWhiteSpace(x.Valore) && !IsStructuralTemplate(x.Template))
-                .Select(x => new DynamicMeasurementValue
-                {
-                    DynamicMeasurementRecordId = record.Id,
-                    MeasurementFieldDefinitionId = x.FieldDefinitionId,
-                    Valore = x.Valore!.Trim()
-                });
+            var values = BuildDynamicMeasurementValues(model.Fields, allowedFields, record.Id);
 
             _context.DynamicMeasurementValues.AddRange(values);
             await _context.SaveChangesAsync();
@@ -291,12 +294,83 @@ namespace MisureRicci.Services
                 || template == DynamicFieldTemplate.AlertNote;
         }
 
+        private static void EnsureFieldPayloadIsValid(
+            IEnumerable<DynamicFieldInputViewModel> submittedFields,
+            IReadOnlyDictionary<int, MeasurementFieldDefinition> allowedFields)
+        {
+            var invalidFieldIds = submittedFields
+                .Where(x => !allowedFields.ContainsKey(x.FieldDefinitionId))
+                .Select(x => x.FieldDefinitionId)
+                .Distinct()
+                .ToList();
+
+            if (invalidFieldIds.Count > 0)
+            {
+                throw new InvalidOperationException("Il form contiene campi non validi per la tipologia selezionata.");
+            }
+        }
+
+        private static void ValidateRequiredFields(
+            IEnumerable<DynamicFieldInputViewModel> submittedFields,
+            IEnumerable<MeasurementFieldDefinition> fields)
+        {
+            foreach (var field in fields.Where(x => x.Obbligatorio && !IsStructuralTemplate(x.Template)))
+            {
+                var value = submittedFields.FirstOrDefault(x => x.FieldDefinitionId == field.Id)?.Valore;
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    throw new InvalidOperationException($"Il campo '{field.Etichetta}' è obbligatorio.");
+                }
+            }
+        }
+
+        private static List<DynamicMeasurementValue> BuildDynamicMeasurementValues(
+            IEnumerable<DynamicFieldInputViewModel> submittedFields,
+            IReadOnlyDictionary<int, MeasurementFieldDefinition> allowedFields,
+            int recordId)
+        {
+            return submittedFields
+                .Where(x =>
+                    allowedFields.TryGetValue(x.FieldDefinitionId, out var definition)
+                    && !string.IsNullOrWhiteSpace(x.Valore)
+                    && !IsStructuralTemplate(definition.Template))
+                .GroupBy(x => x.FieldDefinitionId)
+                .Select(group =>
+                {
+                    var value = group.Last();
+                    return new DynamicMeasurementValue
+                    {
+                        DynamicMeasurementRecordId = recordId,
+                        MeasurementFieldDefinitionId = value.FieldDefinitionId,
+                        Valore = value.Valore!.Trim()
+                    };
+                })
+                .ToList();
+        }
+
         public async Task<int?> GetRegistroMisuraIdByDynamicRecordAsync(int dynamicRecordId)
         {
             return await _context.RegistroMisure
                 .Where(m => m.RecordId == dynamicRecordId && m.IsDynamic)
                 .Select(m => (int?)m.Id)
                 .FirstOrDefaultAsync();
+        }
+
+        private static string BuildFieldCacheKey(int measurementTypeId, bool onlyActive)
+        {
+            return $"{FieldDefinitionsCacheKeyPrefix}{measurementTypeId}_{(onlyActive ? "active" : "all")}";
+        }
+
+        private void InvalidateMeasurementTypeCaches()
+        {
+            _cache.Remove(ActiveMeasurementTypesCacheKey);
+            _cache.Remove(AllMeasurementTypesCacheKey);
+        }
+
+        private void InvalidateFieldCaches(int measurementTypeId)
+        {
+            _cache.Remove(BuildFieldCacheKey(measurementTypeId, onlyActive: true));
+            _cache.Remove(BuildFieldCacheKey(measurementTypeId, onlyActive: false));
         }
     }
 }

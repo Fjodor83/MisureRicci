@@ -1,76 +1,76 @@
-@model MisureRicci.Models.MeasurementFieldDefinition
+@model MisureRicci.Models.ViewModels.MeasurementFieldPageViewModel
 
 @{
     ViewData["Title"] = "Nuovo Campo";
 }
 
-<h1 class="page-title mb-4">NUOVO CAMPO — @ViewBag.TypeName</h1>
+<h1 class="page-title mb-4">NUOVO CAMPO — @Model.TypeName</h1>
 
 <div class="card card-static p-4">
     <form asp-action="CreateField" method="post">
-        <input type="hidden" asp-for="MeasurementTypeId" />
+        <input type="hidden" asp-for="Field.MeasurementTypeId" />
         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
         <div class="row g-3">
             <div class="col-md-6">
-                <label asp-for="NomeCampo" class="form-label"></label>
-                <input asp-for="NomeCampo" class="form-control" />
-                <span asp-validation-for="NomeCampo" class="text-danger"></span>
+                <label asp-for="Field.NomeCampo" class="form-label"></label>
+                <input asp-for="Field.NomeCampo" class="form-control" />
+                <span asp-validation-for="Field.NomeCampo" class="text-danger"></span>
             </div>
             <div class="col-md-6">
-                <label asp-for="Etichetta" class="form-label"></label>
-                <input asp-for="Etichetta" class="form-control" />
-                <span asp-validation-for="Etichetta" class="text-danger"></span>
+                <label asp-for="Field.Etichetta" class="form-label"></label>
+                <input asp-for="Field.Etichetta" class="form-control" />
+                <span asp-validation-for="Field.Etichetta" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
-                <label asp-for="Gruppo" class="form-label"></label>
-                <input asp-for="Gruppo" class="form-control" placeholder="Es. Corpo, Lunghezze, Note sartoriali" />
+                <label asp-for="Field.Gruppo" class="form-label"></label>
+                <input asp-for="Field.Gruppo" class="form-control" placeholder="Es. Corpo, Lunghezze, Note sartoriali" />
             </div>
             <div class="col-md-6">
-                <label asp-for="OrdineGruppo" class="form-label"></label>
-                <input asp-for="OrdineGruppo" class="form-control" />
+                <label asp-for="Field.OrdineGruppo" class="form-label"></label>
+                <input asp-for="Field.OrdineGruppo" class="form-control" />
             </div>
 
             <div class="col-md-4">
-                <label asp-for="TipoDato" class="form-label"></label>
-                <select asp-for="TipoDato" asp-items="Html.GetEnumSelectList<MisureRicci.Models.DynamicFieldType>()" class="form-select"></select>
+                <label asp-for="Field.TipoDato" class="form-label"></label>
+                <select asp-for="Field.TipoDato" asp-items="Html.GetEnumSelectList<MisureRicci.Models.DynamicFieldType>()" class="form-select"></select>
             </div>
             <div class="col-md-4">
-                <label asp-for="Template" class="form-label"></label>
-                <select asp-for="Template" asp-items="Html.GetEnumSelectList<MisureRicci.Models.DynamicFieldTemplate>()" class="form-select"></select>
+                <label asp-for="Field.Template" class="form-label"></label>
+                <select asp-for="Field.Template" asp-items="Html.GetEnumSelectList<MisureRicci.Models.DynamicFieldTemplate>()" class="form-select"></select>
             </div>
             <div class="col-md-4">
-                <label asp-for="UnitaMisura" class="form-label"></label>
-                <input asp-for="UnitaMisura" class="form-control" />
+                <label asp-for="Field.UnitaMisura" class="form-label"></label>
+                <input asp-for="Field.UnitaMisura" class="form-control" />
             </div>
             <div class="col-md-4">
-                <label asp-for="Ordine" class="form-label"></label>
-                <input asp-for="Ordine" class="form-control" />
+                <label asp-for="Field.Ordine" class="form-label"></label>
+                <input asp-for="Field.Ordine" class="form-control" />
             </div>
 
             <div class="col-md-12">
-                <label asp-for="Placeholder" class="form-label"></label>
-                <input asp-for="Placeholder" class="form-control" />
+                <label asp-for="Field.Placeholder" class="form-label"></label>
+                <input asp-for="Field.Placeholder" class="form-control" />
             </div>
             <div class="col-md-12">
-                <label asp-for="HelpText" class="form-label"></label>
-                <input asp-for="HelpText" class="form-control" placeholder="Suggerimento operativo visibile in form" />
+                <label asp-for="Field.HelpText" class="form-label"></label>
+                <input asp-for="Field.HelpText" class="form-control" placeholder="Suggerimento operativo visibile in form" />
             </div>
 
             <div class="col-md-6 form-check form-switch mt-4">
-                <input asp-for="Obbligatorio" class="form-check-input" />
-                <label asp-for="Obbligatorio" class="form-check-label"></label>
+                <input asp-for="Field.Obbligatorio" class="form-check-input" />
+                <label asp-for="Field.Obbligatorio" class="form-check-label"></label>
             </div>
             <div class="col-md-6 form-check form-switch mt-4">
-                <input asp-for="IsActive" class="form-check-input" />
-                <label asp-for="IsActive" class="form-check-label"></label>
+                <input asp-for="Field.IsActive" class="form-check-input" />
+                <label asp-for="Field.IsActive" class="form-check-label"></label>
             </div>
         </div>
 
         <div class="mt-4">
             <button type="submit" class="btn btn-primary me-2">Salva</button>
-            <a asp-action="Fields" asp-route-typeId="@Model.MeasurementTypeId" class="btn btn-outline-secondary">Annulla</a>
+            <a asp-action="Fields" asp-route-typeId="@Model.Field.MeasurementTypeId" class="btn btn-outline-secondary">Annulla</a>
         </div>
     </form>
 </div>

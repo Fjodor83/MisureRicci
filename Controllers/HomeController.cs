@@ -1,31 +1,30 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using MisureRicci.Models;
+using MisureRicci.Services;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 
 namespace MisureRicci.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly Data.ApplicationDbContext _context;
+        private readonly IDashboardService _dashboardService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public HomeController(ILogger<HomeController> logger, Data.ApplicationDbContext context)
+        public HomeController(ILogger<HomeController> logger, IDashboardService dashboardService, UserManager<ApplicationUser> userManager)
         {
             _logger = logger;
-            _context = context;
+            _dashboardService = dashboardService;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()
         {
-            ViewBag.TotalClients = await _context.Clienti.CountAsync();
-            ViewBag.TotalStores = await _context.Negozi.CountAsync();
-            ViewBag.TotalStaff = await _context.Utenti.CountAsync();
-
-            // Registry is the single source of truth for both legacy and dynamic measurements.
-            ViewBag.TotalMeasurements = await _context.RegistroMisure.CountAsync();
-
-            return View();
+            var currentUser = await _userManager.GetUserAsync(User);
+            var isAdmin = User.IsInRole(ApplicationRoles.Admin);
+            var model = await _dashboardService.GetKpiAsync(currentUser?.NegozioId, isAdmin);
+            return View(model);
         }
 
 

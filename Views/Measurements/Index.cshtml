@@ -1,12 +1,14 @@
+@model MisureRicci.Models.ViewModels.MeasurementsDashboardViewModel
+
 @{
-    ViewData["Title"] = "Dashboard Misure - " + ViewBag.ClienteNome;
-    int clienteId = ViewBag.ClienteId;
-    var dynamicTypes = ViewBag.DynamicMeasurementTypes as List<MisureRicci.Models.MeasurementType> ?? new();
+    ViewData["Title"] = "Dashboard Misure - " + Model.ClienteNome;
+    int clienteId = Model.ClienteId;
+    var dynamicTypes = Model.DynamicMeasurementTypes;
 }
 
 <div class="text-center mb-5">
     <h1 class="sr-title">GESTIONALE MISURE</h1>
-    <p class="sr-gold text-uppercase letter-spacing-2">Seleziona la categoria di abbigliamento per <strong>@ViewBag.ClienteNome</strong></p>
+    <p class="sr-gold text-uppercase letter-spacing-2">Seleziona la categoria di abbigliamento per <strong>@Model.ClienteNome</strong></p>
 </div>
 
 <div class="row g-4">

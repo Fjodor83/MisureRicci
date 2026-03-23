@@ -101,6 +101,59 @@ public class TenantSecurityTests
     }
 
     [Fact]
+    public async Task MeasurementService_GetMeasurementScopedAsync_NonAdminWithoutNegozio_ReturnsNull()
+    {
+        using var factory = new TestDbContextFactory();
+
+        int measurementId;
+        using (var seedContext = factory.CreateContext())
+        {
+            var negozio = new Negozio
+            {
+                Nome = "Negozio D",
+                Citta = "Verona",
+                Paese = "Italy"
+            };
+            seedContext.Negozi.Add(negozio);
+            await seedContext.SaveChangesAsync();
+
+            var cliente = new Cliente
+            {
+                Nome = "Marta",
+                Cognome = "Rosa",
+                Email = "marta.rosa@example.com",
+                Paese = "Italy",
+                NegozioId = negozio.Id
+            };
+
+            seedContext.Clienti.Add(cliente);
+            await seedContext.SaveChangesAsync();
+
+            var misura = new GiaccaMeasurement
+            {
+                ClienteId = cliente.Id,
+                Spalle = 43,
+                Torace = 97,
+                Vita = 87,
+                Manica = 62,
+                Lunghezza = 71
+            };
+
+            seedContext.MisureGiacca.Add(misura);
+            await seedContext.SaveChangesAsync();
+            measurementId = misura.Id;
+        }
+
+        using (var actContext = factory.CreateContext())
+        {
+            var measurementService = new MeasurementService(actContext);
+            var result = await measurementService.GetMeasurementScopedAsync(measurementId, "giacca", negozioId: null, isAdmin: false);
+
+            Assert.Null(result);
+        }
+    }
+
+    [Fact]
     public async Task MeasurementService_GetMeasurementScopedAsync_AdminBypassesNegozioFilter()
     {
         using var factory = new TestDbContextFactory();

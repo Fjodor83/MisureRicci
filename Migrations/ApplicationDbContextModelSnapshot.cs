@@ -366,7 +366,10 @@ namespace MisureRicci.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ClientCode")
-                        .HasColumnType("nvarchar(max)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasComputedColumnSql("CAST('SR-' + CAST(YEAR([DataRegistrazione]) AS nvarchar(4)) + '-' + RIGHT('00000' + CAST([Id] AS nvarchar(5)), 5) AS nvarchar(20))", true);
 
                     b.Property<string>("CodicePostale")
                         .HasColumnType("nvarchar(max)");
@@ -406,6 +409,9 @@ namespace MisureRicci.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ClientCode")
+                        .IsUnique();
 
                     b.HasIndex("NegozioId");
 
@@ -882,6 +888,9 @@ namespace MisureRicci.Migrations
                     b.Property<int>("RecordId")
                         .HasColumnType("int");
 
+                    b.Property<string>("SystemNote")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("TipoMisura")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1045,46 +1054,6 @@ namespace MisureRicci.Migrations
                     b.HasIndex("ClienteId");
 
                     b.ToTable("MisureScarpe", (string)null);
-                });
-
-            modelBuilder.Entity("MisureRicci.Models.Utente", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("Attivo")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("DataCreazione")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("NegozioId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("NomeCompleto")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Ruolo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NegozioId");
-
-                    b.ToTable("Utenti", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1416,15 +1385,6 @@ namespace MisureRicci.Migrations
                         .IsRequired();
 
                     b.Navigation("Cliente");
-                });
-
-            modelBuilder.Entity("MisureRicci.Models.Utente", b =>
-                {
-                    b.HasOne("MisureRicci.Models.Negozio", "Negozio")
-                        .WithMany()
-                        .HasForeignKey("NegozioId");
-
-                    b.Navigation("Negozio");
                 });
 
             modelBuilder.Entity("MisureRicci.Models.CommessaSartoriale", b =>

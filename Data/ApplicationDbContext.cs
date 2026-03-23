@@ -26,9 +26,6 @@ namespace MisureRicci.Data
 
         public DbSet<Cliente> Clienti { get; set; }
         public DbSet<Negozio> Negozi { get; set; }
-#pragma warning disable CS0618 // Utente table retained until drop migration runs
-        public DbSet<Utente> Utenti { get; set; }
-#pragma warning restore CS0618
         public DbSet<MisureCliente> RegistroMisure { get; set; }
         public DbSet<MeasurementType> MeasurementTypes { get; set; }
         public DbSet<MeasurementFieldDefinition> MeasurementFieldDefinitions { get; set; }
@@ -44,6 +41,7 @@ namespace MisureRicci.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            var isSqlite = Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite";
             
             modelBuilder.Entity<MisureCliente>().ToTable("RegistroMisure");
             modelBuilder.Entity<MisureCliente>()
@@ -74,11 +72,25 @@ namespace MisureRicci.Data
             modelBuilder.Entity<ScarpeMeasurement>().ToTable("MisureScarpe");
             modelBuilder.Entity<CravattaMeasurement>().ToTable("MisureCravatta");
             modelBuilder.Entity<CinturaMeasurement>().ToTable("MisureCintura");
-            modelBuilder.Entity<Cliente>().ToTable("Clienti");
+            modelBuilder.Entity<Cliente>(entity =>
+            {
+                entity.ToTable("Clienti");
+                entity.Property(c => c.ClientCode).HasMaxLength(20);
+
+                if (isSqlite)
+                {
+                    entity.Property(c => c.ClientCode);
+                }
+                else
+                {
+                    entity.Property(c => c.ClientCode)
+                        .HasComputedColumnSql("CAST('SR-' + CAST(YEAR([DataRegistrazione]) AS nvarchar(4)) + '-' + RIGHT('00000' + CAST([Id] AS nvarchar(5)), 5) AS nvarchar(20))", stored: true);
+                }
+
+                entity.HasIndex(c => c.ClientCode)
+                    .IsUnique();
+            });
             modelBuilder.Entity<Negozio>().ToTable("Negozi");
-#pragma warning disable CS0618
-            modelBuilder.Entity<Utente>().ToTable("Utenti");
-#pragma warning restore CS0618
 
             modelBuilder.Entity<MeasurementType>(entity =>
             {
@@ -195,36 +207,5 @@ namespace MisureRicci.Data
             });
         }
 
-        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
-        {
-            var addedClients = ChangeTracker.Entries<Cliente>()
-                .Where(e => e.State == EntityState.Added)
-                .Select(e => e.Entity)
-                .ToList();
-
-            var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-
-            bool needsSecondSave = false;
-            foreach (var cliente in addedClients)
-            {
-                if (string.IsNullOrEmpty(cliente.ClientCode))
-                {
-                    cliente.ClientCode = $"SR-{DateTime.Now.Year}-{cliente.Id:D5}";
-                    needsSecondSave = true;
-                }
-            }
-
-            if (needsSecondSave)
-            {
-                await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-            }
-
-            return result;
-        }
-        
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            return SaveChangesAsync(true, cancellationToken);
-        }
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using MisureRicci.Data;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
@@ -7,7 +8,9 @@ namespace MisureRicci.Services
 {
     public class CommessaService : ICommessaService
     {
+        private const string ActiveMeasurementTypesCacheKey = "active_measurement_types_v1";
         private readonly ApplicationDbContext _context;
+        private readonly IMemoryCache _cache;
 
         private static readonly Dictionary<StatoCommessa, StatoCommessa[]> AllowedTransitions = new()
         {
@@ -21,12 +24,13 @@ namespace MisureRicci.Services
             [StatoCommessa.Annullata] = Array.Empty<StatoCommessa>()
         };
 
-        public CommessaService(ApplicationDbContext context)
+        public CommessaService(ApplicationDbContext context, IMemoryCache cache)
         {
             _context = context;
+            _cache = cache;
         }
 
-        public async Task<(IEnumerable<CommessaSartoriale> Items, int TotalCount)> GetCommissioniPagedAsync(int? clienteId, int? negozioId, bool isAdmin, int page, int pageSize)
+        public async Task<PagedResult<CommessaSartoriale>> GetCommissioniPagedAsync(int? clienteId, int? negozioId, bool isAdmin, int page, int pageSize)
         {
             var query = _context.CommissioniSartoriali
                 .AsNoTracking()
@@ -39,8 +43,13 @@ namespace MisureRicci.Services
                 query = query.Where(c => c.ClienteId == clienteId.Value);
             }
 
-            if (!isAdmin && negozioId.HasValue)
+            if (!isAdmin)
             {
+                if (!negozioId.HasValue)
+                {
+                    return new PagedResult<CommessaSartoriale>(Array.Empty<CommessaSartoriale>(), 0, page, pageSize);
+                }
+
                 query = query.Where(c => c.NegozioId == negozioId.Value);
             }
 
@@ -51,52 +60,69 @@ namespace MisureRicci.Services
                 .Take(pageSize)
                 .ToListAsync();
 
-            return (items, totalCount);
+            return new PagedResult<CommessaSartoriale>(items, totalCount, page, pageSize);
         }
 
         public async Task<CommessaKpiViewModel> GetKpiAsync(int? negozioId, bool isAdmin)
         {
             var query = _context.CommissioniSartoriali.AsNoTracking().AsQueryable();
 
-            if (!isAdmin && negozioId.HasValue)
+            if (!isAdmin)
             {
+                if (!negozioId.HasValue)
+                {
+                    return new CommessaKpiViewModel();
+                }
+
                 query = query.Where(c => c.NegozioId == negozioId.Value);
             }
 
-            var total = await query.CountAsync();
-            var consegnate = await query.CountAsync(c => c.Stato == StatoCommessa.Consegnata);
-            var annullate = await query.CountAsync(c => c.Stato == StatoCommessa.Annullata);
-            var inRitardo = await query.CountAsync(c =>
-                c.Stato != StatoCommessa.Consegnata &&
-                c.Stato != StatoCommessa.Annullata &&
-                c.DataConsegnaPrevista.HasValue &&
-                c.DataConsegnaPrevista.Value < DateTime.UtcNow);
+            var now = DateTime.UtcNow;
+            var snapshot = await query
+                .GroupBy(_ => 1)
+                .Select(group => new
+                {
+                    Total = group.Count(),
+                    Consegnate = group.Count(c => c.Stato == StatoCommessa.Consegnata),
+                    Annullate = group.Count(c => c.Stato == StatoCommessa.Annullata),
+                    InRitardo = group.Count(c =>
+                        c.Stato != StatoCommessa.Consegnata &&
+                        c.Stato != StatoCommessa.Annullata &&
+                        c.DataConsegnaPrevista.HasValue &&
+                        c.DataConsegnaPrevista.Value < now)
+                })
+                .FirstOrDefaultAsync();
+
+            if (snapshot == null)
+            {
+                return new CommessaKpiViewModel();
+            }
 
             return new CommessaKpiViewModel
             {
-                Totale = total,
-                Consegnate = consegnate,
-                InCorso = total - consegnate - annullate,
-                InRitardo = inRitardo
+                Totale = snapshot.Total,
+                Consegnate = snapshot.Consegnate,
+                InCorso = snapshot.Total - snapshot.Consegnate - snapshot.Annullate,
+                InRitardo = snapshot.InRitardo
             };
         }
 
         public async Task<CommessaSartoriale?> GetCommessaByIdAsync(int id, int? negozioId, bool isAdmin)
         {
-            var query = _context.CommissioniSartoriali
+            var commessaTask = _context.CommissioniSartoriali
                 .AsNoTracking()
                 .Include(c => c.Cliente)
                 .Include(c => c.Negozio)
                 .Include(c => c.Eventi.OrderByDescending(e => e.CreatedAt))
                 .FirstOrDefaultAsync(c => c.Id == id);
 
-            var commessa = await query;
+            var commessa = await commessaTask;
             if (commessa == null)
             {
                 return null;
             }
 
-            if (!isAdmin && negozioId.HasValue && commessa.NegozioId != negozioId.Value)
+            if (!CanAccessNegozio(commessa.NegozioId, negozioId, isAdmin))
             {
                 return null;
             }
@@ -111,8 +137,6 @@ namespace MisureRicci.Services
                 .Include(c => c.Cliente)
                 .Include(c => c.Negozio)
                 .Include(c => c.Eventi.OrderByDescending(e => e.CreatedAt))
-                .Include(c => c.MisureCollegate)
-                    .ThenInclude(l => l.MisuraCliente)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (commessa == null)
@@ -120,42 +144,57 @@ namespace MisureRicci.Services
                 return null;
             }
 
-            if (!isAdmin && negozioId.HasValue && commessa.NegozioId != negozioId.Value)
+            if (!CanAccessNegozio(commessa.NegozioId, negozioId, isAdmin))
             {
                 return null;
             }
 
-            var linkedIds = commessa.MisureCollegate.Select(x => x.MisuraClienteId).ToHashSet();
-            var disponibili = await _context.RegistroMisure
+            var misureConStatoLink = await _context.RegistroMisure
+                .AsNoTracking()
                 .Where(m => m.ClienteId == commessa.ClienteId)
-                .OrderByDescending(m => m.DataCreazione)
-                .Select(m => new CommessaMisuraItem
-                {
-                    MisuraClienteId = m.Id,
-                    RecordId = m.RecordId,
-                    TipoMisura = m.TipoMisura,
-                    IsDynamic = m.IsDynamic,
-                    DataCreazione = m.DataCreazione,
-                    Note = m.Note
-                })
+                .GroupJoin(
+                    _context.CommissioniMisureLinks
+                        .AsNoTracking()
+                        .Where(l => l.CommessaSartorialeId == commessa.Id),
+                    misura => misura.Id,
+                    link => link.MisuraClienteId,
+                    (misura, links) => new
+                    {
+                        Item = new CommessaMisuraItem
+                        {
+                            MisuraClienteId = misura.Id,
+                            RecordId = misura.RecordId,
+                            TipoMisura = misura.TipoMisura,
+                            IsDynamic = misura.IsDynamic,
+                            DataCreazione = misura.DataCreazione,
+                            Note = misura.Note ?? misura.SystemNote
+                        },
+                        IsLinked = links.Any()
+                    })
+                .OrderByDescending(x => x.Item.DataCreazione)
                 .ToListAsync();
 
-            var linked = disponibili.Where(x => linkedIds.Contains(x.MisuraClienteId)).ToList();
-            var free = disponibili.Where(x => !linkedIds.Contains(x.MisuraClienteId)).ToList();
+            var linked = misureConStatoLink
+                .Where(x => x.IsLinked)
+                .Select(x => x.Item)
+                .ToList();
+
+            var free = misureConStatoLink
+                .Where(x => !x.IsLinked)
+                .Select(x => x.Item)
+                .ToList();
+
+            var totalMisureCliente = linked.Count + free.Count;
 
             var misuraStatus = new CommessaMisuraStatus
             {
                 HasMisureCollegate = linked.Count > 0,
                 HasMisureDisponibili = free.Count > 0,
-                RequireMisuraCreation = disponibili.Count == 0,
-                TotaleMisureCliente = disponibili.Count
+                RequireMisuraCreation = totalMisureCliente == 0,
+                TotaleMisureCliente = totalMisureCliente
             };
 
-            var measurementTypes = await _context.MeasurementTypes
-                .AsNoTracking()
-                .Where(t => t.IsActive)
-                .OrderBy(t => t.Nome)
-                .ToListAsync();
+            var measurementTypes = await GetActiveMeasurementTypesAsync();
 
             return new CommessaDetailsViewModel
             {
@@ -168,9 +207,27 @@ namespace MisureRicci.Services
             };
         }
 
-        public async Task<List<CommessaMisuraItem>> GetMisureDisponibiliPerClienteAsync(int clienteId)
+        public async Task<List<CommessaMisuraItem>> GetMisureDisponibiliPerClienteAsync(int clienteId, int? negozioId, bool isAdmin)
         {
+            if (!isAdmin)
+            {
+                if (!negozioId.HasValue)
+                {
+                    return new List<CommessaMisuraItem>();
+                }
+
+                var hasClienteAccess = await _context.Clienti
+                    .AsNoTracking()
+                    .AnyAsync(c => c.Id == clienteId && c.NegozioId == negozioId.Value);
+
+                if (!hasClienteAccess)
+                {
+                    return new List<CommessaMisuraItem>();
+                }
+            }
+
             return await _context.RegistroMisure
+                .AsNoTracking()
                 .Where(m => m.ClienteId == clienteId)
                 .OrderByDescending(m => m.DataCreazione)
                 .Select(m => new CommessaMisuraItem
@@ -180,16 +237,54 @@ namespace MisureRicci.Services
                     TipoMisura = m.TipoMisura,
                     IsDynamic = m.IsDynamic,
                     DataCreazione = m.DataCreazione,
-                    Note = m.Note
+                    Note = m.Note ?? m.SystemNote
                 })
                 .ToListAsync();
         }
 
-        public async Task<CommessaSartoriale> CreateCommessaAsync(CommessaCreateViewModel model, string? userId)
+        public async Task<Result<CommessaSartoriale>> CreateCommessaAsync(CommessaCreateViewModel model, string? userId, int? negozioId, bool isAdmin)
         {
-            var cliente = await _context.Clienti.FirstOrDefaultAsync(c => c.Id == model.ClienteId)
-                ?? throw new InvalidOperationException("Cliente non trovato.");
+            if (string.IsNullOrWhiteSpace(model.TipoCapo))
+            {
+                return Result<CommessaSartoriale>.Fail("Il tipo capo è obbligatorio.");
+            }
 
+            var cliente = await _context.Clienti
+                .AsNoTracking()
+                .Select(c => new { c.Id, c.NegozioId })
+                .FirstOrDefaultAsync(c => c.Id == model.ClienteId);
+            if (cliente == null)
+            {
+                return Result<CommessaSartoriale>.Fail("Cliente non trovato.");
+            }
+
+            if (!CanAccessNegozio(cliente.NegozioId, negozioId, isAdmin))
+            {
+                return Result<CommessaSartoriale>.Fail("Accesso negato al cliente.");
+            }
+
+            var selectedMisuraIds = model.SelectedMisuraIds
+                .Where(x => x > 0)
+                .Distinct()
+                .ToArray();
+
+            var selectedMisure = new Dictionary<int, MisureCliente>();
+            if (selectedMisuraIds.Length > 0)
+            {
+                var misure = await _context.RegistroMisure
+                    .AsNoTracking()
+                    .Where(m => selectedMisuraIds.Contains(m.Id) && m.ClienteId == model.ClienteId)
+                    .ToListAsync();
+
+                if (misure.Count != selectedMisuraIds.Length)
+                {
+                    return Result<CommessaSartoriale>.Fail("Una o più misure selezionate non sono valide per il cliente.");
+                }
+
+                selectedMisure = misure.ToDictionary(m => m.Id);
+            }
+
+            var now = DateTime.UtcNow;
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             var entity = new CommessaSartoriale
@@ -202,7 +297,7 @@ namespace MisureRicci.Services
                 DataConsegnaPrevista = model.DataConsegnaPrevista,
                 NoteInterne = string.IsNullOrWhiteSpace(model.NoteInterne) ? null : model.NoteInterne.Trim(),
                 Stato = StatoCommessa.Bozza,
-                DataApertura = DateTime.UtcNow,
+                DataApertura = now,
                 CreatedByUserId = userId
             };
 
@@ -211,7 +306,7 @@ namespace MisureRicci.Services
 
             if (string.IsNullOrWhiteSpace(entity.CommessaCode))
             {
-                entity.CommessaCode = $"CM-{DateTime.UtcNow.Year}-{entity.Id:D6}";
+                entity.CommessaCode = $"CM-{now.Year}-{entity.Id:D6}";
             }
 
             _context.CommissioniEventi.Add(new CommessaEvento
@@ -221,64 +316,68 @@ namespace MisureRicci.Services
                 NuovoStato = entity.Stato,
                 Descrizione = "Commessa aperta.",
                 CreatedByUserId = userId,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = now
             });
 
             // Link pre-selected measurements
-            if (model.SelectedMisuraIds != null && model.SelectedMisuraIds.Any())
+            if (selectedMisuraIds.Length > 0)
             {
-                foreach (var misuraId in model.SelectedMisuraIds)
+                foreach (var misuraId in selectedMisuraIds)
                 {
-                    var misura = await _context.RegistroMisure.FindAsync(misuraId);
-                    if (misura != null && misura.ClienteId == entity.ClienteId)
-                    {
-                        _context.CommissioniMisureLinks.Add(new CommessaMisuraLink
-                        {
-                            CommessaSartorialeId = entity.Id,
-                            MisuraClienteId = misuraId,
-                            LinkedAt = DateTime.UtcNow,
-                            LinkedByUserId = userId
-                        });
+                    var misura = selectedMisure[misuraId];
 
-                        _context.CommissioniEventi.Add(new CommessaEvento
-                        {
-                            CommessaSartorialeId = entity.Id,
-                            TipoEvento = "LinkMisura",
-                            Descrizione = $"Collegata misura {misura.TipoMisura} (scelta in creazione) del {misura.DataCreazione:dd/MM/yyyy HH:mm}.",
-                            CreatedByUserId = userId,
-                            CreatedAt = DateTime.UtcNow
-                        });
-                    }
+                    _context.CommissioniMisureLinks.Add(new CommessaMisuraLink
+                    {
+                        CommessaSartorialeId = entity.Id,
+                        MisuraClienteId = misuraId,
+                        LinkedAt = now,
+                        LinkedByUserId = userId
+                    });
+
+                    _context.CommissioniEventi.Add(new CommessaEvento
+                    {
+                        CommessaSartorialeId = entity.Id,
+                        TipoEvento = "LinkMisura",
+                        Descrizione = $"Collegata misura {misura.TipoMisura} (scelta in creazione) del {misura.DataCreazione:dd/MM/yyyy HH:mm}.",
+                        CreatedByUserId = userId,
+                        CreatedAt = now
+                    });
                 }
             }
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
-            return entity;
+            return Result<CommessaSartoriale>.Ok(entity);
         }
 
-        public async Task<bool> AdvanceStatoAsync(int id, StatoCommessa nuovoStato, string? note, string? userId, int? negozioId, bool isAdmin)
+        public async Task<Result> AdvanceStatoAsync(int id, StatoCommessa nuovoStato, string? note, string? userId, int? negozioId, bool isAdmin)
         {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             var commessa = await _context.CommissioniSartoriali.FirstOrDefaultAsync(c => c.Id == id);
             if (commessa == null)
             {
-                return false;
+                await transaction.RollbackAsync();
+                return Result.Fail("Commessa non trovata.");
             }
 
-            if (!isAdmin && negozioId.HasValue && commessa.NegozioId != negozioId.Value)
+            if (!CanAccessNegozio(commessa.NegozioId, negozioId, isAdmin))
             {
-                return false;
+                await transaction.RollbackAsync();
+                return Result.Fail("Accesso negato alla commessa.");
             }
 
             if (commessa.Stato == nuovoStato)
             {
-                return true;
+                await transaction.RollbackAsync();
+                return Result.Ok();
             }
 
             var allowed = GetAllowedNextStates(commessa.Stato);
             if (!allowed.Contains(nuovoStato))
             {
-                return false;
+                await transaction.RollbackAsync();
+                return Result.Fail("Transizione stato non consentita.");
             }
 
             // Operational safeguard: at least one linked measurement is required after data collection.
@@ -288,7 +387,8 @@ namespace MisureRicci.Services
                     .AnyAsync(x => x.CommessaSartorialeId == commessa.Id);
                 if (!hasLinkedMeasure)
                 {
-                    return false;
+                    await transaction.RollbackAsync();
+                    return Result.Fail("Almeno una misura collegata è richiesta per questo stato.");
                 }
             }
 
@@ -311,25 +411,26 @@ namespace MisureRicci.Services
             });
 
             await _context.SaveChangesAsync();
-            return true;
+            await transaction.CommitAsync();
+            return Result.Ok();
         }
 
-        public async Task<bool> AddNotaAsync(int id, string nota, string? userId, int? negozioId, bool isAdmin)
+        public async Task<Result> AddNotaAsync(int id, string nota, string? userId, int? negozioId, bool isAdmin)
         {
             if (string.IsNullOrWhiteSpace(nota))
             {
-                return false;
+                return Result.Fail("La nota non puo essere vuota.");
             }
 
             var commessa = await _context.CommissioniSartoriali.FirstOrDefaultAsync(c => c.Id == id);
             if (commessa == null)
             {
-                return false;
+                return Result.Fail("Commessa non trovata.");
             }
 
-            if (!isAdmin && negozioId.HasValue && commessa.NegozioId != negozioId.Value)
+            if (!CanAccessNegozio(commessa.NegozioId, negozioId, isAdmin))
             {
-                return false;
+                return Result.Fail("Accesso negato alla commessa.");
             }
 
             var notaPulita = nota.Trim();
@@ -348,33 +449,33 @@ namespace MisureRicci.Services
             });
 
             await _context.SaveChangesAsync();
-            return true;
+            return Result.Ok();
         }
 
-        public async Task<bool> LinkMisuraAsync(int id, int misuraClienteId, string? userId, int? negozioId, bool isAdmin)
+        public async Task<Result> LinkMisuraAsync(int id, int misuraClienteId, string? userId, int? negozioId, bool isAdmin)
         {
             var commessa = await _context.CommissioniSartoriali.FirstOrDefaultAsync(c => c.Id == id);
             if (commessa == null)
             {
-                return false;
+                return Result.Fail("Commessa non trovata.");
             }
 
-            if (!isAdmin && negozioId.HasValue && commessa.NegozioId != negozioId.Value)
+            if (!CanAccessNegozio(commessa.NegozioId, negozioId, isAdmin))
             {
-                return false;
+                return Result.Fail("Accesso negato alla commessa.");
             }
 
             var misura = await _context.RegistroMisure.FirstOrDefaultAsync(m => m.Id == misuraClienteId);
             if (misura == null || misura.ClienteId != commessa.ClienteId)
             {
-                return false;
+                return Result.Fail("Misura non valida per il cliente della commessa.");
             }
 
             var exists = await _context.CommissioniMisureLinks
                 .AnyAsync(x => x.CommessaSartorialeId == id && x.MisuraClienteId == misuraClienteId);
             if (exists)
             {
-                return true;
+                return Result.Ok();
             }
 
             _context.CommissioniMisureLinks.Add(new CommessaMisuraLink
@@ -395,27 +496,43 @@ namespace MisureRicci.Services
             });
 
             await _context.SaveChangesAsync();
-            return true;
+            return Result.Ok();
         }
 
-        public async Task<bool> UnlinkMisuraAsync(int id, int misuraClienteId, int? negozioId, bool isAdmin)
+        public async Task<bool> LinkDynamicMeasurementRecordAsync(int id, int dynamicRecordId, string? userId, int? negozioId, bool isAdmin)
         {
-            var commessa = await _context.CommissioniSartoriali.FirstOrDefaultAsync(c => c.Id == id);
-            if (commessa == null)
+            var misuraClienteId = await _context.RegistroMisure
+                .Where(m => m.IsDynamic && m.RecordId == dynamicRecordId)
+                .Select(m => (int?)m.Id)
+                .FirstOrDefaultAsync();
+
+            if (!misuraClienteId.HasValue)
             {
                 return false;
             }
 
-            if (!isAdmin && negozioId.HasValue && commessa.NegozioId != negozioId.Value)
+            var result = await LinkMisuraAsync(id, misuraClienteId.Value, userId, negozioId, isAdmin);
+            return result.IsSuccess;
+        }
+
+        public async Task<Result> UnlinkMisuraAsync(int id, int misuraClienteId, int? negozioId, bool isAdmin)
+        {
+            var commessa = await _context.CommissioniSartoriali.FirstOrDefaultAsync(c => c.Id == id);
+            if (commessa == null)
             {
-                return false;
+                return Result.Fail("Commessa non trovata.");
+            }
+
+            if (!CanAccessNegozio(commessa.NegozioId, negozioId, isAdmin))
+            {
+                return Result.Fail("Accesso negato alla commessa.");
             }
 
             var link = await _context.CommissioniMisureLinks
                 .FirstOrDefaultAsync(x => x.CommessaSartorialeId == id && x.MisuraClienteId == misuraClienteId);
             if (link == null)
             {
-                return false;
+                return Result.Fail("Collegamento misura non trovato.");
             }
 
             _context.CommissioniMisureLinks.Remove(link);
@@ -429,7 +546,7 @@ namespace MisureRicci.Services
             });
 
             await _context.SaveChangesAsync();
-            return true;
+            return Result.Ok();
         }
 
         private static List<StatoCommessa> GetAllowedNextStates(StatoCommessa current)
@@ -451,6 +568,31 @@ namespace MisureRicci.Services
                 || stato == StatoCommessa.Consegnata;
         }
 
+        private static bool CanAccessNegozio(int? commessaNegozioId, int? userNegozioId, bool isAdmin)
+        {
+            if (isAdmin)
+            {
+                return true;
+            }
+
+            return userNegozioId.HasValue
+                && commessaNegozioId.HasValue
+                && commessaNegozioId.Value == userNegozioId.Value;
+        }
+
+        private async Task<List<MeasurementType>> GetActiveMeasurementTypesAsync()
+        {
+            return await _cache.GetOrCreateAsync(ActiveMeasurementTypesCacheKey, async entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+                return await _context.MeasurementTypes
+                    .AsNoTracking()
+                    .Where(t => t.IsActive)
+                    .OrderBy(t => t.Nome)
+                    .ToListAsync();
+            }) ?? new List<MeasurementType>();
+        }
+
         public async Task<CommessaMisuraStatus> GetStatoMisureClienteAsync(int commessaId, int? negozioId, bool isAdmin)
         {
             var commessa = await _context.CommissioniSartoriali
@@ -463,7 +605,7 @@ namespace MisureRicci.Services
                 return new CommessaMisuraStatus();
             }
 
-            if (!isAdmin && negozioId.HasValue && commessa.NegozioId != negozioId.Value)
+            if (!CanAccessNegozio(commessa.NegozioId, negozioId, isAdmin))
             {
                 return new CommessaMisuraStatus();
             }

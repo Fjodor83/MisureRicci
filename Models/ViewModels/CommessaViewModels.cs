@@ -49,6 +49,15 @@ namespace MisureRicci.Models.ViewModels
         public List<MeasurementType> MeasurementTypes { get; set; } = new();
     }
 
+    public class CommessaIndexViewModel
+    {
+        public IEnumerable<CommessaSartoriale> Items { get; set; } = Enumerable.Empty<CommessaSartoriale>();
+        public int? ClienteId { get; set; }
+        public int CurrentPage { get; set; }
+        public int TotalPages { get; set; }
+        public CommessaKpiViewModel Kpi { get; set; } = new();
+    }
+
     public class CommessaCreateViewModel
     {
         [Required]

@@ -27,6 +27,11 @@ namespace MisureRicci.Controllers
         {
             var currentUser = await _userManager.GetUserAsync(User);
             var isAdmin = User.IsInRole("Admin");
+            var cliente = await _clienteService.GetClienteScopedAsync(clienteId, currentUser?.NegozioId, isAdmin);
+            if (cliente == null)
+            {
+                return NotFound();
+            }
 
             byte[] bytes;
             try
@@ -39,9 +44,7 @@ namespace MisureRicci.Controllers
             }
 
             if (bytes == null || bytes.Length == 0) return NotFound();
-            
-            var cliente = await _clienteService.GetClienteByIdAsync(clienteId);
-            
+
             return File(bytes, "application/pdf", $"dossier-{cliente?.ClientCode ?? "cliente"}.pdf");
         }
     }

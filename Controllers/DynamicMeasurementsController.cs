@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
@@ -14,31 +15,31 @@ namespace MisureRicci.Controllers
         private readonly IClienteService _clienteService;
         private readonly ICommessaService _commessaService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger<DynamicMeasurementsController> _logger;
 
         public DynamicMeasurementsController(
             ICustomMeasurementService customMeasurementService,
             IClienteService clienteService,
             ICommessaService commessaService,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            ILogger<DynamicMeasurementsController> logger)
         {
             _customMeasurementService = customMeasurementService;
             _clienteService = clienteService;
             _commessaService = commessaService;
             _userManager = userManager;
+            _logger = logger;
         }
 
         [HttpGet]
         public async Task<IActionResult> Create(int clienteId, int typeId, int? returnToCommessaId)
         {
-            var cliente = await _clienteService.GetClienteByIdAsync(clienteId);
+            var currentUser = await _userManager.GetUserAsync(User);
+            var isAdmin = User.IsInRole("Admin");
+            var cliente = await _clienteService.GetClienteScopedAsync(clienteId, currentUser?.NegozioId, isAdmin);
             if (cliente == null)
             {
                 return NotFound();
-            }
-
-            if (!await CanAccessClienteAsync(cliente.Id, cliente.NegozioId))
-            {
-                return Forbid();
             }
 
             var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(typeId);
@@ -80,17 +81,14 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(DynamicMeasurementCreateViewModel model)
         {
-            var cliente = await _clienteService.GetClienteByIdAsync(model.ClienteId);
+            var currentUser = await _userManager.GetUserAsync(User);
+            var isAdmin = User.IsInRole("Admin");
+            var cliente = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser?.NegozioId, isAdmin);
             var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
 
             if (cliente == null || type == null)
             {
                 return NotFound();
-            }
-
-            if (!await CanAccessClienteAsync(cliente.Id, cliente.NegozioId))
-            {
-                return Forbid();
             }
 
             model.ClienteNome = $"{cliente.Nome} {cliente.Cognome}";
@@ -103,23 +101,21 @@ namespace MisureRicci.Controllers
 
             try
             {
-                var currentUser = await _userManager.GetUserAsync(User);
                 var record = await _customMeasurementService.CreateDynamicMeasurementAsync(model, currentUser?.Id);
 
                 // Return-to-commessa flow: auto-link the newly created measure and redirect back.
                 if (model.ReturnToCommessaId.HasValue)
                 {
-                    var isAdmin = User.IsInRole("Admin");
-                    // Find the RegistroMisure entry created for this dynamic record.
-                    var misuraClienteId = await _customMeasurementService.GetRegistroMisuraIdByDynamicRecordAsync(record.Id);
-                    if (misuraClienteId.HasValue)
+                    var linked = await _commessaService.LinkDynamicMeasurementRecordAsync(
+                        model.ReturnToCommessaId.Value,
+                        record.Id,
+                        currentUser?.Id,
+                        currentUser?.NegozioId,
+                        isAdmin);
+
+                    if (!linked)
                     {
-                        await _commessaService.LinkMisuraAsync(
-                            model.ReturnToCommessaId.Value,
-                            misuraClienteId.Value,
-                            currentUser?.Id,
-                            currentUser?.NegozioId,
-                            isAdmin);
+                        return Forbid();
                     }
 
                     return RedirectToAction("Details", "Commissioni", new { id = model.ReturnToCommessaId.Value });
@@ -129,7 +125,14 @@ namespace MisureRicci.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);
+                _logger.LogWarning(ex, "Operazione non valida in creazione misura dinamica per cliente {ClienteId}, tipo {TipoId}", model.ClienteId, model.MeasurementTypeId);
+                ModelState.AddModelError(string.Empty, "I dati inseriti non sono validi.");
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Errore imprevisto durante la creazione misura dinamica per cliente {ClienteId}, tipo {TipoId}", model.ClienteId, model.MeasurementTypeId);
+                ModelState.AddModelError(string.Empty, "Si è verificato un errore interno. Riprovare.");
                 return View(model);
             }
         }
@@ -143,7 +146,7 @@ namespace MisureRicci.Controllers
                 return NotFound();
             }
 
-            if (!await CanAccessClienteAsync(record.ClienteId, record.Cliente?.NegozioId))
+            if (!await CanAccessClienteAsync(record.Cliente?.NegozioId))
             {
                 return Forbid();
             }
@@ -160,7 +163,7 @@ namespace MisureRicci.Controllers
                 return NotFound();
             }
 
-            if (!await CanAccessClienteAsync(record.ClienteId, record.Cliente?.NegozioId))
+            if (!await CanAccessClienteAsync(record.Cliente?.NegozioId))
             {
                 return Forbid();
             }
@@ -178,17 +181,14 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(DynamicMeasurementCreateViewModel model)
         {
-            var cliente = await _clienteService.GetClienteByIdAsync(model.ClienteId);
+            var currentUser = await _userManager.GetUserAsync(User);
+            var isAdmin = User.IsInRole("Admin");
+            var cliente = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser?.NegozioId, isAdmin);
             var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
 
             if (cliente == null || type == null)
             {
                 return NotFound();
-            }
-
-            if (!await CanAccessClienteAsync(cliente.Id, cliente.NegozioId))
-            {
-                return Forbid();
             }
 
             model.ClienteNome = $"{cliente.Nome} {cliente.Cognome}";
@@ -206,7 +206,14 @@ namespace MisureRicci.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);
+                _logger.LogWarning(ex, "Operazione non valida in modifica misura dinamica record {RecordId}", model.RecordId);
+                ModelState.AddModelError(string.Empty, "I dati inseriti non sono validi.");
+                return View("Create", model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Errore imprevisto durante la modifica misura dinamica record {RecordId}", model.RecordId);
+                ModelState.AddModelError(string.Empty, "Si è verificato un errore interno. Riprovare.");
                 return View("Create", model);
             }
         }
@@ -215,22 +222,19 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id, int clienteId)
         {
-            var cliente = await _clienteService.GetClienteByIdAsync(clienteId);
+            var currentUser = await _userManager.GetUserAsync(User);
+            var isAdmin = User.IsInRole("Admin");
+            var cliente = await _clienteService.GetClienteScopedAsync(clienteId, currentUser?.NegozioId, isAdmin);
             if (cliente == null)
             {
                 return NotFound();
-            }
-
-            if (!await CanAccessClienteAsync(cliente.Id, cliente.NegozioId))
-            {
-                return Forbid();
             }
 
             await _customMeasurementService.DeleteDynamicMeasurementAsync(id);
             return RedirectToAction("Details", "Clienti", new { id = clienteId });
         }
 
-        private async Task<bool> CanAccessClienteAsync(int clienteId, int? clienteNegozioId)
+        private async Task<bool> CanAccessClienteAsync(int? clienteNegozioId)
         {
             if (User.IsInRole("Admin"))
             {

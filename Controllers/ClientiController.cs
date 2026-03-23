@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MisureRicci.Models;
+using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
 using System.Threading.Tasks;
 
@@ -11,11 +12,16 @@ namespace MisureRicci.Controllers
     public class ClientiController : Controller
     {
         private readonly IClienteService _clienteService;
+        private readonly INegozioService _negozioService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public ClientiController(IClienteService clienteService, UserManager<ApplicationUser> userManager)
+        public ClientiController(
+            IClienteService clienteService,
+            INegozioService negozioService,
+            UserManager<ApplicationUser> userManager)
         {
             _clienteService = clienteService;
+            _negozioService = negozioService;
             _userManager = userManager;
         }
 
@@ -24,16 +30,18 @@ namespace MisureRicci.Controllers
         {
             var currentUser = await _userManager.GetUserAsync(User);
             bool isAdmin = User.IsInRole("Admin");
-
             const int pageSize = 20;
             
             var result = await _clienteService.GetClientiPagedAsync(searchString, currentUser?.NegozioId, isAdmin, page, pageSize);
+            var model = new ClientiIndexViewModel
+            {
+                Clienti = result.Items,
+                SearchString = searchString,
+                CurrentPage = page,
+                TotalPages = (int)System.Math.Ceiling(result.TotalCount / (double)pageSize)
+            };
 
-            ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = (int)System.Math.Ceiling(result.TotalCount / (double)pageSize);
-            ViewBag.SearchString = searchString;
-
-            return View(result.Items);
+            return View(model);
         }
 
         // GET: Clienti/Details/5
@@ -41,11 +49,13 @@ namespace MisureRicci.Controllers
         {
             if (id == null) return NotFound();
 
-            var cliente = await _clienteService.GetClienteByIdAsync(id.Value);
+            var currentUser = await _userManager.GetUserAsync(User);
+            bool isAdmin = User.IsInRole("Admin");
+            var cliente = await _clienteService.GetClienteScopedAsync(id.Value, currentUser?.NegozioId, isAdmin);
             
             if (cliente == null) return NotFound();
 
-            var history = await _clienteService.GetStoricoMisureAsync(id.Value);
+            var history = await _clienteService.GetStoricoMisureScopedAsync(id.Value, currentUser?.NegozioId, isAdmin);
 
             var vm = new MisureRicci.Models.ViewModels.ClienteDetailsViewModel
             {
@@ -57,22 +67,32 @@ namespace MisureRicci.Controllers
         }
 
         // GET: Clienti/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            return View(await BuildPageViewModelAsync(new Cliente()));
         }
 
         // POST: Clienti/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nome,Cognome,Email,Telefono,Indirizzo,Citta,StatoProvincia,CodicePostale,Paese,Note")] Cliente cliente)
+        public async Task<IActionResult> Create(ClientePageViewModel model)
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
+            ValidateClienteTenantAssignment(model.Cliente, isAdmin);
+
             if (ModelState.IsValid)
             {
-                await _clienteService.CreateClienteAsync(cliente);
+                var created = await _clienteService.CreateClienteScopedAsync(model.Cliente, currentUser?.NegozioId, isAdmin);
+                if (created == null)
+                {
+                    return Forbid();
+                }
+
                 return RedirectToAction(nameof(Index));
             }
-            return View(cliente);
+
+            return View(await BuildPageViewModelAsync(model.Cliente, isAdmin));
         }
 
         // GET: Clienti/Edit/5
@@ -80,40 +100,45 @@ namespace MisureRicci.Controllers
         {
             if (id == null) return NotFound();
 
-            var cliente = await _clienteService.GetClienteByIdAsync(id.Value);
+            var currentUser = await _userManager.GetUserAsync(User);
+            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
+            var cliente = await _clienteService.GetClienteScopedAsync(id.Value, currentUser?.NegozioId, isAdmin);
             if (cliente == null) return NotFound();
             
-            return View(cliente);
+            return View(await BuildPageViewModelAsync(cliente, isAdmin));
         }
 
         // POST: Clienti/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ClientCode,Nome,Cognome,Email,Telefono,Indirizzo,Citta,StatoProvincia,CodicePostale,Paese,Note,DataRegistrazione")] Cliente cliente)
+        public async Task<IActionResult> Edit(int id, ClientePageViewModel model)
         {
-            if (id != cliente.Id) return NotFound();
+            if (id != model.Cliente.Id) return NotFound();
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
+            ValidateClienteTenantAssignment(model.Cliente, isAdmin);
 
             if (ModelState.IsValid)
             {
-                try
+                if (await _clienteService.UpdateClienteScopedAsync(model.Cliente, currentUser?.NegozioId, isAdmin))
                 {
-                    await _clienteService.UpdateClienteAsync(cliente);
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException)
-                {
-                    if (!_clienteService.ClienteExists(cliente.Id)) return NotFound();
-                    else throw;
-                }
-                return RedirectToAction(nameof(Index));
+
+                return NotFound();
             }
-            return View(cliente);
+
+            return View(await BuildPageViewModelAsync(model.Cliente, isAdmin));
         }
 
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
 
-            var cliente = await _clienteService.GetClienteByIdAsync(id.Value);
+            var currentUser = await _userManager.GetUserAsync(User);
+            bool isAdmin = User.IsInRole("Admin");
+            var cliente = await _clienteService.GetClienteScopedAsync(id.Value, currentUser?.NegozioId, isAdmin);
             if (cliente == null) return NotFound();
 
             return View(cliente);
@@ -123,8 +148,35 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _clienteService.DeleteClienteAsync(id);
+            var currentUser = await _userManager.GetUserAsync(User);
+            bool isAdmin = User.IsInRole("Admin");
+
+            if (!await _clienteService.DeleteClienteScopedAsync(id, currentUser?.NegozioId, isAdmin))
+            {
+                return NotFound();
+            }
+
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task<ClientePageViewModel> BuildPageViewModelAsync(Cliente cliente, bool? isAdminOverride = null)
+        {
+            var isAdmin = isAdminOverride ?? User.IsInRole(ApplicationRoles.Admin);
+
+            return new ClientePageViewModel
+            {
+                Cliente = cliente,
+                IsAdmin = isAdmin,
+                Negozi = isAdmin ? await _negozioService.GetAllAsync() : Enumerable.Empty<Negozio>()
+            };
+        }
+
+        private void ValidateClienteTenantAssignment(Cliente cliente, bool isAdmin)
+        {
+            if (isAdmin && !cliente.NegozioId.HasValue)
+            {
+                ModelState.AddModelError("Cliente.NegozioId", "Il negozio è obbligatorio per rendere il cliente visibile alla boutique corretta.");
+            }
         }
     }
 }

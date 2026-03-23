@@ -47,14 +47,20 @@
                 <a class="sidebar-link" asp-area="" asp-controller="Commissioni" asp-action="Index">
                     <i class="bi bi-journal-check"></i> Commissioni
                 </a>
-                <a class="sidebar-link" asp-area="" asp-controller="Negozi" asp-action="Index">
-                    <i class="bi bi-shop"></i> Boutique Network
-                </a>
-                <a class="sidebar-link" asp-area="" asp-controller="Utenti" asp-action="Index">
-                    <i class="bi bi-person-badge-fill"></i> Staff
-                </a>
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                {
+                    <a class="sidebar-link" asp-area="" asp-controller="Report" asp-action="Index">
+                        <i class="bi bi-file-earmark-bar-graph-fill"></i> Report
+                    </a>
+                }
                 @if (User.IsInRole("Admin"))
                 {
+                    <a class="sidebar-link" asp-area="" asp-controller="Negozi" asp-action="Index">
+                        <i class="bi bi-shop"></i> Boutique Network
+                    </a>
+                    <a class="sidebar-link" asp-area="" asp-controller="Utenti" asp-action="Index">
+                        <i class="bi bi-person-badge-fill"></i> Staff
+                    </a>
                     <a class="sidebar-link" asp-area="" asp-controller="AdminMeasurementTypes" asp-action="Index">
                         <i class="bi bi-sliders2"></i> Tipologie Dinamiche
                     </a>

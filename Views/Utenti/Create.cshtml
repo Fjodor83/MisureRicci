@@ -1,4 +1,4 @@
-@model MisureRicci.Models.ViewModels.UtenteAdminViewModel
+@model MisureRicci.Models.ViewModels.UtenteAdminPageViewModel
 
 @{
     ViewData["Title"] = "Nuovo Utente Staff";
@@ -14,26 +14,26 @@
             <div class="card p-4 mb-4">
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label asp-for="UserName" class="form-label sr-gold"></label>
-                        <input asp-for="UserName" class="form-control" placeholder="es: m.rossi" />
-                        <span asp-validation-for="UserName" class="text-danger small"></span>
+                        <label asp-for="Form.UserName" class="form-label sr-gold"></label>
+                        <input asp-for="Form.UserName" class="form-control" placeholder="es: m.rossi" />
+                        <span asp-validation-for="Form.UserName" class="text-danger small"></span>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label asp-for="NomeCompleto" class="form-label sr-gold"></label>
-                        <input asp-for="NomeCompleto" class="form-control" />
+                        <label asp-for="Form.NomeCompleto" class="form-label sr-gold"></label>
+                        <input asp-for="Form.NomeCompleto" class="form-control" />
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label asp-for="Email" class="form-label sr-gold"></label>
-                    <input asp-for="Email" class="form-control" />
+                    <label asp-for="Form.Email" class="form-label sr-gold"></label>
+                    <input asp-for="Form.Email" class="form-control" />
                 </div>
             </div>
 
             <div class="card p-4 mb-4">
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label asp-for="Ruolo" class="form-label sr-gold"></label>
-                        <select asp-for="Ruolo" class="form-control">
+                        <label asp-for="Form.Ruolo" class="form-label sr-gold"></label>
+                        <select asp-for="Form.Ruolo" class="form-control">
                             <option value="Admin">Amministratore</option>
                             <option value="Sartoria">Mastro Sarto</option>
                             <option value="Boutique">Personale Boutique</option>
@@ -41,8 +41,8 @@
                         </select>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label asp-for="NegozioId" class="form-label sr-gold">NEGOZIO ASSEGNATO</label>
-                        <select asp-for="NegozioId" class="form-control" asp-items="@(new SelectList(ViewBag.Negozi, "Id", "Nome"))">
+                        <label asp-for="Form.NegozioId" class="form-label sr-gold">NEGOZIO ASSEGNATO</label>
+                        <select asp-for="Form.NegozioId" class="form-control" asp-items="@(new SelectList(Model.Negozi, "Id", "Nome"))">
                             <option value="">Seleziona Negozio...</option>
                         </select>
                     </div>
@@ -52,14 +52,14 @@
             <div class="card p-4 mb-4">
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label asp-for="Password" class="form-label sr-gold"></label>
-                        <input asp-for="Password" class="form-control" />
-                        <span asp-validation-for="Password" class="text-danger small"></span>
+                        <label asp-for="Form.Password" class="form-label sr-gold"></label>
+                        <input asp-for="Form.Password" class="form-control" />
+                        <span asp-validation-for="Form.Password" class="text-danger small"></span>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label asp-for="ConfirmPassword" class="form-label sr-gold"></label>
-                        <input asp-for="ConfirmPassword" class="form-control" />
-                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        <label asp-for="Form.ConfirmPassword" class="form-label sr-gold"></label>
+                        <input asp-for="Form.ConfirmPassword" class="form-control" />
+                        <span asp-validation-for="Form.ConfirmPassword" class="text-danger small"></span>
                     </div>
                 </div>
             </div>

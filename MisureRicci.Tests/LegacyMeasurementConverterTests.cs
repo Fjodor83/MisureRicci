@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using MisureRicci.Models;
 using MisureRicci.Services;
 using Xunit;
@@ -18,6 +19,14 @@ public class LegacyMeasurementConverterTests
 
         using (var seedCtx = factory.CreateContext())
         {
+            var adminRole = new IdentityRole
+            {
+                Id = "role-admin",
+                Name = "Admin",
+                NormalizedName = "ADMIN"
+            };
+            seedCtx.Roles.Add(adminRole);
+
             seedCtx.Users.Add(new ApplicationUser
             {
                 Id = "convert-user",
@@ -26,6 +35,11 @@ public class LegacyMeasurementConverterTests
                 Email = "convert@test.com",
                 NormalizedEmail = "CONVERT@TEST.COM",
                 EmailConfirmed = true
+            });
+            seedCtx.UserRoles.Add(new IdentityUserRole<string>
+            {
+                UserId = "convert-user",
+                RoleId = adminRole.Id
             });
 
             var cliente = new Cliente
@@ -94,7 +108,7 @@ public class LegacyMeasurementConverterTests
 
             var dynRegistry = await assertCtx.RegistroMisure.SingleAsync(r => r.IsDynamic);
             Assert.Equal(record.Id, dynRegistry.RecordId);
-            Assert.Contains($"legacy: {giacca1Id}", dynRegistry.Note);
+            Assert.Contains($"legacy: {giacca1Id}", dynRegistry.SystemNote);
         }
     }
 
@@ -108,6 +122,14 @@ public class LegacyMeasurementConverterTests
 
         using (var seedCtx = factory.CreateContext())
         {
+            var adminRole = new IdentityRole
+            {
+                Id = "role-admin-2",
+                Name = "Admin",
+                NormalizedName = "ADMIN"
+            };
+            seedCtx.Roles.Add(adminRole);
+
             seedCtx.Users.Add(new ApplicationUser
             {
                 Id = "u2",
@@ -116,6 +138,11 @@ public class LegacyMeasurementConverterTests
                 Email = "u2@test.com",
                 NormalizedEmail = "U2@TEST.COM",
                 EmailConfirmed = true
+            });
+            seedCtx.UserRoles.Add(new IdentityUserRole<string>
+            {
+                UserId = "u2",
+                RoleId = adminRole.Id
             });
 
             var cliente = new Cliente { Nome = "A", Cognome = "B", Email = "a.b@example.com", Paese = "Italy" };

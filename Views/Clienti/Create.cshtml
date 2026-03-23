@@ -1,4 +1,4 @@
-@model MisureRicci.Models.Cliente
+@model MisureRicci.Models.ViewModels.ClientePageViewModel
 
 @{
     ViewData["Title"] = "Nuovo Cliente";
@@ -10,74 +10,86 @@
         
         <form asp-action="Create" class="mt-4">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            
+             
             <div class="card p-4 mb-4">
                 <h3 class="sr-title small mb-4">DATI PERSONALI</h3>
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label asp-for="Nome" class="form-label sr-gold"></label>
-                        <input asp-for="Nome" class="form-control" />
-                        <span asp-validation-for="Nome" class="text-danger"></span>
+                        <label asp-for="Cliente.Nome" class="form-label sr-gold"></label>
+                        <input asp-for="Cliente.Nome" class="form-control" />
+                        <span asp-validation-for="Cliente.Nome" class="text-danger"></span>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label asp-for="Cognome" class="form-label sr-gold"></label>
-                        <input asp-for="Cognome" class="form-control" />
-                        <span asp-validation-for="Cognome" class="text-danger"></span>
+                        <label asp-for="Cliente.Cognome" class="form-label sr-gold"></label>
+                        <input asp-for="Cliente.Cognome" class="form-control" />
+                        <span asp-validation-for="Cliente.Cognome" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label asp-for="Email" class="form-label sr-gold"></label>
-                        <input asp-for="Email" class="form-control" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
+                        <label asp-for="Cliente.Email" class="form-label sr-gold"></label>
+                        <input asp-for="Cliente.Email" class="form-control" />
+                        <span asp-validation-for="Cliente.Email" class="text-danger"></span>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label asp-for="Telefono" class="form-label sr-gold"></label>
-                        <input asp-for="Telefono" class="form-control" />
-                        <span asp-validation-for="Telefono" class="text-danger"></span>
+                        <label asp-for="Cliente.Telefono" class="form-label sr-gold"></label>
+                        <input asp-for="Cliente.Telefono" class="form-control" />
+                        <span asp-validation-for="Cliente.Telefono" class="text-danger"></span>
                     </div>
                 </div>
+                @if (Model.IsAdmin)
+                {
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Cliente.NegozioId" class="form-label sr-gold"></label>
+                            <select asp-for="Cliente.NegozioId" class="form-select" asp-items="@(new Microsoft.AspNetCore.Mvc.Rendering.SelectList(Model.Negozi, "Id", "Nome"))">
+                                <option value="">Seleziona boutique</option>
+                            </select>
+                            <span asp-validation-for="Cliente.NegozioId" class="text-danger"></span>
+                        </div>
+                    </div>
+                }
             </div>
 
             <div class="card p-4 mb-4">
                 <h3 class="sr-title small mb-4">INDIRIZZO INTERNAZIONALE</h3>
                 <div class="row">
                     <div class="col-md-12 mb-3">
-                        <label asp-for="Indirizzo" class="form-label sr-gold"></label>
-                        <input asp-for="Indirizzo" class="form-control" />
-                        <span asp-validation-for="Indirizzo" class="text-danger"></span>
+                        <label asp-for="Cliente.Indirizzo" class="form-label sr-gold"></label>
+                        <input asp-for="Cliente.Indirizzo" class="form-control" />
+                        <span asp-validation-for="Cliente.Indirizzo" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-4 mb-3">
-                        <label asp-for="Citta" class="form-label sr-gold"></label>
-                        <input asp-for="Citta" class="form-control" />
-                        <span asp-validation-for="Citta" class="text-danger"></span>
+                        <label asp-for="Cliente.Citta" class="form-label sr-gold"></label>
+                        <input asp-for="Cliente.Citta" class="form-control" />
+                        <span asp-validation-for="Cliente.Citta" class="text-danger"></span>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label asp-for="StatoProvincia" class="form-label sr-gold"></label>
-                        <input asp-for="StatoProvincia" class="form-control" />
-                        <span asp-validation-for="StatoProvincia" class="text-danger"></span>
+                        <label asp-for="Cliente.StatoProvincia" class="form-label sr-gold"></label>
+                        <input asp-for="Cliente.StatoProvincia" class="form-control" />
+                        <span asp-validation-for="Cliente.StatoProvincia" class="text-danger"></span>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label asp-for="CodicePostale" class="form-label sr-gold"></label>
-                        <input asp-for="CodicePostale" class="form-control" />
-                        <span asp-validation-for="CodicePostale" class="text-danger"></span>
+                        <label asp-for="Cliente.CodicePostale" class="form-label sr-gold"></label>
+                        <input asp-for="Cliente.CodicePostale" class="form-control" />
+                        <span asp-validation-for="Cliente.CodicePostale" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label asp-for="Paese" class="form-label sr-gold"></label>
-                        <input asp-for="Paese" class="form-control" />
-                        <span asp-validation-for="Paese" class="text-danger"></span>
+                        <label asp-for="Cliente.Paese" class="form-label sr-gold"></label>
+                        <input asp-for="Cliente.Paese" class="form-control" />
+                        <span asp-validation-for="Cliente.Paese" class="text-danger"></span>
                     </div>
                 </div>
             </div>
 
             <div class="card p-4 mb-4">
-                <label asp-for="Note" class="form-label sr-gold"></label>
-                <textarea asp-for="Note" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="Note" class="text-danger"></span>
+                <label asp-for="Cliente.Note" class="form-label sr-gold"></label>
+                <textarea asp-for="Cliente.Note" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Cliente.Note" class="text-danger"></span>
             </div>
 
             <div class="d-flex justify-content-end gap-2 mb-5">

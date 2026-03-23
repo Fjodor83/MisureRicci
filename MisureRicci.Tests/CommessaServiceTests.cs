@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
@@ -56,7 +57,7 @@ public class CommessaServiceTests
 
         using (var actContext = factory.CreateContext())
         {
-            var service = new CommessaService(actContext);
+            var service = new CommessaService(actContext, new MemoryCache(new MemoryCacheOptions()));
             var model = new CommessaCreateViewModel
             {
                 ClienteId = clienteId,
@@ -65,10 +66,12 @@ public class CommessaServiceTests
                 SelectedMisuraIds = new List<int> { misuraId }
             };
 
-            var created = await service.CreateCommessaAsync(model, "user-1");
+            var created = await service.CreateCommessaAsync(model, "user-1", negozioId: null, isAdmin: true);
 
-            Assert.NotEqual(0, created.Id);
-            Assert.Equal($"CM-{DateTime.UtcNow.Year}-{created.Id:D6}", created.CommessaCode);
+            Assert.True(created.IsSuccess);
+            Assert.NotNull(created.Value);
+            Assert.NotEqual(0, created.Value!.Id);
+            Assert.Equal($"CM-{DateTime.UtcNow.Year}-{created.Value.Id:D6}", created.Value.CommessaCode);
         }
 
         using (var assertContext = factory.CreateContext())
@@ -88,6 +91,70 @@ public class CommessaServiceTests
             Assert.Single(links);
             Assert.Equal(misuraId, links[0].MisuraClienteId);
             Assert.Equal("user-1", links[0].LinkedByUserId);
+        }
+    }
+
+    [Fact]
+    public async Task CreateCommessaAsync_WithMeasurementFromAnotherCliente_Fails()
+    {
+        using var factory = new TestDbContextFactory();
+
+        int clienteId;
+        int misuraAltroClienteId;
+
+        using (var seedContext = factory.CreateContext())
+        {
+            var cliente = new Cliente
+            {
+                Nome = "Cliente",
+                Cognome = "Uno",
+                Email = "cliente1@example.com",
+                Paese = "Italy"
+            };
+            var altroCliente = new Cliente
+            {
+                Nome = "Cliente",
+                Cognome = "Due",
+                Email = "cliente2@example.com",
+                Paese = "Italy"
+            };
+
+            seedContext.Clienti.AddRange(cliente, altroCliente);
+            await seedContext.SaveChangesAsync();
+
+            var misuraAltroCliente = new MisureCliente
+            {
+                ClienteId = altroCliente.Id,
+                TipoMisura = "Giacca",
+                RecordId = 202
+            };
+
+            seedContext.RegistroMisure.Add(misuraAltroCliente);
+            await seedContext.SaveChangesAsync();
+
+            clienteId = cliente.Id;
+            misuraAltroClienteId = misuraAltroCliente.Id;
+        }
+
+        using (var actContext = factory.CreateContext())
+        {
+            var service = new CommessaService(actContext, new MemoryCache(new MemoryCacheOptions()));
+            var model = new CommessaCreateViewModel
+            {
+                ClienteId = clienteId,
+                TipoCapo = "Abito",
+                SelectedMisuraIds = new List<int> { misuraAltroClienteId }
+            };
+
+            var result = await service.CreateCommessaAsync(model, "user-1", negozioId: null, isAdmin: true);
+
+            Assert.False(result.IsSuccess);
+            Assert.Equal("Una o più misure selezionate non sono valide per il cliente.", result.Error);
+        }
+
+        using (var assertContext = factory.CreateContext())
+        {
+            Assert.Empty(await assertContext.CommissioniSartoriali.ToListAsync());
         }
     }
 }

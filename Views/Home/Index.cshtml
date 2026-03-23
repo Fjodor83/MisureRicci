@@ -1,4 +1,4 @@
-@using Microsoft.EntityFrameworkCore
+@model MisureRicci.Models.ViewModels.DashboardKpiViewModel
 @{
     ViewData["Title"] = "Premium SaaS Dashboard";
 }
@@ -29,7 +29,7 @@
             <div class="card h-100 p-4 text-center animate__animated animate__zoomIn" style="animation-delay: 0.1s;">
                 <i class="bi bi-people-fill sr-gold fs-1 mb-3"></i>
                 <h4 class="page-subtitle">Totale Clienti</h4>
-                <div class="display-5 text-white fw-bold font-cinzel my-2">@ViewBag.TotalClients</div>
+                <div class="display-5 fw-bold font-cinzel my-2">@Model.TotalClients</div>
                 <progress class="progress w-100 mt-auto" value="70" max="100" style="height: 4px; border-radius: 2px;">70%</progress>
             </div>
         </div>
@@ -37,7 +37,7 @@
             <div class="card h-100 p-4 text-center animate__animated animate__zoomIn" style="animation-delay: 0.2s;">
                 <i class="bi bi-shop sr-gold fs-1 mb-3"></i>
                 <h4 class="page-subtitle">Boutique Attive</h4>
-                <div class="display-5 text-white fw-bold font-cinzel my-2">@ViewBag.TotalStores</div>
+                <div class="display-5 fw-bold font-cinzel my-2">@Model.TotalStores</div>
                 <progress class="progress w-100 mt-auto" value="85" max="100" style="height: 4px; border-radius: 2px;">85%</progress>
             </div>
         </div>
@@ -45,7 +45,7 @@
             <div class="card h-100 p-4 text-center animate__animated animate__zoomIn" style="animation-delay: 0.3s;">
                 <i class="bi bi-rulers sr-gold fs-1 mb-3"></i>
                 <h4 class="page-subtitle">Misure Sartoriali</h4>
-                <div class="display-5 text-white fw-bold font-cinzel my-2">@ViewBag.TotalMeasurements</div>
+                <div class="display-5 fw-bold font-cinzel my-2">@Model.TotalMeasurements</div>
                 <progress class="progress w-100 mt-auto" value="60" max="100" style="height: 4px; border-radius: 2px;">60%</progress>
             </div>
         </div>
@@ -53,7 +53,7 @@
             <div class="card h-100 p-4 text-center animate__animated animate__zoomIn" style="animation-delay: 0.4s;">
                 <i class="bi bi-shield-lock-fill sr-gold fs-1 mb-3"></i>
                 <h4 class="page-subtitle">Staff Operativo</h4>
-                <div class="display-5 text-white fw-bold font-cinzel my-2">@ViewBag.TotalStaff</div>
+                <div class="display-5 fw-bold font-cinzel my-2">@Model.TotalStaff</div>
                 <progress class="progress w-100 mt-auto" value="40" max="100" style="height: 4px; border-radius: 2px;">40%</progress>
             </div>
         </div>
@@ -117,7 +117,7 @@
                         <p class="text-muted small mb-4">Esportazione anagrafiche e storico misure in formato CSV per Excel.</p>
                         <div class="mt-auto d-grid gap-2">
                             <a asp-controller="Report" asp-action="ExportClientiCsv" class="btn btn-outline-gold"><i class="bi bi-download me-1"></i> Export Clienti</a>
-                            <a asp-controller="Report" asp-action="ExportMisureCsv" class="btn btn-outline-secondary text-white"><i class="bi bi-download me-1"></i> Export Misure</a>
+                            <a asp-controller="Report" asp-action="ExportMisureCsv" class="btn btn-outline-secondary"><i class="bi bi-download me-1"></i> Export Misure</a>
                         </div>
                     </div>
                 </div>
@@ -128,21 +128,21 @@
         <div class="col-lg-4 animate__animated animate__fadeInRight" style="animation-delay: 0.6s;">
             <h2 class="sr-title small mb-4">Registro Rapido</h2>
             <div class="card p-0 overflow-hidden mb-4">
-                <div class="list-group list-group-flush">
-                    <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="giacca" class="list-group-item list-group-item-action bg-transparent py-4 d-flex justify-content-between align-items-center text-decoration-none" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                        <span class="text-white fw-bold font-cinzel letter-spacing-1"><i class="bi bi-suit-spade-fill me-3 sr-gold"></i> GIACCA E CAPISPALLA</span>
+                <div class="list-group list-group-flush border">
+                    <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="giacca" class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center text-decoration-none">
+                        <span class="fw-bold font-cinzel letter-spacing-1"><i class="bi bi-suit-spade-fill me-3 sr-gold"></i> GIACCA E CAPISPALLA</span>
                         <i class="bi bi-chevron-right text-muted"></i>
                     </a>
-                    <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="pantalone" class="list-group-item list-group-item-action bg-transparent py-4 d-flex justify-content-between align-items-center text-decoration-none" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                        <span class="text-white fw-bold font-cinzel letter-spacing-1"><i class="bi bi-layout-sidebar-inset me-3 sr-gold"></i> PANTALONE SARTORIALE</span>
+                    <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="pantalone" class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center text-decoration-none">
+                        <span class="fw-bold font-cinzel letter-spacing-1"><i class="bi bi-layout-sidebar-inset me-3 sr-gold"></i> PANTALONE SARTORIALE</span>
                         <i class="bi bi-chevron-right text-muted"></i>
                     </a>
-                    <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="camicia" class="list-group-item list-group-item-action bg-transparent py-4 d-flex justify-content-between align-items-center text-decoration-none" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                        <span class="text-white fw-bold font-cinzel letter-spacing-1"><i class="bi bi-layers-fill me-3 sr-gold"></i> CAMICERIA E MAGLIERIA</span>
+                    <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="camicia" class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center text-decoration-none">
+                        <span class="fw-bold font-cinzel letter-spacing-1"><i class="bi bi-layers-fill me-3 sr-gold"></i> CAMICERIA E MAGLIERIA</span>
                         <i class="bi bi-chevron-right text-muted"></i>
                     </a>
-                    <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="scarpe" class="list-group-item list-group-item-action bg-transparent py-4 d-flex justify-content-between align-items-center text-decoration-none">
-                        <span class="text-white fw-bold font-cinzel letter-spacing-1"><i class="bi bi-vinyl-fill me-3 sr-gold"></i> SCARPE E ACCESSORI</span>
+                    <a asp-controller="Measurements" asp-action="GlobalRegistry" asp-route-filter="scarpe" class="list-group-item list-group-item-action py-4 d-flex justify-content-between align-items-center text-decoration-none">
+                        <span class="fw-bold font-cinzel letter-spacing-1"><i class="bi bi-vinyl-fill me-3 sr-gold"></i> SCARPE E ACCESSORI</span>
                         <i class="bi bi-chevron-right text-muted"></i>
                     </a>
                 </div>
@@ -150,7 +150,7 @@
 
             <div class="card p-4 text-center mt-4 border-0" style="background: linear-gradient(135deg, rgba(212,175,55,0.2), rgba(153,101,21,0.1)); border: 1px solid rgba(212,175,55,0.3) !important;">
                 <i class="bi bi-cpu-fill fs-2 sr-gold animate__animated animate__pulse animate__infinite"></i>
-                <h5 class="font-cinzel text-white mt-3 mb-1 letter-spacing-1">INTELLIGENZA ARTIGIANALE</h5>
+                <h5 class="font-cinzel mt-3 mb-1 letter-spacing-1">INTELLIGENZA ARTIGIANALE</h5>
                 <p class="small text-muted mb-0">Sincronizzazione globale sartoria C-Level attiva e monitorata H24.</p>
             </div>
         </div>

@@ -8,46 +8,55 @@ using System.Threading.Tasks;
 
 namespace MisureRicci.Services
 {
-    public class MeasurementService : IMeasurementService
+    public class MeasurementService : IMeasurementService, IMeasurementRegistryService, ILegacyMeasurementService
     {
         private readonly ApplicationDbContext _context;
-        private readonly IReadOnlyDictionary<string, Func<int, Task<object?>>> _measurementLoaders;
-        private readonly IReadOnlyDictionary<string, Func<object, Task<bool>>> _measurementUpdaters;
+        private static readonly IReadOnlyDictionary<TipoMisuraLegacy, Func<MeasurementService, int, Task<object?>>> MeasurementLoaders
+            = new Dictionary<TipoMisuraLegacy, Func<MeasurementService, int, Task<object?>>>()
+        {
+            [TipoMisuraLegacy.Giacca] = async (service, id) => await service._context.MisureGiacca.Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
+            [TipoMisuraLegacy.Pantalone] = async (service, id) => await service._context.MisurePantalone.Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
+            [TipoMisuraLegacy.Abito] = async (service, id) => await service._context.MisureAbitoCompleto
+                .Include(m => m.Cliente)
+                .Include(m => m.Giacca)
+                .Include(m => m.Pantalone)
+                .FirstOrDefaultAsync(m => m.Id == id),
+            [TipoMisuraLegacy.Gilet] = async (service, id) => await service._context.MisureGilet.Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
+            [TipoMisuraLegacy.Maglie] = async (service, id) => await service._context.MisureMaglie.Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
+            [TipoMisuraLegacy.Outdoor] = async (service, id) => await service._context.MisureOutdoor.Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
+            [TipoMisuraLegacy.Camicia] = async (service, id) => await service._context.MisureCamicia.Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
+            [TipoMisuraLegacy.Scarpe] = async (service, id) => await service._context.MisureScarpe.Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
+            [TipoMisuraLegacy.Cravatta] = async (service, id) => await service._context.MisureCravatta.Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
+            [TipoMisuraLegacy.Cintura] = async (service, id) => await service._context.MisureCintura.Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id)
+        };
+
+        private static readonly IReadOnlyDictionary<TipoMisuraLegacy, Func<MeasurementService, object, Task<bool>>> MeasurementUpdaters
+            = new Dictionary<TipoMisuraLegacy, Func<MeasurementService, object, Task<bool>>>()
+        {
+            [TipoMisuraLegacy.Giacca] = (service, model) => service.UpdateMeasurementEntityAsync<GiaccaMeasurement>(model),
+            [TipoMisuraLegacy.Pantalone] = (service, model) => service.UpdateMeasurementEntityAsync<PantaloneMeasurement>(model),
+            [TipoMisuraLegacy.Abito] = (service, model) => service.UpdateMeasurementEntityAsync<AbitoCompletoMeasurement>(model),
+            [TipoMisuraLegacy.Gilet] = (service, model) => service.UpdateMeasurementEntityAsync<GiletMeasurement>(model),
+            [TipoMisuraLegacy.Maglie] = (service, model) => service.UpdateMeasurementEntityAsync<MaglieMeasurement>(model),
+            [TipoMisuraLegacy.Outdoor] = (service, model) => service.UpdateMeasurementEntityAsync<OutdoorMeasurement>(model),
+            [TipoMisuraLegacy.Camicia] = (service, model) => service.UpdateMeasurementEntityAsync<CamiciaMeasurement>(model),
+            [TipoMisuraLegacy.Scarpe] = (service, model) => service.UpdateMeasurementEntityAsync<ScarpeMeasurement>(model),
+            [TipoMisuraLegacy.Cravatta] = (service, model) => service.UpdateMeasurementEntityAsync<CravattaMeasurement>(model),
+            [TipoMisuraLegacy.Cintura] = (service, model) => service.UpdateMeasurementEntityAsync<CinturaMeasurement>(model)
+        };
 
         public MeasurementService(ApplicationDbContext context)
         {
             _context = context;
-            _measurementLoaders = new Dictionary<string, Func<int, Task<object?>>>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["giacca"] = id => GetMeasurementEntityAsync(_context.MisureGiacca, id, query => query.Include(m => m.Cliente)),
-                ["pantalone"] = id => GetMeasurementEntityAsync(_context.MisurePantalone, id, query => query.Include(m => m.Cliente)),
-                ["abito"] = id => GetMeasurementEntityAsync(_context.MisureAbitoCompleto, id, query => query.Include(m => m.Cliente).Include(m => m.Giacca).Include(m => m.Pantalone)),
-                ["gilet"] = id => GetMeasurementEntityAsync(_context.MisureGilet, id, query => query.Include(m => m.Cliente)),
-                ["maglie"] = id => GetMeasurementEntityAsync(_context.MisureMaglie, id, query => query.Include(m => m.Cliente)),
-                ["outdoor"] = id => GetMeasurementEntityAsync(_context.MisureOutdoor, id, query => query.Include(m => m.Cliente)),
-                ["camicia"] = id => GetMeasurementEntityAsync(_context.MisureCamicia, id, query => query.Include(m => m.Cliente)),
-                ["scarpe"] = id => GetMeasurementEntityAsync(_context.MisureScarpe, id, query => query.Include(m => m.Cliente)),
-                ["cravatta"] = id => GetMeasurementEntityAsync(_context.MisureCravatta, id, query => query.Include(m => m.Cliente)),
-                ["cintura"] = id => GetMeasurementEntityAsync(_context.MisureCintura, id, query => query.Include(m => m.Cliente))
-            };
-
-            _measurementUpdaters = new Dictionary<string, Func<object, Task<bool>>>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["giacca"] = model => UpdateMeasurementEntityAsync<GiaccaMeasurement>(model),
-                ["pantalone"] = model => UpdateMeasurementEntityAsync<PantaloneMeasurement>(model),
-                ["abito"] = model => UpdateMeasurementEntityAsync<AbitoCompletoMeasurement>(model),
-                ["gilet"] = model => UpdateMeasurementEntityAsync<GiletMeasurement>(model),
-                ["maglie"] = model => UpdateMeasurementEntityAsync<MaglieMeasurement>(model),
-                ["outdoor"] = model => UpdateMeasurementEntityAsync<OutdoorMeasurement>(model),
-                ["camicia"] = model => UpdateMeasurementEntityAsync<CamiciaMeasurement>(model),
-                ["scarpe"] = model => UpdateMeasurementEntityAsync<ScarpeMeasurement>(model),
-                ["cravatta"] = model => UpdateMeasurementEntityAsync<CravattaMeasurement>(model),
-                ["cintura"] = model => UpdateMeasurementEntityAsync<CinturaMeasurement>(model)
-            };
         }
 
         public async Task<IEnumerable<MisureCliente>> GetGlobalRegistryAsync(string filter, int? negozioId, bool isAdmin)
         {
+            if (!CanAccessTenant(negozioId, isAdmin))
+            {
+                return Array.Empty<MisureCliente>();
+            }
+
             var query = _context.RegistroMisure
                 .AsNoTracking()
                 .Include(m => m.Cliente)
@@ -60,6 +69,11 @@ namespace MisureRicci.Services
 
         public async Task<(IEnumerable<MisureCliente> Items, int TotalCount)> GetGlobalRegistryPagedAsync(string filter, int? negozioId, bool isAdmin, int page, int pageSize)
         {
+            if (!CanAccessTenant(negozioId, isAdmin))
+            {
+                return (Array.Empty<MisureCliente>(), 0);
+            }
+
             var query = _context.RegistroMisure
                 .AsNoTracking()
                 .Include(m => m.Cliente)
@@ -78,16 +92,24 @@ namespace MisureRicci.Services
 
         public async Task<MisureCliente?> GetRegistryEntryAsync(int registryId, int? negozioId, bool isAdmin)
         {
-            var entry = await _context.RegistroMisure
-                .Include(x => x.Cliente)
-                .FirstOrDefaultAsync(x => x.Id == registryId);
-
-            if (entry == null)
+            if (!CanAccessTenant(negozioId, isAdmin))
             {
                 return null;
             }
 
-            if (!isAdmin && negozioId.HasValue && entry.Cliente?.NegozioId != negozioId.Value)
+            var query = _context.RegistroMisure
+                .AsNoTracking()
+                .Include(x => x.Cliente)
+                .AsQueryable();
+
+            if (!isAdmin)
+            {
+                query = query.Where(x => x.Cliente != null && x.Cliente.NegozioId == negozioId!.Value);
+            }
+
+            var entry = await query.FirstOrDefaultAsync(x => x.Id == registryId);
+
+            if (entry == null)
             {
                 return null;
             }
@@ -125,7 +147,13 @@ namespace MisureRicci.Services
                     _context.DynamicMeasurementRecords.Remove(dynamicRecord);
                 }
 
-                _context.RegistroMisure.Remove(entry);
+                var trackedDynamicEntry = await _context.RegistroMisure
+                    .FirstOrDefaultAsync(x => x.Id == entry.Id);
+                if (trackedDynamicEntry != null)
+                {
+                    _context.RegistroMisure.Remove(trackedDynamicEntry);
+                }
+
                 await _context.SaveChangesAsync();
                 return clienteId;
             }
@@ -136,23 +164,34 @@ namespace MisureRicci.Services
                 _context.Remove(model);
             }
 
-            _context.RegistroMisure.Remove(entry);
+            var trackedEntry = await _context.RegistroMisure
+                .FirstOrDefaultAsync(x => x.Id == entry.Id);
+            if (trackedEntry != null)
+            {
+                _context.RegistroMisure.Remove(trackedEntry);
+            }
+
             await _context.SaveChangesAsync();
             return clienteId;
         }
 
         public async Task<object?> GetMeasurementScopedAsync(int id, string tipoMisura, int? negozioId, bool isAdmin)
         {
+            if (!CanAccessTenant(negozioId, isAdmin))
+            {
+                return null;
+            }
+
             var model = await GetMeasurementAsync(id, tipoMisura);
             if (model == null)
             {
                 return null;
             }
 
-            if (!isAdmin && negozioId.HasValue)
+            if (!isAdmin)
             {
                 var baseMeasurement = model as BaseMeasurement;
-                if (baseMeasurement?.Cliente?.NegozioId != negozioId.Value)
+                if (baseMeasurement?.Cliente?.NegozioId != negozioId)
                 {
                     return null;
                 }
@@ -163,9 +202,9 @@ namespace MisureRicci.Services
 
         public async Task<bool> UpdateMeasurementAsync(object model, string tipoMisura)
         {
-            if (_measurementUpdaters.TryGetValue(tipoMisura, out var updateHandler))
+            if (TryParseTipoMisura(tipoMisura, out var tipo) && MeasurementUpdaters.TryGetValue(tipo, out var updateHandler))
             {
-                return await updateHandler(model);
+                return await updateHandler(this, model);
             }
 
             return false;
@@ -173,38 +212,36 @@ namespace MisureRicci.Services
 
         public async Task<object?> GetMeasurementAsync(int id, string tipoMisura)
         {
-            if (_measurementLoaders.TryGetValue(tipoMisura, out var loadHandler))
+            if (TryParseTipoMisura(tipoMisura, out var tipo) && MeasurementLoaders.TryGetValue(tipo, out var loadHandler))
             {
-                return await loadHandler(id);
+                return await loadHandler(this, id);
             }
 
             return null;
         }
 
-        public async Task DeleteMeasurementAsync(int id, string tipoMisura)
+        public async Task<bool> DeleteMeasurementAsync(int id, string tipoMisura, int? negozioId, bool isAdmin)
         {
-            var model = await GetMeasurementAsync(id, tipoMisura);
-            if (model != null)
+            var model = await GetMeasurementScopedAsync(id, tipoMisura, negozioId, isAdmin);
+            if (model == null)
             {
-                _context.Remove(model);
-                var registro = await _context.RegistroMisure.FirstOrDefaultAsync(r => r.RecordId == id && r.TipoMisura.ToLower() == tipoMisura.ToLower());
-                if (registro != null)
+                return false;
+            }
+
+            _context.Remove(model);
+            var registro = await _context.RegistroMisure
+                .Include(r => r.Cliente)
+                .FirstOrDefaultAsync(r => r.RecordId == id && r.TipoMisura.ToLower() == tipoMisura.ToLower());
+            if (registro != null)
+            {
+                if (isAdmin || (negozioId.HasValue && registro.Cliente != null && registro.Cliente.NegozioId == negozioId.Value))
                 {
                     _context.RegistroMisure.Remove(registro);
                 }
-                await _context.SaveChangesAsync();
             }
-        }
 
-        private async Task AddRegistryEntryAsync(int clienteId, string tipoMisura, string note, int recordId)
-        {
-            _context.RegistroMisure.Add(new MisureCliente { 
-                ClienteId = clienteId, 
-                TipoMisura = tipoMisura, 
-                Note = note,
-                RecordId = recordId
-            });
             await _context.SaveChangesAsync();
+            return true;
         }
 
         private IQueryable<MisureCliente> ApplyRegistryFilter(IQueryable<MisureCliente> query, string filter, int? negozioId, bool isAdmin)
@@ -226,14 +263,12 @@ namespace MisureRicci.Services
             {
                 query = query.Where(m => m.Cliente != null && m.Cliente.NegozioId == negozioId.Value);
             }
+            else if (!isAdmin)
+            {
+                query = query.Where(_ => false);
+            }
 
             return query;
-        }
-
-        private static async Task<object?> GetMeasurementEntityAsync<TEntity>(DbSet<TEntity> dbSet, int id, Func<IQueryable<TEntity>, IQueryable<TEntity>> include)
-            where TEntity : class
-        {
-            return await include(dbSet.AsQueryable()).FirstOrDefaultAsync(BuildIdPredicate<TEntity>(id));
         }
 
         private async Task<bool> UpdateMeasurementEntityAsync<TEntity>(object model)
@@ -249,45 +284,14 @@ namespace MisureRicci.Services
             return true;
         }
 
-        private static System.Linq.Expressions.Expression<Func<TEntity, bool>> BuildIdPredicate<TEntity>(int id)
-            where TEntity : class
+        private static bool TryParseTipoMisura(string tipoMisura, out TipoMisuraLegacy tipo)
         {
-            var parameter = System.Linq.Expressions.Expression.Parameter(typeof(TEntity), "entity");
-            var property = System.Linq.Expressions.Expression.Property(parameter, nameof(BaseMeasurement.Id));
-            var constant = System.Linq.Expressions.Expression.Constant(id);
-            var body = System.Linq.Expressions.Expression.Equal(property, constant);
-            return System.Linq.Expressions.Expression.Lambda<Func<TEntity, bool>>(body, parameter);
+            return Enum.TryParse(tipoMisura, ignoreCase: true, out tipo);
         }
 
-        public async Task CreateGiaccaAsync(GiaccaMeasurement model) { _context.MisureGiacca.Add(model); await _context.SaveChangesAsync(); await AddRegistryEntryAsync(model.ClienteId, "Giacca", "Nuova misura giacca registrata", model.Id); }
-        public async Task CreatePantaloneAsync(PantaloneMeasurement model) { _context.MisurePantalone.Add(model); await _context.SaveChangesAsync(); await AddRegistryEntryAsync(model.ClienteId, "Pantalone", "Nuova misura pantalone registrata", model.Id); }
-        public async Task CreateGiletAsync(GiletMeasurement model) { _context.MisureGilet.Add(model); await _context.SaveChangesAsync(); await AddRegistryEntryAsync(model.ClienteId, "Gilet", "Nuova misura gilet registrata", model.Id); }
-        public async Task CreateMaglieAsync(MaglieMeasurement model) { _context.MisureMaglie.Add(model); await _context.SaveChangesAsync(); await AddRegistryEntryAsync(model.ClienteId, "Maglie", "Nuova misura maglieria registrata", model.Id); }
-        public async Task CreateOutdoorAsync(OutdoorMeasurement model) { _context.MisureOutdoor.Add(model); await _context.SaveChangesAsync(); await AddRegistryEntryAsync(model.ClienteId, "Outdoor", "Nuova misura outdoor registrata", model.Id); }
-        
-        public async Task CreateAbitoAsync(AbitoCompletoMeasurement model) 
-        { 
-            if (model.Giacca != null) model.Giacca.ClienteId = model.ClienteId;
-            if (model.Pantalone != null) model.Pantalone.ClienteId = model.ClienteId;
-            _context.MisureAbitoCompleto.Add(model); 
-            await _context.SaveChangesAsync(); 
-            await AddRegistryEntryAsync(model.ClienteId, "Abito", "Nuova misura abito completo registrata", model.Id); 
+        private static bool CanAccessTenant(int? negozioId, bool isAdmin)
+        {
+            return isAdmin || negozioId.HasValue;
         }
-
-        public async Task CreateCamiciaAsync(CamiciaMeasurement model) { _context.MisureCamicia.Add(model); await _context.SaveChangesAsync(); await AddRegistryEntryAsync(model.ClienteId, "Camicia", "Nuova misura camicia registrata", model.Id); }
-        public async Task CreateScarpeAsync(ScarpeMeasurement model) { _context.MisureScarpe.Add(model); await _context.SaveChangesAsync(); await AddRegistryEntryAsync(model.ClienteId, "Scarpe", "Nuova misura scarpe registrata", model.Id); }
-        public async Task CreateCravattaAsync(CravattaMeasurement model) { _context.MisureCravatta.Add(model); await _context.SaveChangesAsync(); await AddRegistryEntryAsync(model.ClienteId, "Cravatta", "Nuova misura cravatta registrata", model.Id); }
-        public async Task CreateCinturaAsync(CinturaMeasurement model) { _context.MisureCintura.Add(model); await _context.SaveChangesAsync(); await AddRegistryEntryAsync(model.ClienteId, "Cintura", "Nuova misura cintura registrata", model.Id); }
-
-        public async Task UpdateGiaccaAsync(GiaccaMeasurement model) { _context.Update(model); await _context.SaveChangesAsync(); }
-        public async Task UpdatePantaloneAsync(PantaloneMeasurement model) { _context.Update(model); await _context.SaveChangesAsync(); }
-        public async Task UpdateGiletAsync(GiletMeasurement model) { _context.Update(model); await _context.SaveChangesAsync(); }
-        public async Task UpdateMaglieAsync(MaglieMeasurement model) { _context.Update(model); await _context.SaveChangesAsync(); }
-        public async Task UpdateOutdoorAsync(OutdoorMeasurement model) { _context.Update(model); await _context.SaveChangesAsync(); }
-        public async Task UpdateAbitoAsync(AbitoCompletoMeasurement model) { _context.Update(model); await _context.SaveChangesAsync(); }
-        public async Task UpdateCamiciaAsync(CamiciaMeasurement model) { _context.Update(model); await _context.SaveChangesAsync(); }
-        public async Task UpdateScarpeAsync(ScarpeMeasurement model) { _context.Update(model); await _context.SaveChangesAsync(); }
-        public async Task UpdateCravattaAsync(CravattaMeasurement model) { _context.Update(model); await _context.SaveChangesAsync(); }
-        public async Task UpdateCinturaAsync(CinturaMeasurement model) { _context.Update(model); await _context.SaveChangesAsync(); }
     }
 }
