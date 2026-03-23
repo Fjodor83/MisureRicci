@@ -1,4 +1,4 @@
-@model MisureRicci.Models.Utente
+@model MisureRicci.Models.ApplicationUser
 @{ ViewData["Title"] = "Profilo Staff"; }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -13,7 +13,7 @@
     <div class="row">
         <div class="col-md-6">
             <p class="sr-gold small">USERNAME</p>
-            <p class="fw-bold">@@@Model.Username</p>
+            <p class="fw-bold">@@@Model.UserName</p>
             <p class="sr-gold small">NOME COMPLETO</p>
             <p class="fw-bold">@Model.NomeCompleto</p>
             <p class="sr-gold small">EMAIL</p>
@@ -26,6 +26,8 @@
             <p class="fw-bold">@(Model.Negozio?.Nome ?? "Global HQ")</p>
             <p class="sr-gold small">STATO</p>
             <p>@(Model.Attivo ? "🟢 Attivo" : "⚪ Inattivo")</p>
+            <p class="sr-gold small">DATA REGISTRAZIONE</p>
+            <p class="fw-bold">@(Model.LockoutEnd.HasValue ? "—" : DateTime.UtcNow.ToString("yyyy-MM-dd"))</p>
         </div>
     </div>
 </div>

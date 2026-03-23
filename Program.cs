@@ -36,7 +36,7 @@ try
     builder.Services.AddScoped<MisureRicci.Services.ICustomMeasurementService, MisureRicci.Services.CustomMeasurementService>();
     builder.Services.AddScoped<MisureRicci.Services.ICommessaService, MisureRicci.Services.CommessaService>();
     builder.Services.AddScoped<MisureRicci.Services.INegozioService, MisureRicci.Services.NegozioService>();
-    builder.Services.AddScoped<MisureRicci.Services.IUtenteService, MisureRicci.Services.UtenteService>();
+    // IUtenteService/UtenteService are obsolete — UtentiController now uses UserManager<ApplicationUser> directly.
 
     builder.Services.ConfigureApplicationCookie(options =>
     {

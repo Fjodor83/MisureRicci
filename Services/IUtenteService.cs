@@ -2,6 +2,10 @@ using MisureRicci.Models;
 
 namespace MisureRicci.Services
 {
+    /// <summary>
+    /// Obsolete — backed by the legacy Utenti table. Use UserManager&lt;ApplicationUser&gt; directly.
+    /// </summary>
+    [Obsolete("Use UserManager<ApplicationUser> instead. IUtenteService will be removed with the Utenti table.")]
     public interface IUtenteService
     {
         Task<List<Utente>> GetAllAsync();

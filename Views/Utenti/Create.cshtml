@@ -1,4 +1,4 @@
-@model MisureRicci.Models.Utente
+@model MisureRicci.Models.ViewModels.UtenteAdminViewModel
 
 @{
     ViewData["Title"] = "Nuovo Utente Staff";
@@ -14,8 +14,9 @@
             <div class="card p-4 mb-4">
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label asp-for="Username" class="form-label sr-gold"></label>
-                        <input asp-for="Username" class="form-control" placeholder="es: m.rossi" />
+                        <label asp-for="UserName" class="form-label sr-gold"></label>
+                        <input asp-for="UserName" class="form-control" placeholder="es: m.rossi" />
+                        <span asp-validation-for="UserName" class="text-danger small"></span>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label asp-for="NomeCompleto" class="form-label sr-gold"></label>
@@ -44,6 +45,21 @@
                         <select asp-for="NegozioId" class="form-control" asp-items="@(new SelectList(ViewBag.Negozi, "Id", "Nome"))">
                             <option value="">Seleziona Negozio...</option>
                         </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-4 mb-4">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Password" class="form-label sr-gold"></label>
+                        <input asp-for="Password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ConfirmPassword" class="form-label sr-gold"></label>
+                        <input asp-for="ConfirmPassword" class="form-control" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
                     </div>
                 </div>
             </div>

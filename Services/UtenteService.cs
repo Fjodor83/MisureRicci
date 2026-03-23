@@ -4,6 +4,7 @@ using MisureRicci.Models;
 
 namespace MisureRicci.Services
 {
+    [Obsolete("Use UserManager<ApplicationUser> instead.")]
     public class UtenteService : IUtenteService
     {
         private readonly ApplicationDbContext _context;

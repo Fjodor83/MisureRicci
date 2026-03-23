@@ -1,4 +1,4 @@
-@model IEnumerable<MisureRicci.Models.Utente>
+@model IEnumerable<MisureRicci.Models.ApplicationUser>
 
 @{
     ViewData["Title"] = "Gestione Utenti Staff";
@@ -31,9 +31,9 @@
                     <tr style="transition: all 0.3s ease;">
                         <td class="ps-4">
                             <div class="d-flex align-items-center">
-                                <div class="avatar-circle me-3">@item.Username.Substring(0, 1).ToUpper()</div>
+                                <div class="avatar-circle me-3">@(item.UserName?.Substring(0, 1).ToUpper() ?? "?")</div>
                                 <div>
-                                    <span class="text-white fw-bold font-monospace">@@@item.Username</span><br />
+                                    <span class="text-white fw-bold font-monospace">@@@item.UserName</span><br />
                                     <small class="text-muted">@item.Email</small>
                                 </div>
                             </div>
@@ -46,11 +46,11 @@
                         <td>
                             @if (item.Attivo)
                             {
-                                <span class="text-success small fw-bold"><i class="bi bi-circle-fill me-1"></i> ONLINE</span>
+                                <span class="text-success small fw-bold"><i class="bi bi-circle-fill me-1"></i> ATTIVO</span>
                             }
                             else
                             {
-                                <span class="text-muted small"><i class="bi bi-circle me-1"></i> OFFLINE</span>
+                                <span class="text-muted small"><i class="bi bi-circle me-1"></i> INATTIVO</span>
                             }
                         </td>
                         <td class="pe-4 text-end">

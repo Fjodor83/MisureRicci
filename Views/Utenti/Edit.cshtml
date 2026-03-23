@@ -1,4 +1,4 @@
-@model MisureRicci.Models.Utente
+@model MisureRicci.Models.ViewModels.UtenteAdminViewModel
 @{ ViewData["Title"] = "Modifica Utente"; }
 <div class="card p-4 mx-auto" style="max-width: 600px;">
     <h1 class="sr-title mb-4">MODIFICA UTENTE</h1>
@@ -6,14 +6,15 @@
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <input type="hidden" asp-for="Id" />
         <div class="mb-3"><label asp-for="NomeCompleto" class="form-label sr-gold small text-uppercase"></label><input asp-for="NomeCompleto" class="form-control" /></div>
-        <div class="mb-3"><label asp-for="Username" class="form-label sr-gold small text-uppercase"></label><input asp-for="Username" class="form-control" /></div>
+        <div class="mb-3"><label asp-for="UserName" class="form-label sr-gold small text-uppercase"></label><input asp-for="UserName" class="form-control" /></div>
         <div class="mb-3"><label asp-for="Email" class="form-label sr-gold small text-uppercase"></label><input asp-for="Email" class="form-control" /></div>
         <div class="mb-3">
             <label asp-for="Ruolo" class="form-label sr-gold small text-uppercase"></label>
             <select asp-for="Ruolo" class="form-select">
-                <option value="Admin">Admin</option>
-                <option value="Manager">Manager</option>
-                <option value="Standard">Standard</option>
+                <option value="Admin">Amministratore</option>
+                <option value="Sartoria">Mastro Sarto</option>
+                <option value="Boutique">Personale Boutique</option>
+                <option value="Manager">Regional Manager</option>
             </select>
         </div>
         <div class="mb-3">

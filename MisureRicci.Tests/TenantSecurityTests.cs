@@ -15,13 +15,22 @@ public class TenantSecurityTests
         int clienteId;
         using (var seedContext = factory.CreateContext())
         {
+            var negozio = new Negozio
+            {
+                Nome = "Negozio A",
+                Citta = "Milano",
+                Paese = "Italy"
+            };
+            seedContext.Negozi.Add(negozio);
+            await seedContext.SaveChangesAsync();
+
             var cliente = new Cliente
             {
                 Nome = "Giulia",
                 Cognome = "Neri",
                 Email = "giulia.neri@example.com",
                 Paese = "Italy",
-                NegozioId = 10
+                NegozioId = negozio.Id
             };
 
             seedContext.Clienti.Add(cliente);
@@ -46,13 +55,22 @@ public class TenantSecurityTests
         int measurementId;
         using (var seedContext = factory.CreateContext())
         {
+            var negozio = new Negozio
+            {
+                Nome = "Negozio B",
+                Citta = "Roma",
+                Paese = "Italy"
+            };
+            seedContext.Negozi.Add(negozio);
+            await seedContext.SaveChangesAsync();
+
             var cliente = new Cliente
             {
                 Nome = "Paolo",
                 Cognome = "Blu",
                 Email = "paolo.blu@example.com",
                 Paese = "Italy",
-                NegozioId = 7
+                NegozioId = negozio.Id
             };
 
             seedContext.Clienti.Add(cliente);
@@ -90,13 +108,22 @@ public class TenantSecurityTests
         int measurementId;
         using (var seedContext = factory.CreateContext())
         {
+            var negozio = new Negozio
+            {
+                Nome = "Negozio C",
+                Citta = "Torino",
+                Paese = "Italy"
+            };
+            seedContext.Negozi.Add(negozio);
+            await seedContext.SaveChangesAsync();
+
             var cliente = new Cliente
             {
                 Nome = "Luca",
                 Cognome = "Viola",
                 Email = "luca.viola@example.com",
                 Paese = "Italy",
-                NegozioId = 3
+                NegozioId = negozio.Id
             };
 
             seedContext.Clienti.Add(cliente);
@@ -134,13 +161,29 @@ public class TenantSecurityTests
 
         using (var seedContext = factory.CreateContext())
         {
+            var negozio1 = new Negozio
+            {
+                Nome = "Negozio 1",
+                Citta = "Bologna",
+                Paese = "Italy"
+            };
+            var negozio2 = new Negozio
+            {
+                Nome = "Negozio 2",
+                Citta = "Firenze",
+                Paese = "Italy"
+            };
+
+            seedContext.Negozi.AddRange(negozio1, negozio2);
+            await seedContext.SaveChangesAsync();
+
             var clienteA = new Cliente
             {
                 Nome = "Anna",
                 Cognome = "A",
                 Email = "anna.a@example.com",
                 Paese = "Italy",
-                NegozioId = 1
+                NegozioId = negozio1.Id
             };
 
             var clienteB = new Cliente
@@ -149,7 +192,7 @@ public class TenantSecurityTests
                 Cognome = "B",
                 Email = "bruno.b@example.com",
                 Paese = "Italy",
-                NegozioId = 2
+                NegozioId = negozio2.Id
             };
 
             seedContext.Clienti.AddRange(clienteA, clienteB);

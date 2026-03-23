@@ -8,5 +8,6 @@ namespace MisureRicci.Models
         public string Ruolo { get; set; } = "Sartoria";
         public int? NegozioId { get; set; }
         public virtual Negozio? Negozio { get; set; }
+        public bool Attivo { get; set; } = true;
     }
 }

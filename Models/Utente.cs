@@ -2,6 +2,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MisureRicci.Models
 {
+    /// <summary>
+    /// Legacy user entity superseded by <see cref="ApplicationUser"/> (ASP.NET Identity).
+    /// The Utenti table is kept for historical data. New user management goes through
+    /// UserManager&lt;ApplicationUser&gt; and the UtentiController which now targets AspNetUsers.
+    /// </summary>
+    [Obsolete("Use ApplicationUser via UserManager<ApplicationUser> instead. This entity will be removed in a future migration.")]
     public class Utente
     {
         [Key]

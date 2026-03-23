@@ -1,8 +1,8 @@
-@model MisureRicci.Models.Utente
+@model MisureRicci.Models.ApplicationUser
 @{ ViewData["Title"] = "Elimina Utente"; }
 <div class="card p-5 text-center mx-auto" style="max-width: 600px;">
     <h1 class="text-danger mb-4"><i class="bi bi-exclamation-triangle-fill"></i> ELIMINA UTENTE</h1>
-    <p class="fs-5 mb-4">Sei sicuro di voler eliminare l'utente <strong>@Model.NomeCompleto (@Model.Username)</strong>?<br/>L'operazione non è reversibile.</p>
+    <p class="fs-5 mb-4">Sei sicuro di voler eliminare l'utente <strong>@Model.NomeCompleto (@@@Model.UserName)</strong>?<br/>L'operazione non è reversibile.</p>
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
         <div class="d-flex justify-content-center gap-3">
