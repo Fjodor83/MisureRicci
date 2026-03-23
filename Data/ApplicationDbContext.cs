@@ -26,7 +26,9 @@ namespace MisureRicci.Data
 
         public DbSet<Cliente> Clienti { get; set; }
         public DbSet<Negozio> Negozi { get; set; }
+#pragma warning disable CS0618 // Utente table retained until drop migration runs
         public DbSet<Utente> Utenti { get; set; }
+#pragma warning restore CS0618
         public DbSet<MisureCliente> RegistroMisure { get; set; }
         public DbSet<MeasurementType> MeasurementTypes { get; set; }
         public DbSet<MeasurementFieldDefinition> MeasurementFieldDefinitions { get; set; }
@@ -74,7 +76,9 @@ namespace MisureRicci.Data
             modelBuilder.Entity<CinturaMeasurement>().ToTable("MisureCintura");
             modelBuilder.Entity<Cliente>().ToTable("Clienti");
             modelBuilder.Entity<Negozio>().ToTable("Negozi");
+#pragma warning disable CS0618
             modelBuilder.Entity<Utente>().ToTable("Utenti");
+#pragma warning restore CS0618
 
             modelBuilder.Entity<MeasurementType>(entity =>
             {
