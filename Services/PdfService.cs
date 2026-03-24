@@ -28,7 +28,7 @@ namespace MisureRicci.Services
                 }
             }
 
-            var misure = await _context.RegistroMisure
+            var misure = await _context.Misure
                 .Where(m => m.ClienteId == clienteId)
                 .OrderByDescending(m => m.DataCreazione)
                 .ToListAsync();

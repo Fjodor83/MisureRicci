@@ -4,22 +4,27 @@ using MisureRicci.Services;
 
 namespace MisureRicci.Controllers.Api
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ClientiApiController : ControllerBase
     {
         private readonly IClienteService _clienteService;
+        private readonly ITenantService _tenantService;
 
-        public ClientiApiController(IClienteService clienteService)
+        public ClientiApiController(IClienteService clienteService, ITenantService tenantService)
         {
             _clienteService = clienteService;
+            _tenantService = tenantService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetClienti([FromQuery] string? search)
         {
-            var clienti = await _clienteService.SearchClientiAsync(search, limit: 100);
+            var isAdmin = _tenantService.IsAdmin();
+            var currentNegozioId = _tenantService.GetCurrentNegozioId();
+            
+            var clienti = await _clienteService.SearchClientiAsync(search, currentNegozioId, isAdmin, limit: 100);
 
             return Ok(clienti.Select(c => new { c.Id, c.ClientCode, c.Nome, c.Cognome }));
         }
@@ -27,13 +32,16 @@ namespace MisureRicci.Controllers.Api
         [HttpGet("{id}/misure")]
         public async Task<IActionResult> GetMisure(int id)
         {
-            var cliente = await _clienteService.GetClienteByIdAsync(id);
+            var isAdmin = _tenantService.IsAdmin();
+            var currentNegozioId = _tenantService.GetCurrentNegozioId();
+
+            var cliente = await _clienteService.GetClienteScopedAsync(id, currentNegozioId, isAdmin);
             if (cliente == null)
             {
                 return NotFound();
             }
 
-            var misure = await _clienteService.GetStoricoMisureAsync(id);
+            var misure = await _clienteService.GetStoricoMisureScopedAsync(id, currentNegozioId, isAdmin);
 
             return Ok(misure);
         }

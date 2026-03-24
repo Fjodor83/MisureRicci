@@ -33,9 +33,9 @@
 
         <div class="mb-3">
             <label asp-for="ImageUpload" class="form-label">Immagine di Riferimento (Opzionale)</label>
-            <input asp-for="ImageUpload" type="file" class="form-control" accept="image/*" />
+            <input asp-for="ImageUpload" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
             <span asp-validation-for="ImageUpload" class="text-danger"></span>
-            <div class="form-text text-muted">Carica una foto che servir&agrave; come guida visiva per la compilazione (es. JPEG, PNG max 2MB).</div>
+            <div class="form-text text-muted">Carica una foto JPG, PNG o WEBP fino a 5 MB. Il file viene validato lato server e salvato in area protetta.</div>
         </div>
 
         <div class="form-check form-switch">

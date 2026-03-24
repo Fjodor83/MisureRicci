@@ -14,20 +14,20 @@ namespace MisureRicci.Services
         private static readonly IReadOnlyDictionary<TipoMisuraLegacy, Func<MeasurementService, int, Task<object?>>> MeasurementLoaders
             = new Dictionary<TipoMisuraLegacy, Func<MeasurementService, int, Task<object?>>>()
         {
-            [TipoMisuraLegacy.Giacca] = async (service, id) => await service._context.MisureGiacca.Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
-            [TipoMisuraLegacy.Pantalone] = async (service, id) => await service._context.MisurePantalone.Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
-            [TipoMisuraLegacy.Abito] = async (service, id) => await service._context.MisureAbitoCompleto
+            [TipoMisuraLegacy.Giacca] = async (service, id) => await service._context.MisureGiacca.AsNoTracking().Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
+            [TipoMisuraLegacy.Pantalone] = async (service, id) => await service._context.MisurePantalone.AsNoTracking().Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
+            [TipoMisuraLegacy.Abito] = async (service, id) => await service._context.MisureAbitoCompleto.AsNoTracking()
                 .Include(m => m.Cliente)
                 .Include(m => m.Giacca)
                 .Include(m => m.Pantalone)
                 .FirstOrDefaultAsync(m => m.Id == id),
-            [TipoMisuraLegacy.Gilet] = async (service, id) => await service._context.MisureGilet.Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
-            [TipoMisuraLegacy.Maglie] = async (service, id) => await service._context.MisureMaglie.Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
-            [TipoMisuraLegacy.Outdoor] = async (service, id) => await service._context.MisureOutdoor.Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
-            [TipoMisuraLegacy.Camicia] = async (service, id) => await service._context.MisureCamicia.Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
-            [TipoMisuraLegacy.Scarpe] = async (service, id) => await service._context.MisureScarpe.Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
-            [TipoMisuraLegacy.Cravatta] = async (service, id) => await service._context.MisureCravatta.Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
-            [TipoMisuraLegacy.Cintura] = async (service, id) => await service._context.MisureCintura.Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id)
+            [TipoMisuraLegacy.Gilet] = async (service, id) => await service._context.MisureGilet.AsNoTracking().Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
+            [TipoMisuraLegacy.Maglie] = async (service, id) => await service._context.MisureMaglie.AsNoTracking().Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
+            [TipoMisuraLegacy.Outdoor] = async (service, id) => await service._context.MisureOutdoor.AsNoTracking().Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
+            [TipoMisuraLegacy.Camicia] = async (service, id) => await service._context.MisureCamicia.AsNoTracking().Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
+            [TipoMisuraLegacy.Scarpe] = async (service, id) => await service._context.MisureScarpe.AsNoTracking().Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
+            [TipoMisuraLegacy.Cravatta] = async (service, id) => await service._context.MisureCravatta.AsNoTracking().Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
+            [TipoMisuraLegacy.Cintura] = async (service, id) => await service._context.MisureCintura.AsNoTracking().Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id)
         };
 
         private static readonly IReadOnlyDictionary<TipoMisuraLegacy, Func<MeasurementService, object, Task<bool>>> MeasurementUpdaters
@@ -57,7 +57,7 @@ namespace MisureRicci.Services
                 return Array.Empty<MisureCliente>();
             }
 
-            var query = _context.RegistroMisure
+            var query = _context.Misure
                 .AsNoTracking()
                 .Include(m => m.Cliente)
                 .AsQueryable();
@@ -74,7 +74,7 @@ namespace MisureRicci.Services
                 return (Array.Empty<MisureCliente>(), 0);
             }
 
-            var query = _context.RegistroMisure
+            var query = _context.Misure
                 .AsNoTracking()
                 .Include(m => m.Cliente)
                 .AsQueryable();
@@ -97,7 +97,7 @@ namespace MisureRicci.Services
                 return null;
             }
 
-            var query = _context.RegistroMisure
+            var query = _context.Misure
                 .AsNoTracking()
                 .Include(x => x.Cliente)
                 .AsQueryable();
@@ -147,11 +147,11 @@ namespace MisureRicci.Services
                     _context.DynamicMeasurementRecords.Remove(dynamicRecord);
                 }
 
-                var trackedDynamicEntry = await _context.RegistroMisure
+                var trackedDynamicEntry = await _context.Misure
                     .FirstOrDefaultAsync(x => x.Id == entry.Id);
                 if (trackedDynamicEntry != null)
                 {
-                    _context.RegistroMisure.Remove(trackedDynamicEntry);
+                    _context.Misure.Remove(trackedDynamicEntry);
                 }
 
                 await _context.SaveChangesAsync();
@@ -164,11 +164,11 @@ namespace MisureRicci.Services
                 _context.Remove(model);
             }
 
-            var trackedEntry = await _context.RegistroMisure
+            var trackedEntry = await _context.Misure
                 .FirstOrDefaultAsync(x => x.Id == entry.Id);
             if (trackedEntry != null)
             {
-                _context.RegistroMisure.Remove(trackedEntry);
+                _context.Misure.Remove(trackedEntry);
             }
 
             await _context.SaveChangesAsync();
@@ -229,14 +229,14 @@ namespace MisureRicci.Services
             }
 
             _context.Remove(model);
-            var registro = await _context.RegistroMisure
+            var registro = await _context.Misure
                 .Include(r => r.Cliente)
                 .FirstOrDefaultAsync(r => r.RecordId == id && r.TipoMisura.ToLower() == tipoMisura.ToLower());
             if (registro != null)
             {
                 if (isAdmin || (negozioId.HasValue && registro.Cliente != null && registro.Cliente.NegozioId == negozioId.Value))
                 {
-                    _context.RegistroMisure.Remove(registro);
+                    _context.Misure.Remove(registro);
                 }
             }
 

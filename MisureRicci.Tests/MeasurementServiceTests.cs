@@ -57,7 +57,7 @@ public class MeasurementServiceTests
             TipoMisura = "Giacca",
             RecordId = giacca.Id
         };
-        ctx.RegistroMisure.Add(registro);
+        ctx.Misure.Add(registro);
         await ctx.SaveChangesAsync();
 
         return (cliente.Id, giacca.Id, registro.Id, negozio.Id);
@@ -178,6 +178,6 @@ public class MeasurementServiceTests
 
         using var assertCtx = factory.CreateContext();
         Assert.Null(await assertCtx.MisureGiacca.FindAsync(giacca1Id));
-        Assert.Null(await assertCtx.RegistroMisure.FindAsync(registryId));
+        Assert.Null(await assertCtx.Misure.FindAsync(registryId));
     }
 }

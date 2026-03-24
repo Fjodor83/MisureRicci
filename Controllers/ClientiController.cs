@@ -13,26 +13,26 @@ namespace MisureRicci.Controllers
     {
         private readonly IClienteService _clienteService;
         private readonly INegozioService _negozioService;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ITenantService _tenantService;
 
         public ClientiController(
             IClienteService clienteService,
             INegozioService negozioService,
-            UserManager<ApplicationUser> userManager)
+            ITenantService tenantService)
         {
             _clienteService = clienteService;
             _negozioService = negozioService;
-            _userManager = userManager;
+            _tenantService = tenantService;
         }
 
         // GET: Clienti
         public async Task<IActionResult> Index(string searchString, int page = 1)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            bool isAdmin = User.IsInRole("Admin");
+            bool isAdmin = _tenantService.IsAdmin();
+            int? negozioId = _tenantService.GetCurrentNegozioId();
             const int pageSize = 20;
             
-            var result = await _clienteService.GetClientiPagedAsync(searchString, currentUser?.NegozioId, isAdmin, page, pageSize);
+            var result = await _clienteService.GetClientiPagedAsync(searchString, negozioId, isAdmin, page, pageSize);
             var model = new ClientiIndexViewModel
             {
                 Clienti = result.Items,
@@ -49,13 +49,13 @@ namespace MisureRicci.Controllers
         {
             if (id == null) return NotFound();
 
-            var currentUser = await _userManager.GetUserAsync(User);
-            bool isAdmin = User.IsInRole("Admin");
-            var cliente = await _clienteService.GetClienteScopedAsync(id.Value, currentUser?.NegozioId, isAdmin);
+            bool isAdmin = _tenantService.IsAdmin();
+            int? negozioId = _tenantService.GetCurrentNegozioId();
+            var cliente = await _clienteService.GetClienteScopedAsync(id.Value, negozioId, isAdmin);
             
             if (cliente == null) return NotFound();
 
-            var history = await _clienteService.GetStoricoMisureScopedAsync(id.Value, currentUser?.NegozioId, isAdmin);
+            var history = await _clienteService.GetStoricoMisureScopedAsync(id.Value, negozioId, isAdmin);
 
             var vm = new MisureRicci.Models.ViewModels.ClienteDetailsViewModel
             {
@@ -77,13 +77,14 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ClientePageViewModel model)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
-            ValidateClienteTenantAssignment(model.Cliente, isAdmin);
+            bool isAdmin = _tenantService.IsAdmin();
+            int? currentNegozioId = _tenantService.GetCurrentNegozioId();
+            
+            ValidateClienteTenantAssignment(model.Cliente, isAdmin, currentNegozioId);
 
             if (ModelState.IsValid)
             {
-                var created = await _clienteService.CreateClienteScopedAsync(model.Cliente, currentUser?.NegozioId, isAdmin);
+                var created = await _clienteService.CreateClienteScopedAsync(model.Cliente, currentNegozioId, isAdmin);
                 if (created == null)
                 {
                     return Forbid();
@@ -100,9 +101,9 @@ namespace MisureRicci.Controllers
         {
             if (id == null) return NotFound();
 
-            var currentUser = await _userManager.GetUserAsync(User);
-            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
-            var cliente = await _clienteService.GetClienteScopedAsync(id.Value, currentUser?.NegozioId, isAdmin);
+            bool isAdmin = _tenantService.IsAdmin();
+            int? currentNegozioId = _tenantService.GetCurrentNegozioId();
+            var cliente = await _clienteService.GetClienteScopedAsync(id.Value, currentNegozioId, isAdmin);
             if (cliente == null) return NotFound();
             
             return View(await BuildPageViewModelAsync(cliente, isAdmin));
@@ -115,13 +116,14 @@ namespace MisureRicci.Controllers
         {
             if (id != model.Cliente.Id) return NotFound();
 
-            var currentUser = await _userManager.GetUserAsync(User);
-            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
-            ValidateClienteTenantAssignment(model.Cliente, isAdmin);
+            bool isAdmin = _tenantService.IsAdmin();
+            int? currentNegozioId = _tenantService.GetCurrentNegozioId();
+            
+            ValidateClienteTenantAssignment(model.Cliente, isAdmin, currentNegozioId);
 
             if (ModelState.IsValid)
             {
-                if (await _clienteService.UpdateClienteScopedAsync(model.Cliente, currentUser?.NegozioId, isAdmin))
+                if (await _clienteService.UpdateClienteScopedAsync(model.Cliente, currentNegozioId, isAdmin))
                 {
                     return RedirectToAction(nameof(Index));
                 }
@@ -136,9 +138,9 @@ namespace MisureRicci.Controllers
         {
             if (id == null) return NotFound();
 
-            var currentUser = await _userManager.GetUserAsync(User);
-            bool isAdmin = User.IsInRole("Admin");
-            var cliente = await _clienteService.GetClienteScopedAsync(id.Value, currentUser?.NegozioId, isAdmin);
+            bool isAdmin = _tenantService.IsAdmin();
+            int? currentNegozioId = _tenantService.GetCurrentNegozioId();
+            var cliente = await _clienteService.GetClienteScopedAsync(id.Value, currentNegozioId, isAdmin);
             if (cliente == null) return NotFound();
 
             return View(cliente);
@@ -148,10 +150,10 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            bool isAdmin = User.IsInRole("Admin");
+            bool isAdmin = _tenantService.IsAdmin();
+            int? currentNegozioId = _tenantService.GetCurrentNegozioId();
 
-            if (!await _clienteService.DeleteClienteScopedAsync(id, currentUser?.NegozioId, isAdmin))
+            if (!await _clienteService.DeleteClienteScopedAsync(id, currentNegozioId, isAdmin))
             {
                 return NotFound();
             }
@@ -161,7 +163,7 @@ namespace MisureRicci.Controllers
 
         private async Task<ClientePageViewModel> BuildPageViewModelAsync(Cliente cliente, bool? isAdminOverride = null)
         {
-            var isAdmin = isAdminOverride ?? User.IsInRole(ApplicationRoles.Admin);
+            var isAdmin = isAdminOverride ?? _tenantService.IsAdmin();
 
             return new ClientePageViewModel
             {
@@ -171,11 +173,19 @@ namespace MisureRicci.Controllers
             };
         }
 
-        private void ValidateClienteTenantAssignment(Cliente cliente, bool isAdmin)
+        private void ValidateClienteTenantAssignment(Cliente cliente, bool isAdmin, int? currentNegozioId)
         {
-            if (isAdmin && !cliente.NegozioId.HasValue)
+            if (isAdmin)
             {
-                ModelState.AddModelError("Cliente.NegozioId", "Il negozio è obbligatorio per rendere il cliente visibile alla boutique corretta.");
+                if (!cliente.NegozioId.HasValue)
+                {
+                    ModelState.AddModelError("Cliente.NegozioId", "Il negozio è obbligatorio per rendere il cliente visibile alla boutique corretta.");
+                }
+            }
+            else
+            {
+                // Safety: force the ID of the current tenant to prevent spoofing
+                cliente.NegozioId = currentNegozioId;
             }
         }
     }

@@ -45,7 +45,7 @@ public class CustomMeasurementServiceTests
             };
 
             seedContext.Clienti.Add(cliente);
-            seedContext.MeasurementTypes.Add(type);
+            seedContext.DynamicMeasurementTypes.Add(type);
             await seedContext.SaveChangesAsync();
 
             var field = new MeasurementFieldDefinition
@@ -58,7 +58,7 @@ public class CustomMeasurementServiceTests
                 IsActive = true
             };
 
-            seedContext.MeasurementFieldDefinitions.Add(field);
+            seedContext.DynamicFieldDefinitions.Add(field);
             await seedContext.SaveChangesAsync();
 
             clienteId = cliente.Id;
@@ -95,7 +95,7 @@ public class CustomMeasurementServiceTests
         {
             var record = await assertContext.DynamicMeasurementRecords.SingleAsync();
             var value = await assertContext.DynamicMeasurementValues.SingleAsync();
-            var registro = await assertContext.RegistroMisure.SingleAsync();
+            var registro = await assertContext.Misure.SingleAsync();
 
             Assert.Equal(clienteId, record.ClienteId);
             Assert.Equal(typeId, record.MeasurementTypeId);
@@ -135,7 +135,7 @@ public class CustomMeasurementServiceTests
             };
 
             seedContext.Clienti.Add(cliente);
-            seedContext.MeasurementTypes.Add(type);
+            seedContext.DynamicMeasurementTypes.Add(type);
             await seedContext.SaveChangesAsync();
 
             var field = new MeasurementFieldDefinition
@@ -148,7 +148,7 @@ public class CustomMeasurementServiceTests
                 IsActive = true
             };
 
-            seedContext.MeasurementFieldDefinitions.Add(field);
+            seedContext.DynamicFieldDefinitions.Add(field);
             await seedContext.SaveChangesAsync();
 
             var record = new DynamicMeasurementRecord
@@ -242,10 +242,10 @@ public class CustomMeasurementServiceTests
             };
 
             seedContext.Clienti.Add(cliente);
-            seedContext.MeasurementTypes.AddRange(type, altroType);
+            seedContext.DynamicMeasurementTypes.AddRange(type, altroType);
             await seedContext.SaveChangesAsync();
 
-            seedContext.MeasurementFieldDefinitions.Add(new MeasurementFieldDefinition
+            seedContext.DynamicFieldDefinitions.Add(new MeasurementFieldDefinition
             {
                 MeasurementTypeId = type.Id,
                 NomeCampo = "Torace",
@@ -265,7 +265,7 @@ public class CustomMeasurementServiceTests
                 IsActive = true
             };
 
-            seedContext.MeasurementFieldDefinitions.Add(foreignField);
+            seedContext.DynamicFieldDefinitions.Add(foreignField);
             await seedContext.SaveChangesAsync();
 
             clienteId = cliente.Id;

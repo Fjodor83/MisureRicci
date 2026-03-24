@@ -30,7 +30,7 @@ namespace MisureRicci.Services
             }
 
             // Locate the matching MeasurementType by name (case-insensitive)
-            var measurementType = await _context.MeasurementTypes
+            var measurementType = await _context.DynamicMeasurementTypes
                 .AsNoTracking()
                 .Include(t => t.Campi)
                 .FirstOrDefaultAsync(
@@ -78,7 +78,7 @@ namespace MisureRicci.Services
                 _context.DynamicMeasurementValues.AddRange(values);
 
             // Create a new registry entry pointing to the dynamic record
-            _context.RegistroMisure.Add(new MisureCliente
+            _context.Misure.Add(new MisureCliente
             {
                 ClienteId = legacy.ClienteId,
                 TipoMisura = measurementType.Nome,

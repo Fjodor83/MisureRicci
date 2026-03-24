@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Caching.Memory;
 using MisureRicci.Models;
 using MisureRicci.Services;
+using Moq;
 using Xunit;
 
 namespace MisureRicci.Tests;
@@ -11,6 +12,8 @@ public class DashboardServiceTests
     public async Task GetKpiAsync_NonAdmin_ReturnsOnlyOwnNegozioSnapshot()
     {
         using var factory = new TestDbContextFactory();
+        var mockTenant = new Mock<ITenantService>();
+        mockTenant.Setup(s => s.IsAdmin()).Returns(false);
 
         int negozio1Id;
 
@@ -74,7 +77,7 @@ public class DashboardServiceTests
             seedContext.Clienti.AddRange(cliente1, cliente2);
             await seedContext.SaveChangesAsync();
 
-            seedContext.RegistroMisure.AddRange(
+            seedContext.Misure.AddRange(
                 new MisureCliente { ClienteId = cliente1.Id, TipoMisura = "Giacca", RecordId = 11 },
                 new MisureCliente { ClienteId = cliente2.Id, TipoMisura = "Camicia", RecordId = 22 });
 
@@ -82,7 +85,9 @@ public class DashboardServiceTests
             negozio1Id = negozio1.Id;
         }
 
-        using (var actContext = factory.CreateContext())
+        mockTenant.Setup(s => s.GetCurrentNegozioId()).Returns(negozio1Id);
+
+        using (var actContext = factory.CreateContext(mockTenant.Object))
         {
             var service = new DashboardService(actContext, new MemoryCache(new MemoryCacheOptions()));
             var result = await service.GetKpiAsync(negozio1Id, isAdmin: false);
@@ -98,7 +103,11 @@ public class DashboardServiceTests
     public async Task GetKpiAsync_NonAdminWithoutNegozio_ReturnsEmptySnapshot()
     {
         using var factory = new TestDbContextFactory();
-        using var context = factory.CreateContext();
+        var mockTenant = new Mock<Services.ITenantService>();
+        mockTenant.Setup(s => s.IsAdmin()).Returns(false);
+        mockTenant.Setup(s => s.GetCurrentNegozioId()).Returns((int?)null);
+
+        using var context = factory.CreateContext(mockTenant.Object);
 
         var service = new DashboardService(context, new MemoryCache(new MemoryCacheOptions()));
         var result = await service.GetKpiAsync(negozioId: null, isAdmin: false);

@@ -17,9 +17,6 @@
 
 <form asp-action="EditType" method="post" class="form-shell" enctype="multipart/form-data">
     <input type="hidden" asp-for="Id" />
-    <input type="hidden" asp-for="IsSystem" />
-    <input type="hidden" asp-for="CreatedAt" />
-    <input type="hidden" asp-for="ImageUrl" />
 
     <section class="form-section">
         <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
@@ -45,11 +42,11 @@
                     <div class="form-text mt-1 text-muted">Caricando un nuovo file, l'immagine attuale verr&agrave; sostituita.</div>
                 </div>
             }
-            <input asp-for="ImageUpload" type="file" class="form-control" accept="image/*" />
+            <input asp-for="ImageUpload" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
             <span asp-validation-for="ImageUpload" class="text-danger"></span>
             @if (string.IsNullOrEmpty(Model.ImageUrl))
             {
-                <div class="form-text text-muted">Carica una foto che servir&agrave; come guida visiva per la compilazione (es. JPEG, PNG max 2MB).</div>
+                <div class="form-text text-muted">Carica una foto JPG, PNG o WEBP fino a 5 MB. Il file viene validato lato server e salvato in area protetta.</div>
             }
         </div>
 

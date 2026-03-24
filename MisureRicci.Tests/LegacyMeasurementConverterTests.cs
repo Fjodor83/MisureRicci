@@ -66,10 +66,10 @@ public class LegacyMeasurementConverterTests
 
             // Seed the matching MeasurementType with field definitions
             var giaccaType = new MeasurementType { Nome = "Giacca", IsActive = true };
-            seedCtx.MeasurementTypes.Add(giaccaType);
+            seedCtx.DynamicMeasurementTypes.Add(giaccaType);
             await seedCtx.SaveChangesAsync();
 
-            seedCtx.MeasurementFieldDefinitions.AddRange(
+            seedCtx.DynamicFieldDefinitions.AddRange(
                 new MeasurementFieldDefinition { MeasurementTypeId = giaccaType.Id, NomeCampo = "Spalle",    Etichetta = "Spalle",    TipoDato = DynamicFieldType.Decimal, IsActive = true },
                 new MeasurementFieldDefinition { MeasurementTypeId = giaccaType.Id, NomeCampo = "Torace",    Etichetta = "Torace",    TipoDato = DynamicFieldType.Decimal, IsActive = true },
                 new MeasurementFieldDefinition { MeasurementTypeId = giaccaType.Id, NomeCampo = "Vita",      Etichetta = "Vita",      TipoDato = DynamicFieldType.Decimal, IsActive = true },
@@ -106,7 +106,7 @@ public class LegacyMeasurementConverterTests
             Assert.Equal(5, values.Count);
             Assert.Contains(values, v => v.Valore == "46");
 
-            var dynRegistry = await assertCtx.RegistroMisure.SingleAsync(r => r.IsDynamic);
+            var dynRegistry = await assertCtx.Misure.SingleAsync(r => r.IsDynamic);
             Assert.Equal(record.Id, dynRegistry.RecordId);
             Assert.Contains($"legacy: {giacca1Id}", dynRegistry.SystemNote);
         }

@@ -12,23 +12,23 @@ namespace MisureRicci.Controllers
     {
         private readonly ICommessaService _commessaService;
         private readonly IClienteService _clienteService;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ITenantService _tenantService;
 
-        public CommissioniController(ICommessaService commessaService, IClienteService clienteService, UserManager<ApplicationUser> userManager)
+        public CommissioniController(ICommessaService commessaService, IClienteService clienteService, ITenantService tenantService)
         {
             _commessaService = commessaService;
             _clienteService = clienteService;
-            _userManager = userManager;
+            _tenantService = tenantService;
         }
 
         public async Task<IActionResult> Index(int? clienteId, int page = 1)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = User.IsInRole("Admin");
+            var isAdmin = _tenantService.IsAdmin();
+            var currentNegozioId = _tenantService.GetCurrentNegozioId();
 
             const int pageSize = 20;
-            var result = await _commessaService.GetCommissioniPagedAsync(clienteId, currentUser?.NegozioId, isAdmin, page, pageSize);
-            var kpi = await _commessaService.GetKpiAsync(currentUser?.NegozioId, isAdmin);
+            var result = await _commessaService.GetCommissioniPagedAsync(clienteId, currentNegozioId, isAdmin, page, pageSize);
+            var kpi = await _commessaService.GetKpiAsync(currentNegozioId, isAdmin);
 
             var model = new CommessaIndexViewModel
             {
@@ -45,9 +45,10 @@ namespace MisureRicci.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(int clienteId)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = User.IsInRole("Admin");
-            var cliente = await _clienteService.GetClienteScopedAsync(clienteId, currentUser?.NegozioId, isAdmin);
+            var isAdmin = _tenantService.IsAdmin();
+            var currentNegozioId = _tenantService.GetCurrentNegozioId();
+            
+            var cliente = await _clienteService.GetClienteScopedAsync(clienteId, currentNegozioId, isAdmin);
             if (cliente == null)
             {
                 return NotFound();
@@ -57,7 +58,7 @@ namespace MisureRicci.Controllers
             {
                 ClienteId = cliente.Id,
                 ClienteNome = $"{cliente.Nome} {cliente.Cognome}".Trim(),
-                MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(clienteId, currentUser?.NegozioId, isAdmin)
+                MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(clienteId, currentNegozioId, isAdmin)
             };
 
             return View(vm);
@@ -67,9 +68,11 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CommessaCreateViewModel model)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = User.IsInRole("Admin");
-            var cliente = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser?.NegozioId, isAdmin);
+            var isAdmin = _tenantService.IsAdmin();
+            var currentNegozioId = _tenantService.GetCurrentNegozioId();
+            var userId = _tenantService.GetUserId();
+
+            var cliente = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentNegozioId, isAdmin);
             if (cliente == null)
             {
                 return NotFound();
@@ -78,15 +81,15 @@ namespace MisureRicci.Controllers
             model.ClienteNome = $"{cliente.Nome} {cliente.Cognome}".Trim();
             if (!ModelState.IsValid)
             {
-                model.MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(model.ClienteId, currentUser?.NegozioId, isAdmin);
+                model.MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(model.ClienteId, currentNegozioId, isAdmin);
                 return View(model);
             }
 
-            var result = await _commessaService.CreateCommessaAsync(model, currentUser?.Id, currentUser?.NegozioId, isAdmin);
+            var result = await _commessaService.CreateCommessaAsync(model, userId, currentNegozioId, isAdmin);
             if (!result.IsSuccess || result.Value == null)
             {
                 ModelState.AddModelError(string.Empty, result.Error ?? "Impossibile creare la commessa.");
-                model.MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(model.ClienteId, currentUser?.NegozioId, isAdmin);
+                model.MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(model.ClienteId, currentNegozioId, isAdmin);
                 return View(model);
             }
 
@@ -95,10 +98,10 @@ namespace MisureRicci.Controllers
 
         public async Task<IActionResult> Details(int id)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = User.IsInRole("Admin");
+            var isAdmin = _tenantService.IsAdmin();
+            var currentNegozioId = _tenantService.GetCurrentNegozioId();
 
-            var vm = await _commessaService.GetCommessaDetailsAsync(id, currentUser?.NegozioId, isAdmin);
+            var vm = await _commessaService.GetCommessaDetailsAsync(id, currentNegozioId, isAdmin);
             if (vm == null)
             {
                 return NotFound();
@@ -111,10 +114,11 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AdvanceStato(int id, StatoCommessa nuovoStato, string? note)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = User.IsInRole("Admin");
+            var isAdmin = _tenantService.IsAdmin();
+            var currentNegozioId = _tenantService.GetCurrentNegozioId();
+            var userId = _tenantService.GetUserId();
 
-            var result = await _commessaService.AdvanceStatoAsync(id, nuovoStato, note, currentUser?.Id, currentUser?.NegozioId, isAdmin);
+            var result = await _commessaService.AdvanceStatoAsync(id, nuovoStato, note, userId, currentNegozioId, isAdmin);
             if (!result.IsSuccess)
             {
                 TempData["CommessaError"] = result.Error ?? "Operazione non consentita.";
@@ -128,10 +132,11 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddNota(int id, string nota)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = User.IsInRole("Admin");
+            var isAdmin = _tenantService.IsAdmin();
+            var currentNegozioId = _tenantService.GetCurrentNegozioId();
+            var userId = _tenantService.GetUserId();
 
-            var result = await _commessaService.AddNotaAsync(id, nota, currentUser?.Id, currentUser?.NegozioId, isAdmin);
+            var result = await _commessaService.AddNotaAsync(id, nota, userId, currentNegozioId, isAdmin);
             if (!result.IsSuccess)
             {
                 TempData["CommessaError"] = result.Error ?? "Impossibile aggiungere la nota.";
@@ -145,10 +150,11 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LinkMisura(int id, int misuraClienteId)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = User.IsInRole("Admin");
+            var isAdmin = _tenantService.IsAdmin();
+            var currentNegozioId = _tenantService.GetCurrentNegozioId();
+            var userId = _tenantService.GetUserId();
 
-            var result = await _commessaService.LinkMisuraAsync(id, misuraClienteId, currentUser?.Id, currentUser?.NegozioId, isAdmin);
+            var result = await _commessaService.LinkMisuraAsync(id, misuraClienteId, userId, currentNegozioId, isAdmin);
             if (!result.IsSuccess)
             {
                 TempData["CommessaError"] = result.Error ?? "Impossibile collegare la misura alla commessa.";
@@ -162,10 +168,10 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UnlinkMisura(int id, int misuraClienteId)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = User.IsInRole("Admin");
+            var isAdmin = _tenantService.IsAdmin();
+            var currentNegozioId = _tenantService.GetCurrentNegozioId();
 
-            var result = await _commessaService.UnlinkMisuraAsync(id, misuraClienteId, currentUser?.NegozioId, isAdmin);
+            var result = await _commessaService.UnlinkMisuraAsync(id, misuraClienteId, currentNegozioId, isAdmin);
             if (!result.IsSuccess)
             {
                 TempData["CommessaError"] = result.Error ?? "Impossibile scollegare la misura dalla commessa.";

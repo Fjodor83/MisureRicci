@@ -27,11 +27,30 @@ public class CustomSignInManager : SignInManager<ApplicationUser>
     {
         if (!user.Attivo)
         {
-            Logger.LogWarning("Login negato per utente disabilitato: {UserId}", user.Id);
+            Logger.LogWarning("Login negato per utente disabilitato: {UserEmail} (ID: {UserId})", user.Email, user.Id);
             return SignInResult.NotAllowed;
         }
 
-        return await base.CheckPasswordSignInAsync(user, password, lockoutOnFailure);
+        var result = await base.CheckPasswordSignInAsync(user, password, lockoutOnFailure);
+
+        if (result.Succeeded)
+        {
+            Logger.LogInformation("Login effettuato con successo: {UserEmail} (ID: {UserId})", user.Email, user.Id);
+        }
+        else if (result.IsLockedOut)
+        {
+            Logger.LogCritical("Account BLOCCATO per troppi tentativi falliti: {UserEmail} (ID: {UserId})", user.Email, user.Id);
+        }
+        else if (result.IsNotAllowed)
+        {
+            Logger.LogWarning("Accesso non consentito per l'utente: {UserEmail} (ID: {UserId})", user.Email, user.Id);
+        }
+        else if (!result.Succeeded)
+        {
+            Logger.LogWarning("Tentativo di login FALLITO per l'utente: {UserEmail} (ID: {UserId})", user.Email, user.Id);
+        }
+
+        return result;
     }
 
     public override async Task<bool> CanSignInAsync(ApplicationUser user)

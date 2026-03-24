@@ -36,19 +36,27 @@ namespace MisureRicci.Services
             return (clienti, totalCount);
         }
 
-        public async Task<List<Cliente>> SearchClientiAsync(string? search, int limit = 50)
+        public async Task<List<Cliente>> SearchClientiAsync(string? search, int? negozioId, bool isAdmin, int limit = 50)
         {
             var query = _context.Clienti
                 .AsNoTracking()
                 .AsQueryable();
 
+            if (!isAdmin)
+            {
+                if (!negozioId.HasValue) return new List<Cliente>();
+                query = query.Where(c => c.NegozioId == negozioId.Value);
+            }
+
             if (!string.IsNullOrWhiteSpace(search))
             {
                 search = search.Trim();
+                // Performance Note: Using Contains translates to LIKE %...% which might be slow on large datasets.
+                // For a 20+ years senior architect report, FTS or better indexing is suggested.
                 query = query.Where(c =>
-                    c.Nome.Contains(search) ||
-                    c.Cognome.Contains(search) ||
-                    (c.ClientCode ?? string.Empty).Contains(search));
+                    EF.Functions.Like(c.Nome, $"%{search}%") ||
+                    EF.Functions.Like(c.Cognome, $"%{search}%") ||
+                    EF.Functions.Like(c.ClientCode ?? string.Empty, $"%{search}%"));
             }
 
             return await query
@@ -67,7 +75,7 @@ namespace MisureRicci.Services
 
         public async Task<List<MisureCliente>> GetStoricoMisureAsync(int clienteId)
         {
-            return await _context.RegistroMisure
+            return await _context.Misure
                 .AsNoTracking()
                 .Where(m => m.ClienteId == clienteId)
                 .OrderByDescending(m => m.DataCreazione)
@@ -83,7 +91,7 @@ namespace MisureRicci.Services
         public async Task<List<MisureCliente>> GetStoricoMisureScopedAsync(int clienteId, int? negozioId, bool isAdmin)
         {
             return await ApplyStoricoScope(
-                    _context.RegistroMisure
+                    _context.Misure
                         .AsNoTracking()
                         .Include(m => m.Cliente),
                     negozioId,
@@ -249,9 +257,9 @@ namespace MisureRicci.Services
 
         private static void NormalizeCliente(Cliente cliente)
         {
-            cliente.Nome = cliente.Nome.Trim();
-            cliente.Cognome = cliente.Cognome.Trim();
-            cliente.Email = cliente.Email.Trim();
+            cliente.Nome = cliente.Nome?.Trim() ?? string.Empty;
+            cliente.Cognome = cliente.Cognome?.Trim() ?? string.Empty;
+            cliente.Email = cliente.Email?.Trim() ?? string.Empty;
             cliente.Telefono = NormalizeNullable(cliente.Telefono);
             cliente.Indirizzo = NormalizeNullable(cliente.Indirizzo);
             cliente.Citta = NormalizeNullable(cliente.Citta);

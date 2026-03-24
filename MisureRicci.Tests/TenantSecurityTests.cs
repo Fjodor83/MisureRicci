@@ -251,7 +251,7 @@ public class TenantSecurityTests
             seedContext.Clienti.AddRange(clienteA, clienteB);
             await seedContext.SaveChangesAsync();
 
-            seedContext.RegistroMisure.AddRange(
+            seedContext.Misure.AddRange(
                 new MisureCliente { ClienteId = clienteA.Id, TipoMisura = "Giacca", RecordId = 1, Note = "A" },
                 new MisureCliente { ClienteId = clienteB.Id, TipoMisura = "Giacca", RecordId = 2, Note = "B" }
             );

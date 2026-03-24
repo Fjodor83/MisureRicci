@@ -217,18 +217,7 @@
                                 </a>
                             </div>
                         </div>
-                        <script>
-                            (function () {
-                                var sel = document.getElementById('newMisuraTypeSelect');
-                                var btn = document.getElementById('btnCreaCollegaMisura');
-                                if (!sel || !btn) return;
-                                var base = btn.href.replace(/typeId=\d+/, '');
-                                sel.addEventListener('change', function () {
-                                    btn.href = base.replace(/(&|\?)typeId=\d*/, '') +
-                                        (base.includes('?') ? '&' : '?') + 'typeId=' + sel.value;
-                                });
-                            })();
-                        </script>
+
                     }
                     else
                     {
@@ -263,18 +252,7 @@
                                     + Nuova misura
                                 </a>
                             </div>
-                            <script>
-                                (function () {
-                                    var sel = document.getElementById('addMisuraTypeSelect');
-                                    var btn = document.getElementById('btnAggiungiMisura');
-                                    if (!sel || !btn) return;
-                                    sel.addEventListener('change', function () {
-                                        var url = new URL(btn.href, window.location.origin);
-                                        url.searchParams.set('typeId', sel.value);
-                                        btn.href = url.pathname + url.search;
-                                    });
-                                })();
-                            </script>
+
                         }
                     </div>
                     <div class="table-responsive">
@@ -343,18 +321,7 @@
                                     + Nuova misura
                                 </a>
                             </div>
-                            <script>
-                                (function () {
-                                    var sel = document.getElementById('addMisuraTypeSelectFull');
-                                    var btn = document.getElementById('btnAggiungiMisuraFull');
-                                    if (!sel || !btn) return;
-                                    sel.addEventListener('change', function () {
-                                        var url = new URL(btn.href, window.location.origin);
-                                        url.searchParams.set('typeId', sel.value);
-                                        btn.href = url.pathname + url.search;
-                                    });
-                                })();
-                            </script>
+
                         }
                     </div>
                 </article>

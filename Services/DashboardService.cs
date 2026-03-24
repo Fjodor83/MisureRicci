@@ -19,39 +19,24 @@ namespace MisureRicci.Services
 
         public async Task<DashboardKpiViewModel> GetKpiAsync(int? negozioId, bool isAdmin)
         {
-            var cacheKey = isAdmin
-                ? DashboardKpiCacheKey
-                : $"{DashboardKpiCacheKey}_negozio_{negozioId?.ToString() ?? "none"}";
+            var tenantKey = isAdmin ? "global" : (negozioId?.ToString() ?? "unknown");
+            var cacheKey = $"{DashboardKpiCacheKey}_{tenantKey}";
 
             return await _cache.GetOrCreateAsync(cacheKey, async entry =>
             {
-                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2);
 
-                if (!isAdmin && !negozioId.HasValue)
-                {
-                    return new DashboardKpiViewModel();
-                }
-
-                var scopedNegozioId = negozioId.GetValueOrDefault();
-                var clientiQuery = _context.Clienti.AsNoTracking().AsQueryable();
-                var utentiQuery = _context.Users.AsNoTracking().AsQueryable();
-                var misureQuery = _context.RegistroMisure.AsNoTracking().AsQueryable();
-                var negoziQuery = _context.Negozi.AsNoTracking().AsQueryable();
-
-                if (!isAdmin)
-                {
-                    clientiQuery = clientiQuery.Where(c => c.NegozioId == scopedNegozioId);
-                    utentiQuery = utentiQuery.Where(u => u.NegozioId == scopedNegozioId);
-                    misureQuery = misureQuery.Where(m => m.Cliente != null && m.Cliente.NegozioId == scopedNegozioId);
-                    negoziQuery = negoziQuery.Where(n => n.Id == scopedNegozioId);
-                }
+                var totalClients = await _context.Clienti.CountAsync();
+                var totalMeasurements = await _context.Misure.CountAsync();
+                var totalStores = await _context.Negozi.CountAsync();
+                var totalStaff = await _context.Users.CountAsync();
 
                 return new DashboardKpiViewModel
                 {
-                    TotalClients = await clientiQuery.CountAsync(),
-                    TotalStores = await negoziQuery.CountAsync(),
-                    TotalStaff = await utentiQuery.CountAsync(),
-                    TotalMeasurements = await misureQuery.CountAsync()
+                    TotalClients = totalClients,
+                    TotalMeasurements = totalMeasurements,
+                    TotalStores = totalStores,
+                    TotalStaff = totalStaff
                 };
             }) ?? new DashboardKpiViewModel();
         }

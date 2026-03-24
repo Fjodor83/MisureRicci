@@ -11,13 +11,13 @@ namespace MisureRicci.Services
 
             foreach (var defaultType in defaults)
             {
-                var existingType = await context.MeasurementTypes
+                var existingType = await context.DynamicMeasurementTypes
                     .Include(x => x.Campi)
                     .FirstOrDefaultAsync(x => x.Nome == defaultType.Nome);
 
                 if (existingType == null)
                 {
-                    context.MeasurementTypes.Add(defaultType);
+                    context.DynamicMeasurementTypes.Add(defaultType);
                     continue;
                 }
 

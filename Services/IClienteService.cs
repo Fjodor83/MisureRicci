@@ -7,7 +7,7 @@ namespace MisureRicci.Services
     public interface IClienteService
     {
         Task<(IEnumerable<Cliente> Items, int TotalCount)> GetClientiPagedAsync(string searchString, int? negozioId, bool isAdmin, int page, int pageSize);
-        Task<List<Cliente>> SearchClientiAsync(string? search, int limit = 50);
+        Task<List<Cliente>> SearchClientiAsync(string? search, int? negozioId, bool isAdmin, int limit = 50);
         Task<Cliente?> GetClienteByIdAsync(int id);
         Task<List<MisureCliente>> GetStoricoMisureAsync(int clienteId);
         Task<Cliente?> GetClienteScopedAsync(int id, int? negozioId, bool isAdmin);

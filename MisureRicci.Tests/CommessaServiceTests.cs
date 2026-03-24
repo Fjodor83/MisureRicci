@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging.Abstractions;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
@@ -48,7 +49,7 @@ public class CommessaServiceTests
                 Note = "Misura seed"
             };
 
-            seedContext.RegistroMisure.Add(misura);
+            seedContext.Misure.Add(misura);
             await seedContext.SaveChangesAsync();
 
             clienteId = cliente.Id;
@@ -57,7 +58,7 @@ public class CommessaServiceTests
 
         using (var actContext = factory.CreateContext())
         {
-            var service = new CommessaService(actContext, new MemoryCache(new MemoryCacheOptions()));
+            var service = new CommessaService(actContext, new MemoryCache(new MemoryCacheOptions()), NullLogger<CommessaService>.Instance);
             var model = new CommessaCreateViewModel
             {
                 ClienteId = clienteId,
@@ -76,7 +77,7 @@ public class CommessaServiceTests
 
         using (var assertContext = factory.CreateContext())
         {
-            var commessa = await assertContext.CommissioniSartoriali.SingleAsync();
+            var commessa = await assertContext.Commissioni.SingleAsync();
             var eventi = await assertContext.CommissioniEventi
                 .Where(x => x.CommessaSartorialeId == commessa.Id)
                 .OrderBy(x => x.Id)
@@ -129,7 +130,7 @@ public class CommessaServiceTests
                 RecordId = 202
             };
 
-            seedContext.RegistroMisure.Add(misuraAltroCliente);
+            seedContext.Misure.Add(misuraAltroCliente);
             await seedContext.SaveChangesAsync();
 
             clienteId = cliente.Id;
@@ -138,7 +139,7 @@ public class CommessaServiceTests
 
         using (var actContext = factory.CreateContext())
         {
-            var service = new CommessaService(actContext, new MemoryCache(new MemoryCacheOptions()));
+            var service = new CommessaService(actContext, new MemoryCache(new MemoryCacheOptions()), NullLogger<CommessaService>.Instance);
             var model = new CommessaCreateViewModel
             {
                 ClienteId = clienteId,
@@ -154,7 +155,7 @@ public class CommessaServiceTests
 
         using (var assertContext = factory.CreateContext())
         {
-            Assert.Empty(await assertContext.CommissioniSartoriali.ToListAsync());
+            Assert.Empty(await assertContext.Commissioni.ToListAsync());
         }
     }
 }

@@ -1205,6 +1205,11 @@ textarea.form-control {
     animation: toast-out 0.3s ease forwards;
 }
 
+.header-theme-toggle {
+    width: 2.4rem;
+    height: 2.4rem;
+}
+
 .stagger-item {
     opacity: 0;
     transform: translateY(20px);

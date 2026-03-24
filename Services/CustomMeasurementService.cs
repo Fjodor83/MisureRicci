@@ -28,7 +28,7 @@ namespace MisureRicci.Services
             {
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
 
-                var query = _context.MeasurementTypes.AsNoTracking().AsQueryable();
+                var query = _context.DynamicMeasurementTypes.AsNoTracking().AsQueryable();
                 if (onlyActive)
                 {
                     query = query.Where(x => x.IsActive);
@@ -42,7 +42,7 @@ namespace MisureRicci.Services
 
         public async Task<MeasurementType?> GetMeasurementTypeByIdAsync(int id)
         {
-            return await _context.MeasurementTypes
+            return await _context.DynamicMeasurementTypes
                 .Include(x => x.Campi.OrderBy(f => f.OrdineGruppo).ThenBy(f => f.Gruppo).ThenBy(f => f.Ordine).ThenBy(f => f.Etichetta))
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
@@ -50,7 +50,7 @@ namespace MisureRicci.Services
         public async Task<MeasurementType> CreateMeasurementTypeAsync(MeasurementType model)
         {
             model.Nome = model.Nome.Trim();
-            _context.MeasurementTypes.Add(model);
+            _context.DynamicMeasurementTypes.Add(model);
             await _context.SaveChangesAsync();
             InvalidateMeasurementTypeCaches();
             return model;
@@ -59,7 +59,7 @@ namespace MisureRicci.Services
         public async Task UpdateMeasurementTypeAsync(MeasurementType model)
         {
             model.Nome = model.Nome.Trim();
-            _context.MeasurementTypes.Update(model);
+            _context.DynamicMeasurementTypes.Update(model);
             await _context.SaveChangesAsync();
             InvalidateMeasurementTypeCaches();
             InvalidateFieldCaches(model.Id);
@@ -67,7 +67,7 @@ namespace MisureRicci.Services
 
         public async Task DeleteMeasurementTypeAsync(int id)
         {
-            var entity = await _context.MeasurementTypes
+            var entity = await _context.DynamicMeasurementTypes
                 .Include(x => x.Campi)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
@@ -76,7 +76,7 @@ namespace MisureRicci.Services
                 return;
             }
 
-            _context.MeasurementTypes.Remove(entity);
+            _context.DynamicMeasurementTypes.Remove(entity);
             await _context.SaveChangesAsync();
             InvalidateMeasurementTypeCaches();
             InvalidateFieldCaches(id);
@@ -89,7 +89,7 @@ namespace MisureRicci.Services
             {
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
 
-                var query = _context.MeasurementFieldDefinitions
+                var query = _context.DynamicFieldDefinitions
                     .AsNoTracking()
                     .Where(x => x.MeasurementTypeId == measurementTypeId);
 
@@ -109,7 +109,7 @@ namespace MisureRicci.Services
 
         public async Task<MeasurementFieldDefinition?> GetFieldByIdAsync(int id)
         {
-            return await _context.MeasurementFieldDefinitions.FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.DynamicFieldDefinitions.FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<MeasurementFieldDefinition> CreateFieldAsync(MeasurementFieldDefinition model)
@@ -118,7 +118,7 @@ namespace MisureRicci.Services
             model.Etichetta = model.Etichetta.Trim();
             model.Gruppo = string.IsNullOrWhiteSpace(model.Gruppo) ? null : model.Gruppo.Trim();
             model.HelpText = string.IsNullOrWhiteSpace(model.HelpText) ? null : model.HelpText.Trim();
-            _context.MeasurementFieldDefinitions.Add(model);
+            _context.DynamicFieldDefinitions.Add(model);
             await _context.SaveChangesAsync();
             InvalidateFieldCaches(model.MeasurementTypeId);
             return model;
@@ -130,21 +130,21 @@ namespace MisureRicci.Services
             model.Etichetta = model.Etichetta.Trim();
             model.Gruppo = string.IsNullOrWhiteSpace(model.Gruppo) ? null : model.Gruppo.Trim();
             model.HelpText = string.IsNullOrWhiteSpace(model.HelpText) ? null : model.HelpText.Trim();
-            _context.MeasurementFieldDefinitions.Update(model);
+            _context.DynamicFieldDefinitions.Update(model);
             await _context.SaveChangesAsync();
             InvalidateFieldCaches(model.MeasurementTypeId);
         }
 
         public async Task DeleteFieldAsync(int id)
         {
-            var entity = await _context.MeasurementFieldDefinitions.FindAsync(id);
+            var entity = await _context.DynamicFieldDefinitions.FindAsync(id);
             if (entity == null)
             {
                 return;
             }
 
             var measurementTypeId = entity.MeasurementTypeId;
-            _context.MeasurementFieldDefinitions.Remove(entity);
+            _context.DynamicFieldDefinitions.Remove(entity);
             await _context.SaveChangesAsync();
             InvalidateFieldCaches(measurementTypeId);
         }
@@ -176,8 +176,8 @@ namespace MisureRicci.Services
                 _context.DynamicMeasurementValues.AddRange(values);
             }
 
-            var type = await _context.MeasurementTypes.FirstAsync(x => x.Id == model.MeasurementTypeId);
-            _context.RegistroMisure.Add(new MisureCliente
+            var type = await _context.DynamicMeasurementTypes.FirstAsync(x => x.Id == model.MeasurementTypeId);
+            _context.Misure.Add(new MisureCliente
             {
                 ClienteId = model.ClienteId,
                 TipoMisura = type.Nome,
@@ -277,10 +277,10 @@ namespace MisureRicci.Services
 
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            var registro = await _context.RegistroMisure.FirstOrDefaultAsync(x => x.RecordId == recordId && x.IsDynamic);
+            var registro = await _context.Misure.FirstOrDefaultAsync(x => x.RecordId == recordId && x.IsDynamic);
             if (registro != null)
             {
-                _context.RegistroMisure.Remove(registro);
+                _context.Misure.Remove(registro);
             }
 
             _context.DynamicMeasurementRecords.Remove(record);
@@ -351,7 +351,7 @@ namespace MisureRicci.Services
 
         public async Task<int?> GetRegistroMisuraIdByDynamicRecordAsync(int dynamicRecordId)
         {
-            return await _context.RegistroMisure
+            return await _context.Misure
                 .Where(m => m.RecordId == dynamicRecordId && m.IsDynamic)
                 .Select(m => (int?)m.Id)
                 .FirstOrDefaultAsync();

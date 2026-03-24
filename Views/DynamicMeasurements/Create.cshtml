@@ -128,10 +128,10 @@
                                     @switch (Model.Fields[fieldIndex].TipoDato)
                                     {
                                         case MisureRicci.Models.DynamicFieldType.Number:
-                                            <input asp-for="Fields[fieldIndex].Valore" type="number" step="1" class="form-control text-center" oninput="if(this.value.length > 3) this.value=this.value.slice(0,3);" placeholder="@Model.Fields[fieldIndex].Placeholder" />
+                                            <input asp-for="Fields[fieldIndex].Valore" type="number" step="1" class="form-control text-center" placeholder="@Model.Fields[fieldIndex].Placeholder" />
                                             break;
                                         case MisureRicci.Models.DynamicFieldType.Decimal:
-                                            <input asp-for="Fields[fieldIndex].Valore" type="number" step="0.01" class="form-control text-center" oninput="if(this.value.length > 5) this.value=this.value.slice(0,5);" placeholder="@Model.Fields[fieldIndex].Placeholder" />
+                                            <input asp-for="Fields[fieldIndex].Valore" type="number" step="0.01" class="form-control text-center" placeholder="@Model.Fields[fieldIndex].Placeholder" />
                                             break;
                                         case MisureRicci.Models.DynamicFieldType.Date:
                                             <input asp-for="Fields[fieldIndex].Valore" type="date" class="form-control" />

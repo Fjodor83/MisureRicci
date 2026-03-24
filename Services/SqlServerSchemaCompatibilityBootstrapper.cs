@@ -15,6 +15,57 @@ namespace MisureRicci.Services
             }
 
             const string sql = @"
+-- 0. Ensure Migration History exists
+IF OBJECT_ID(N'[dbo].[__EFMigrationsHistory]', N'U') IS NULL
+BEGIN
+    CREATE TABLE [__EFMigrationsHistory] (
+        [MigrationId] nvarchar(150) NOT NULL,
+        [ProductVersion] nvarchar(32) NOT NULL,
+        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+    );
+END;
+
+-- 1. Mark InitialCreate as applied if AspNetRoles exists
+IF OBJECT_ID(N'[dbo].[AspNetRoles]', N'U') IS NOT NULL 
+   AND NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = '20260323150111_InitialCreate')
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES ('20260323150111_InitialCreate', '8.0.0');
+END;
+
+-- 2. Mark AddMeasurementTypeImageUrl as applied if ImageUrl exists in MeasurementTypes or DynamicMeasurementTypes
+IF (COL_LENGTH(N'dbo.MeasurementTypes', N'ImageUrl') IS NOT NULL OR COL_LENGTH(N'dbo.DynamicMeasurementTypes', N'ImageUrl') IS NOT NULL)
+   AND NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = '20260324092407_AddMeasurementTypeImageUrl')
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES ('20260324092407_AddMeasurementTypeImageUrl', '8.0.0');
+END;
+
+-- 3. Mark NewTables as applied if DynamicMeasurementTypes exists
+IF OBJECT_ID(N'[dbo].[DynamicMeasurementTypes]', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = '20260324131120_NewTables')
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES ('20260324131120_NewTables', '8.0.0');
+END;
+
+-- 4. Check for legacy Dynamic Measurement tables that might need renaming ONLY if NewTables is NOT marked as applied
+-- This handles cases where the tables were created manually or by a different process but not yet tracked by EF.
+IF OBJECT_ID(N'[dbo].[MeasurementTypes]', N'U') IS NOT NULL 
+   AND OBJECT_ID(N'[dbo].[DynamicMeasurementTypes]', N'U') IS NULL
+   AND NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = '20260324131120_NewTables')
+BEGIN
+    EXEC sp_rename 'MeasurementTypes', 'DynamicMeasurementTypes';
+END;
+
+IF OBJECT_ID(N'[dbo].[MeasurementFieldDefinitions]', N'U') IS NOT NULL 
+   AND OBJECT_ID(N'[dbo].[DynamicFieldDefinitions]', N'U') IS NULL
+   AND NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = '20260324131120_NewTables')
+BEGIN
+    EXEC sp_rename 'MeasurementFieldDefinitions', 'DynamicFieldDefinitions';
+END;
+
+-- 5. Check for other column updates
 IF OBJECT_ID(N'[dbo].[RegistroMisure]', N'U') IS NOT NULL
 BEGIN
     IF COL_LENGTH(N'dbo.RegistroMisure', N'IsDynamic') IS NULL

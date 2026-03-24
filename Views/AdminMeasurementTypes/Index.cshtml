@@ -61,7 +61,7 @@
                                     {
                                         <form asp-action="DeleteType" method="post" class="d-inline">
                                             <input type="hidden" name="id" value="@item.Id" />
-                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Eliminare questa tipologia e tutti i campi collegati?');">Elimina</button>
+                                            <button type="submit" class="btn btn-sm btn-danger" data-confirm="Eliminare questa tipologia e tutti i campi collegati?">Elimina</button>
                                         </form>
                                     }
                                 </div>

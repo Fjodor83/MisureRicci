@@ -1,211 +1,115 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MisureRicci.Models;
+using MisureRicci.Services;
+using MisureRicci.Data.Configurations;
 
 namespace MisureRicci.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        private readonly ITenantService? _tenantService;
+        private readonly int? _currentTenantId;
+        private readonly bool _isTenantAdmin;
+
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ITenantService? tenantService = null)
             : base(options)
         {
+            _tenantService = tenantService;
+            _currentTenantId = _tenantService?.GetCurrentNegozioId();
+            // In testing or design-time (migrations), if no service is provided, we default to Admin=true
+            // to ensure all data is visible/manageable.
+            _isTenantAdmin = _tenantService?.IsAdmin() ?? true;
         }
 
-        public DbSet<GiaccaMeasurement> MisureGiacca { get; set; }
-        public DbSet<PantaloneMeasurement> MisurePantalone { get; set; }
-        public DbSet<AbitoCompletoMeasurement> MisureAbitoCompleto { get; set; }
-        public DbSet<GiletMeasurement> MisureGilet { get; set; }
-        public DbSet<MaglieMeasurement> MisureMaglie { get; set; }
-        public DbSet<OutdoorMeasurement> MisureOutdoor { get; set; }
-        public DbSet<CamiciaMeasurement> MisureCamicia { get; set; }
-        public DbSet<ScarpeMeasurement> MisureScarpe { get; set; }
-        public DbSet<CravattaMeasurement> MisureCravatta { get; set; }
-        public DbSet<CinturaMeasurement> MisureCintura { get; set; }
+        public DbSet<Negozio> Negozi { get; set; } = default!;
+        public DbSet<Cliente> Clienti { get; set; } = default!;
+        public DbSet<MisureCliente> Misure { get; set; } = default!;
+        public DbSet<CommessaSartoriale> Commissioni { get; set; } = default!;
+        public DbSet<CommessaEvento> CommissioniEventi { get; set; } = default!;
+        public DbSet<CommessaMisuraLink> CommissioniMisureLinks { get; set; } = default!;
 
+        public DbSet<MeasurementType> DynamicMeasurementTypes { get; set; } = default!;
+        public DbSet<MeasurementFieldDefinition> DynamicFieldDefinitions { get; set; } = default!;
+        public DbSet<DynamicMeasurementRecord> DynamicMeasurementRecords { get; set; } = default!;
+        public DbSet<DynamicMeasurementValue> DynamicMeasurementValues { get; set; } = default!;
 
+        // Legati a tabelle fisiche di misura legacy
+        public DbSet<GiaccaMeasurement> MisureGiacca { get; set; } = default!;
+        public DbSet<PantaloneMeasurement> MisurePantalone { get; set; } = default!;
+        public DbSet<GiletMeasurement> MisureGilet { get; set; } = default!;
+        public DbSet<CamiciaMeasurement> MisureCamicia { get; set; } = default!;
+        public DbSet<AbitoCompletoMeasurement> MisureAbitoCompleto { get; set; } = default!;
+        public DbSet<MaglieMeasurement> MisureMaglie { get; set; } = default!;
+        public DbSet<OutdoorMeasurement> MisureOutdoor { get; set; } = default!;
+        public DbSet<ScarpeMeasurement> MisureScarpe { get; set; } = default!;
+        public DbSet<CravattaMeasurement> MisureCravatta { get; set; } = default!;
+        public DbSet<CinturaMeasurement> MisureCintura { get; set; } = default!;
 
-        public DbSet<Cliente> Clienti { get; set; }
-        public DbSet<Negozio> Negozi { get; set; }
-        public DbSet<MisureCliente> RegistroMisure { get; set; }
-        public DbSet<MeasurementType> MeasurementTypes { get; set; }
-        public DbSet<MeasurementFieldDefinition> MeasurementFieldDefinitions { get; set; }
-        public DbSet<DynamicMeasurementRecord> DynamicMeasurementRecords { get; set; }
-        public DbSet<DynamicMeasurementValue> DynamicMeasurementValues { get; set; }
-        public DbSet<CommessaSartoriale> CommissioniSartoriali { get; set; }
-        public DbSet<CommessaEvento> CommissioniEventi { get; set; }
-        public DbSet<CommessaMisuraLink> CommissioniMisureLinks { get; set; }
-
-
-
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            base.OnModelCreating(modelBuilder);
-            var isSqlite = Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite";
+            base.OnModelCreating(builder);
+
+            // Apply configurations from separate classes
+            builder.ApplyConfiguration(new CommessaMisuraLinkConfiguration());
+            builder.ApplyConfiguration(new DynamicMeasurementConfiguration());
+            builder.ApplyConfiguration(new DynamicFieldConfiguration());
+
+            builder.Entity<CommessaSartoriale>().ToTable("CommissioniSartoriali");
+            builder.Entity<MisureCliente>().ToTable("RegistroMisure");
+
+            // Mapping legacy tables
+            builder.Entity<GiaccaMeasurement>().ToTable("MisureGiacca");
+            builder.Entity<PantaloneMeasurement>().ToTable("MisurePantalone");
+            builder.Entity<GiletMeasurement>().ToTable("MisureGilet");
+            builder.Entity<CamiciaMeasurement>().ToTable("MisureCamicia");
+            builder.Entity<AbitoCompletoMeasurement>().ToTable("MisureAbitoCompleto");
+            builder.Entity<MaglieMeasurement>().ToTable("MisureMaglie");
+            builder.Entity<OutdoorMeasurement>().ToTable("MisureOutdoor");
+            builder.Entity<ScarpeMeasurement>().ToTable("MisureScarpe");
+            builder.Entity<CravattaMeasurement>().ToTable("MisureCravatta");
+            builder.Entity<CinturaMeasurement>().ToTable("MisureCintura");
+
+            // Global Query Filters per Multi-Tenancy
+            // Use local fields initialized in constructor to ensure proper expression translation
+            builder.Entity<CommessaSartoriale>().HasQueryFilter(c => 
+                _isTenantAdmin || (c.NegozioId == _currentTenantId));
             
-            modelBuilder.Entity<MisureCliente>().ToTable("RegistroMisure");
-            modelBuilder.Entity<MisureCliente>()
-                .HasIndex(x => new { x.ClienteId, x.DataCreazione });
+            builder.Entity<MisureCliente>().HasQueryFilter(m => 
+                _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
             
-            // Fix for multiple cascade paths in AbitoCompleto
-            modelBuilder.Entity<AbitoCompletoMeasurement>(entity =>
-            {
-                entity.HasOne(a => a.Giacca)
-                      .WithMany()
-                      .HasForeignKey("GiaccaId")
-                      .OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<Cliente>().HasQueryFilter(c => 
+                _isTenantAdmin || (c.NegozioId == _currentTenantId));
+            
+            builder.Entity<DynamicMeasurementRecord>().HasQueryFilter(r => 
+                _isTenantAdmin || (r.Cliente != null && r.Cliente.NegozioId == _currentTenantId));
 
-                entity.HasOne(a => a.Pantalone)
-                      .WithMany()
-                      .HasForeignKey("PantaloneId")
-                      .OnDelete(DeleteBehavior.Restrict);
-            });
+            builder.Entity<DynamicMeasurementValue>().HasQueryFilter(v =>
+                _isTenantAdmin || (v.DynamicMeasurementRecord != null && v.DynamicMeasurementRecord.Cliente != null && v.DynamicMeasurementRecord.Cliente.NegozioId == _currentTenantId));
 
-            // Ensure all measurement tables have clear Italian names if not already set by DbSet
-            modelBuilder.Entity<GiaccaMeasurement>().ToTable("MisureGiacca");
-            modelBuilder.Entity<PantaloneMeasurement>().ToTable("MisurePantalone");
-            modelBuilder.Entity<AbitoCompletoMeasurement>().ToTable("MisureAbitoCompleto");
-            modelBuilder.Entity<GiletMeasurement>().ToTable("MisureGilet");
-            modelBuilder.Entity<MaglieMeasurement>().ToTable("MisureMaglie");
-            modelBuilder.Entity<OutdoorMeasurement>().ToTable("MisureOutdoor");
-            modelBuilder.Entity<CamiciaMeasurement>().ToTable("MisureCamicia");
-            modelBuilder.Entity<ScarpeMeasurement>().ToTable("MisureScarpe");
-            modelBuilder.Entity<CravattaMeasurement>().ToTable("MisureCravatta");
-            modelBuilder.Entity<CinturaMeasurement>().ToTable("MisureCintura");
-            modelBuilder.Entity<Cliente>(entity =>
-            {
-                entity.ToTable("Clienti");
-                entity.Property(c => c.ClientCode).HasMaxLength(20);
+            builder.Entity<CommessaEvento>().HasQueryFilter(e =>
+                _isTenantAdmin || (e.CommessaSartoriale != null && e.CommessaSartoriale.NegozioId == _currentTenantId));
 
-                if (isSqlite)
-                {
-                    entity.Property(c => c.ClientCode);
-                }
-                else
-                {
-                    entity.Property(c => c.ClientCode)
-                        .HasComputedColumnSql("CAST('SR-' + CAST(YEAR([DataRegistrazione]) AS nvarchar(4)) + '-' + RIGHT('00000' + CAST([Id] AS nvarchar(5)), 5) AS nvarchar(20))", stored: true);
-                }
+            builder.Entity<CommessaMisuraLink>().HasQueryFilter(l =>
+                _isTenantAdmin || (l.CommessaSartoriale != null && l.CommessaSartoriale.NegozioId == _currentTenantId));
 
-                entity.HasIndex(c => c.ClientCode)
-                    .IsUnique();
-            });
-            modelBuilder.Entity<Negozio>().ToTable("Negozi");
+            builder.Entity<Negozio>().HasQueryFilter(n =>
+                _isTenantAdmin || (n.Id == _currentTenantId));
 
-            modelBuilder.Entity<MeasurementType>(entity =>
-            {
-                entity.ToTable("MeasurementTypes");
-                entity.HasIndex(x => x.Nome).IsUnique();
-            });
+            builder.Entity<ApplicationUser>().HasQueryFilter(u =>
+                _isTenantAdmin || (u.NegozioId == _currentTenantId));
 
-            modelBuilder.Entity<MeasurementFieldDefinition>(entity =>
-            {
-                entity.ToTable("MeasurementFieldDefinitions");
-                entity.Property(x => x.Gruppo).HasMaxLength(80);
-                entity.Property(x => x.HelpText).HasMaxLength(160);
-                entity.HasOne(x => x.MeasurementType)
-                    .WithMany(x => x.Campi)
-                    .HasForeignKey(x => x.MeasurementTypeId)
-                    .OnDelete(DeleteBehavior.Cascade);
-                entity.HasIndex(x => new { x.MeasurementTypeId, x.NomeCampo }).IsUnique();
-            });
-
-            modelBuilder.Entity<DynamicMeasurementRecord>(entity =>
-            {
-                entity.ToTable("DynamicMeasurementRecords");
-                entity.HasOne(x => x.Cliente)
-                    .WithMany()
-                    .HasForeignKey(x => x.ClienteId)
-                    .OnDelete(DeleteBehavior.Restrict);
-                entity.HasOne(x => x.MeasurementType)
-                    .WithMany()
-                    .HasForeignKey(x => x.MeasurementTypeId)
-                    .OnDelete(DeleteBehavior.Restrict);
-                entity.HasOne(x => x.CreatedByUser)
-                    .WithMany()
-                    .HasForeignKey(x => x.CreatedByUserId)
-                    .OnDelete(DeleteBehavior.SetNull);
-            });
-
-            modelBuilder.Entity<DynamicMeasurementValue>(entity =>
-            {
-                entity.ToTable("DynamicMeasurementValues");
-                entity.HasOne(x => x.DynamicMeasurementRecord)
-                    .WithMany(x => x.Values)
-                    .HasForeignKey(x => x.DynamicMeasurementRecordId)
-                    .OnDelete(DeleteBehavior.Cascade);
-                entity.HasOne(x => x.MeasurementFieldDefinition)
-                    .WithMany(x => x.Values)
-                    .HasForeignKey(x => x.MeasurementFieldDefinitionId)
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
-
-            modelBuilder.Entity<CommessaSartoriale>(entity =>
-            {
-                entity.ToTable("CommissioniSartoriali");
-                entity.Property(x => x.TipoCapo).HasMaxLength(80);
-                entity.Property(x => x.Tessuto).HasMaxLength(120);
-                entity.Property(x => x.Collezione).HasMaxLength(120);
-                entity.Property(x => x.NoteInterne).HasMaxLength(2000);
-                entity.HasIndex(x => x.CommessaCode).IsUnique();
-                entity.HasIndex(x => new { x.Stato, x.DataConsegnaPrevista });
-                entity.HasIndex(x => new { x.ClienteId, x.DataApertura });
-
-                entity.HasOne(x => x.Cliente)
-                    .WithMany()
-                    .HasForeignKey(x => x.ClienteId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(x => x.Negozio)
-                    .WithMany()
-                    .HasForeignKey(x => x.NegozioId)
-                    .OnDelete(DeleteBehavior.SetNull);
-
-                entity.HasOne(x => x.CreatedByUser)
-                    .WithMany()
-                    .HasForeignKey(x => x.CreatedByUserId)
-                    .OnDelete(DeleteBehavior.SetNull);
-
-                entity.HasMany(x => x.Eventi)
-                    .WithOne(x => x.CommessaSartoriale)
-                    .HasForeignKey(x => x.CommessaSartorialeId)
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
-
-            modelBuilder.Entity<CommessaEvento>(entity =>
-            {
-                entity.ToTable("CommissioniEventi");
-                entity.Property(x => x.TipoEvento).HasMaxLength(40);
-                entity.Property(x => x.Descrizione).HasMaxLength(1000);
-                entity.HasIndex(x => x.CommessaSartorialeId);
-
-                entity.HasOne(x => x.CreatedByUser)
-                    .WithMany()
-                    .HasForeignKey(x => x.CreatedByUserId)
-                    .OnDelete(DeleteBehavior.SetNull);
-            });
-
-            modelBuilder.Entity<CommessaMisuraLink>(entity =>
-            {
-                entity.ToTable("CommissioniMisureLinks");
-                entity.HasIndex(x => new { x.CommessaSartorialeId, x.MisuraClienteId }).IsUnique();
-
-                entity.HasOne(x => x.CommessaSartoriale)
-                    .WithMany(x => x.MisureCollegate)
-                    .HasForeignKey(x => x.CommessaSartorialeId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(x => x.MisuraCliente)
-                    .WithMany()
-                    .HasForeignKey(x => x.MisuraClienteId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(x => x.LinkedByUser)
-                    .WithMany()
-                    .HasForeignKey(x => x.LinkedByUserId)
-                    .OnDelete(DeleteBehavior.SetNull);
-            });
+            // Legacy measurement filters
+            builder.Entity<GiaccaMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
+            builder.Entity<PantaloneMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
+            builder.Entity<GiletMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
+            builder.Entity<CamiciaMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
+            builder.Entity<AbitoCompletoMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
+            builder.Entity<MaglieMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
+            builder.Entity<OutdoorMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
+            builder.Entity<ScarpeMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
+            builder.Entity<CravattaMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
+            builder.Entity<CinturaMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
         }
-
     }
 }

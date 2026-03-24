@@ -27,7 +27,7 @@
         <form asp-action="Delete" method="post" class="d-inline">
             <input type="hidden" name="id" value="@Model.Id" />
             <input type="hidden" name="clienteId" value="@Model.ClienteId" />
-            <button type="submit" class="btn btn-danger" onclick="return confirm('Eliminare questa misura dinamica?');">Elimina</button>
+            <button type="submit" class="btn btn-danger" data-confirm="Eliminare questa misura dinamica?">Elimina</button>
         </form>
     </div>
 </section>

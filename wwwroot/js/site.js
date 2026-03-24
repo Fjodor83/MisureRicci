@@ -351,4 +351,46 @@
 		});
 	}
 
+	/* ==========================================================
+	   14. CSP COMPLIANCE HELPERS
+	   Replaces inline oninput, onclick, and custom view scripts.
+	========================================================== */
+	// 14a. Number input length limiting
+	document.addEventListener('input', function (e) {
+		var el = e.target;
+		if (el.tagName === 'INPUT' && (el.type === 'number' || el.getAttribute('type') === 'number')) {
+			var step = el.getAttribute('step');
+			var maxLength = (step === '0.01') ? 5 : 3;
+			if (el.value.length > maxLength) {
+				el.value = el.value.slice(0, maxLength);
+			}
+		}
+	}, true);
+
+	// 14b. Confirmation dialogs (use data-confirm="Message")
+	document.addEventListener('click', function (e) {
+		var el = e.target.closest('[data-confirm]');
+		if (el) {
+			var message = el.getAttribute('data-confirm');
+			if (!confirm(message)) {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+			}
+		}
+	}, true);
+
+	// 14c. Dynamic Measure Selection (replaces inline scripts in Commissioni/Details)
+	document.addEventListener('change', function (e) {
+		var ids = ['newMisuraTypeSelect', 'addMisuraTypeSelect', 'addMisuraTypeSelectFull'];
+		if (ids.indexOf(e.target.id) !== -1) {
+			var btnId = e.target.id.replace('Select', '').replace('new', 'btnCreaCollega').replace('add', 'btnAggiungi');
+			var btn = document.getElementById(btnId);
+			if (btn) {
+				var url = new URL(btn.href, window.location.origin);
+				url.searchParams.set('typeId', e.target.value);
+				btn.href = url.pathname + url.search;
+			}
+		}
+	});
+
 }());
