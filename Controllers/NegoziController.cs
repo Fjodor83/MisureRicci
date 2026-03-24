@@ -40,6 +40,7 @@ namespace MisureRicci.Controllers
 
         public async Task<IActionResult> Details(int? id)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null) return NotFound();
             var negozio = await _negozioService.GetByIdAsync(id.Value);
             if (negozio == null) return NotFound();
@@ -48,6 +49,7 @@ namespace MisureRicci.Controllers
 
         public async Task<IActionResult> Edit(int? id)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null) return NotFound();
             var negozio = await _negozioService.GetByIdAsync(id.Value);
             if (negozio == null) return NotFound();
@@ -58,22 +60,23 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Citta,Indirizzo,CodiceNegozio,Paese,Attivo")] Negozio negozio)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(negozio);
+            }
+
             if (id != negozio.Id) return NotFound();
 
-            if (ModelState.IsValid)
+            try
             {
-                try
-                {
-                    await _negozioService.UpdateAsync(negozio);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!NegozioExists(negozio.Id)) return NotFound();
-                    else throw;
-                }
-                return RedirectToAction(nameof(Index));
+                await _negozioService.UpdateAsync(negozio);
             }
-            return View(negozio);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!NegozioExists(negozio.Id)) return NotFound();
+                else throw;
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         private bool NegozioExists(int id)
@@ -83,6 +86,7 @@ namespace MisureRicci.Controllers
 
         public async Task<IActionResult> Delete(int? id)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null) return NotFound();
             var negozio = await _negozioService.GetByIdAsync(id.Value);
             if (negozio == null) return NotFound();
@@ -93,6 +97,7 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             await _negozioService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }

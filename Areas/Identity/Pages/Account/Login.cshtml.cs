@@ -17,7 +17,6 @@ namespace MisureRicci.Areas.Identity.Pages.Account
     [EnableRateLimiting("login")]
     public class LoginModel : PageModel
     {
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
 
@@ -25,7 +24,6 @@ namespace MisureRicci.Areas.Identity.Pages.Account
             ILogger<LoginModel> logger,
             UserManager<ApplicationUser> userManager)
         {
-            _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
         }

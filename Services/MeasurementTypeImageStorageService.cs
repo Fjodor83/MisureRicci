@@ -52,7 +52,8 @@ namespace MisureRicci.Services
 
         private static readonly Regex SafeFileNamePattern = new(
             "^[a-f0-9]{32}\\.(jpg|jpeg|png|webp)$",
-            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+            TimeSpan.FromSeconds(1));
 
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<MeasurementTypeImageStorageService> _logger;

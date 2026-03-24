@@ -34,6 +34,7 @@ namespace MisureRicci.Controllers
 
         public async Task<IActionResult> GlobalRegistry(string filter, int page = 1)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var currentUser = await _userManager.GetUserAsync(User);
             bool isAdmin = User.IsInRole("Admin");
 
@@ -54,6 +55,7 @@ namespace MisureRicci.Controllers
 
         public async Task<IActionResult> Index(int? clienteId)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             if (clienteId == null) return RedirectToAction("Index", "Clienti");
 
             var currentUser = await _userManager.GetUserAsync(User);
@@ -73,6 +75,7 @@ namespace MisureRicci.Controllers
 
         public async Task<IActionResult> Details(int? id, string tipoMisura, int? registryId)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null || string.IsNullOrEmpty(tipoMisura)) return NotFound();
 
             var resolved = await ResolveMeasurementDisplayAsync(id.Value, tipoMisura, registryId);
@@ -92,6 +95,7 @@ namespace MisureRicci.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int? id, string tipoMisura)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null || string.IsNullOrEmpty(tipoMisura)) return NotFound();
 
             var currentUser = await _userManager.GetUserAsync(User);
@@ -107,6 +111,7 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(LegacyMeasurementEditViewModel input)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             if (string.IsNullOrEmpty(input.TipoMisura)) return NotFound();
 
             var currentUser = await _userManager.GetUserAsync(User);
@@ -132,6 +137,7 @@ namespace MisureRicci.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int? id, string tipoMisura, int? registryId)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null || string.IsNullOrEmpty(tipoMisura)) return NotFound();
 
             var resolved = await ResolveMeasurementDisplayAsync(id.Value, tipoMisura, registryId);
@@ -152,6 +158,7 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id, string tipoMisura, int? registryId)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             if (string.IsNullOrEmpty(tipoMisura)) return NotFound();
 
             var currentUser = await _userManager.GetUserAsync(User);

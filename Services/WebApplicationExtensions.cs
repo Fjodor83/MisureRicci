@@ -44,8 +44,9 @@ namespace Microsoft.AspNetCore.Builder
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "An error occurred during database initialization.");
-                throw;
+                const string message = "An error occurred during database initialization.";
+                Log.Error(ex, message);
+                throw new InvalidOperationException(message, ex);
             }
         }
 
@@ -61,14 +62,16 @@ namespace Microsoft.AspNetCore.Builder
                 context.Response.Headers.Append(
                     "Content-Security-Policy",
                     "default-src 'none'; " +
-                    "connect-src 'self' ws: wss: http://localhost:* https://localhost:*; " +
+                    "connect-src 'self'; " +
                     "script-src 'self'; " +
-                    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; " +
+                    "style-src 'self' https://fonts.googleapis.com https://cdn.jsdelivr.net; " +
                     "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
-                    "img-src 'self'; " +
+                    "img-src 'self' data:; " +
                     "frame-ancestors 'none'; " +
                     "base-uri 'self'; " +
-                    "form-action 'self';");
+                    "form-action 'self'; " +
+                    "upgrade-insecure-requests; " +
+                    "block-all-mixed-content;");
 
                 await next();
             });

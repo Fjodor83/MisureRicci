@@ -1,0 +1,1 @@
+oRbC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\MisureRicci.Tests.csprojòCSharp12

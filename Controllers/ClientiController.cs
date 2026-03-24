@@ -28,6 +28,7 @@ namespace MisureRicci.Controllers
         // GET: Clienti
         public async Task<IActionResult> Index(string searchString, int page = 1)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             bool isAdmin = _tenantService.IsAdmin();
             int? negozioId = _tenantService.GetCurrentNegozioId();
             const int pageSize = 20;
@@ -47,6 +48,7 @@ namespace MisureRicci.Controllers
         // GET: Clienti/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null) return NotFound();
 
             bool isAdmin = _tenantService.IsAdmin();
@@ -69,6 +71,7 @@ namespace MisureRicci.Controllers
         // GET: Clienti/Create
         public async Task<IActionResult> Create()
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             return View(await BuildPageViewModelAsync(new Cliente()));
         }
 
@@ -77,6 +80,12 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ClientePageViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                bool isAdmin0 = _tenantService.IsAdmin();
+                return View(await BuildPageViewModelAsync(model.Cliente, isAdmin0));
+            }
+
             bool isAdmin = _tenantService.IsAdmin();
             int? currentNegozioId = _tenantService.GetCurrentNegozioId();
             
@@ -99,6 +108,7 @@ namespace MisureRicci.Controllers
         // GET: Clienti/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null) return NotFound();
 
             bool isAdmin = _tenantService.IsAdmin();
@@ -114,6 +124,12 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, ClientePageViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                bool isAdmin0 = _tenantService.IsAdmin();
+                return View(await BuildPageViewModelAsync(model.Cliente, isAdmin0));
+            }
+
             if (id != model.Cliente.Id) return NotFound();
 
             bool isAdmin = _tenantService.IsAdmin();
@@ -136,6 +152,7 @@ namespace MisureRicci.Controllers
 
         public async Task<IActionResult> Delete(int? id)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null) return NotFound();
 
             bool isAdmin = _tenantService.IsAdmin();
@@ -150,6 +167,7 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             bool isAdmin = _tenantService.IsAdmin();
             int? currentNegozioId = _tenantService.GetCurrentNegozioId();
 

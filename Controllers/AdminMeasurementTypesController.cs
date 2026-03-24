@@ -94,6 +94,11 @@ namespace MisureRicci.Controllers
         [HttpGet]
         public async Task<IActionResult> EditType(int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var item = await _customMeasurementService.GetMeasurementTypeByIdAsync(id);
             if (item == null)
             {
@@ -108,22 +113,15 @@ namespace MisureRicci.Controllers
         [RequestFormLimits(MultipartBodyLengthLimit = MaxImageUploadRequestSize)]
         public async Task<IActionResult> EditType(int id, MeasurementType model)
         {
-            if (id != model.Id)
-            {
-                return NotFound();
-            }
-
             var existing = await _customMeasurementService.GetMeasurementTypeByIdAsync(id);
-            if (existing == null)
+            if (existing == null || id != model.Id)
             {
                 return NotFound();
             }
 
             if (!ModelState.IsValid)
             {
-                model.ImageUrl = existing.ImageUrl;
-                model.CreatedAt = existing.CreatedAt;
-                model.IsSystem = existing.IsSystem;
+                RestoreMetadata(model, existing);
                 return View(model);
             }
 
@@ -151,27 +149,6 @@ namespace MisureRicci.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-            catch (MeasurementTypeImageValidationException ex)
-            {
-                model.ImageUrl = previousImageUrl;
-                model.CreatedAt = existing.CreatedAt;
-                model.IsSystem = existing.IsSystem;
-                ModelState.AddModelError(nameof(model.ImageUpload), ex.Message);
-                return View(model);
-            }
-            catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
-            {
-                if (newImageUrl != null)
-                {
-                    await _measurementTypeImageStorageService.DeleteImageAsync(newImageUrl, HttpContext.RequestAborted);
-                }
-
-                model.ImageUrl = previousImageUrl;
-                model.CreatedAt = existing.CreatedAt;
-                model.IsSystem = existing.IsSystem;
-                ModelState.AddModelError(nameof(model.Nome), "Esiste gia una tipologia con questo nome.");
-                return View(model);
-            }
             catch (Exception ex)
             {
                 if (newImageUrl != null)
@@ -179,11 +156,8 @@ namespace MisureRicci.Controllers
                     await _measurementTypeImageStorageService.DeleteImageAsync(newImageUrl, HttpContext.RequestAborted);
                 }
 
-                model.ImageUrl = previousImageUrl;
-                model.CreatedAt = existing.CreatedAt;
-                model.IsSystem = existing.IsSystem;
-                _logger.LogError(ex, "Errore durante la modifica della tipologia misura {Id}", model.Id);
-                ModelState.AddModelError(string.Empty, "Si e verificato un errore interno. Riprovare.");
+                RestoreMetadata(model, existing, previousImageUrl);
+                HandleEditException(ex, model);
                 return View(model);
             }
         }
@@ -192,6 +166,11 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteType(int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var existing = await _customMeasurementService.GetMeasurementTypeByIdAsync(id);
             await _customMeasurementService.DeleteMeasurementTypeAsync(id);
 
@@ -206,6 +185,11 @@ namespace MisureRicci.Controllers
         [HttpGet]
         public async Task<IActionResult> Fields(int typeId)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(typeId);
             if (type == null)
             {
@@ -225,6 +209,11 @@ namespace MisureRicci.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateField(int typeId)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(typeId);
             if (type == null)
             {
@@ -246,14 +235,14 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateField(MeasurementFieldPageViewModel pageModel)
         {
-            var model = pageModel.Field;
-
             if (!ModelState.IsValid)
             {
-                var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
+                var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(pageModel.Field.MeasurementTypeId);
                 pageModel.TypeName = type?.Nome ?? string.Empty;
                 return View(pageModel);
             }
+
+            var model = pageModel.Field;
 
             try
             {
@@ -280,6 +269,11 @@ namespace MisureRicci.Controllers
         [HttpGet]
         public async Task<IActionResult> EditField(int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var field = await _customMeasurementService.GetFieldByIdAsync(id);
             if (field == null)
             {
@@ -298,18 +292,18 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditField(int id, MeasurementFieldPageViewModel pageModel)
         {
+            if (!ModelState.IsValid)
+            {
+                var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(pageModel.Field.MeasurementTypeId);
+                pageModel.TypeName = type?.Nome ?? string.Empty;
+                return View(pageModel);
+            }
+
             var model = pageModel.Field;
 
             if (id != model.Id)
             {
                 return NotFound();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
-                pageModel.TypeName = type?.Nome ?? string.Empty;
-                return View(pageModel);
             }
 
             try
@@ -346,10 +340,39 @@ namespace MisureRicci.Controllers
                 || message.Contains("duplicate", StringComparison.OrdinalIgnoreCase);
         }
 
+        private void RestoreMetadata(MeasurementType model, MeasurementType existing, string? imageUrlOverride = null)
+        {
+            model.ImageUrl = imageUrlOverride ?? existing.ImageUrl;
+            model.CreatedAt = existing.CreatedAt;
+            model.IsSystem = existing.IsSystem;
+        }
+
+        private void HandleEditException(Exception ex, MeasurementType model)
+        {
+            if (ex is MeasurementTypeImageValidationException)
+            {
+                ModelState.AddModelError(nameof(model.ImageUpload), ex.Message);
+            }
+            else if (ex is DbUpdateException dbEx && IsUniqueConstraintViolation(dbEx))
+            {
+                ModelState.AddModelError(nameof(model.Nome), "Esiste gia una tipologia con questo nome.");
+            }
+            else
+            {
+                _logger.LogError(ex, "Errore durante la modifica della tipologia misura {Id}", model.Id);
+                ModelState.AddModelError(string.Empty, "Si e verificato un errore interno. Riprovare.");
+            }
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteField(int id, int typeId)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             await _customMeasurementService.DeleteFieldAsync(id);
             return RedirectToAction(nameof(Fields), new { typeId });
         }

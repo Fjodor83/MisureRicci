@@ -1,0 +1,1 @@
+WRJC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.csprojòCSharp12

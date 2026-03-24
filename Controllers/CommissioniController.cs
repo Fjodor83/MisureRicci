@@ -23,6 +23,7 @@ namespace MisureRicci.Controllers
 
         public async Task<IActionResult> Index(int? clienteId, int page = 1)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var isAdmin = _tenantService.IsAdmin();
             var currentNegozioId = _tenantService.GetCurrentNegozioId();
 
@@ -45,29 +46,42 @@ namespace MisureRicci.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(int clienteId)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var isAdmin = _tenantService.IsAdmin();
             var currentNegozioId = _tenantService.GetCurrentNegozioId();
-            
+
             var cliente = await _clienteService.GetClienteScopedAsync(clienteId, currentNegozioId, isAdmin);
             if (cliente == null)
             {
                 return NotFound();
             }
 
-            var vm = new CommessaCreateViewModel
+            var misureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(clienteId, currentNegozioId, isAdmin);
+
+            var model = new CommessaCreateViewModel
             {
-                ClienteId = cliente.Id,
+                ClienteId = clienteId,
                 ClienteNome = $"{cliente.Nome} {cliente.Cognome}".Trim(),
-                MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(clienteId, currentNegozioId, isAdmin)
+                MisureDisponibili = misureDisponibili
             };
 
-            return View(vm);
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CommessaCreateViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                var isAdmin0 = _tenantService.IsAdmin();
+                var currentNegozioId0 = _tenantService.GetCurrentNegozioId();
+                var cliente0 = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentNegozioId0, isAdmin0);
+                if (cliente0 != null) model.ClienteNome = $"{cliente0.Nome} {cliente0.Cognome}".Trim();
+                model.MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(model.ClienteId, currentNegozioId0, isAdmin0);
+                return View(model);
+            }
+
             var isAdmin = _tenantService.IsAdmin();
             var currentNegozioId = _tenantService.GetCurrentNegozioId();
             var userId = _tenantService.GetUserId();
@@ -79,11 +93,6 @@ namespace MisureRicci.Controllers
             }
 
             model.ClienteNome = $"{cliente.Nome} {cliente.Cognome}".Trim();
-            if (!ModelState.IsValid)
-            {
-                model.MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(model.ClienteId, currentNegozioId, isAdmin);
-                return View(model);
-            }
 
             var result = await _commessaService.CreateCommessaAsync(model, userId, currentNegozioId, isAdmin);
             if (!result.IsSuccess || result.Value == null)
@@ -98,6 +107,7 @@ namespace MisureRicci.Controllers
 
         public async Task<IActionResult> Details(int id)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var isAdmin = _tenantService.IsAdmin();
             var currentNegozioId = _tenantService.GetCurrentNegozioId();
 
@@ -114,6 +124,7 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AdvanceStato(int id, StatoCommessa nuovoStato, string? note)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var isAdmin = _tenantService.IsAdmin();
             var currentNegozioId = _tenantService.GetCurrentNegozioId();
             var userId = _tenantService.GetUserId();
@@ -132,6 +143,7 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddNota(int id, string nota)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var isAdmin = _tenantService.IsAdmin();
             var currentNegozioId = _tenantService.GetCurrentNegozioId();
             var userId = _tenantService.GetUserId();
@@ -150,6 +162,7 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LinkMisura(int id, int misuraClienteId)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var isAdmin = _tenantService.IsAdmin();
             var currentNegozioId = _tenantService.GetCurrentNegozioId();
             var userId = _tenantService.GetUserId();
@@ -168,6 +181,7 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UnlinkMisura(int id, int misuraClienteId)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var isAdmin = _tenantService.IsAdmin();
             var currentNegozioId = _tenantService.GetCurrentNegozioId();
 

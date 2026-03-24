@@ -25,6 +25,11 @@ namespace MisureRicci.Controllers
         [HttpGet("dossier/{clienteId}")]
         public async Task<IActionResult> DossierCliente(int clienteId)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var currentUser = await _userManager.GetUserAsync(User);
             var isAdmin = User.IsInRole("Admin");
             var cliente = await _clienteService.GetClienteScopedAsync(clienteId, currentUser?.NegozioId, isAdmin);

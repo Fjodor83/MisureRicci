@@ -34,6 +34,7 @@ namespace MisureRicci.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(int clienteId, int typeId, int? returnToCommessaId)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var currentUser = await _userManager.GetUserAsync(User);
             var isAdmin = User.IsInRole("Admin");
             var cliente = await _clienteService.GetClienteScopedAsync(clienteId, currentUser?.NegozioId, isAdmin);
@@ -82,6 +83,17 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(DynamicMeasurementCreateViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                var currentUser0 = await _userManager.GetUserAsync(User);
+                var isAdmin0 = User.IsInRole("Admin");
+                var cliente0 = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser0?.NegozioId, isAdmin0);
+                var type0 = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
+                if (cliente0 != null) model.ClienteNome = $"{cliente0.Nome} {cliente0.Cognome}";
+                if (type0 != null) model.TipoNome = type0.Nome;
+                return View(model);
+            }
+
             var currentUser = await _userManager.GetUserAsync(User);
             var isAdmin = User.IsInRole("Admin");
             var cliente = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser?.NegozioId, isAdmin);
@@ -94,11 +106,6 @@ namespace MisureRicci.Controllers
 
             model.ClienteNome = $"{cliente.Nome} {cliente.Cognome}";
             model.TipoNome = type.Nome;
-
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
 
             try
             {
@@ -141,6 +148,7 @@ namespace MisureRicci.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var record = await _customMeasurementService.GetDynamicMeasurementRecordByIdAsync(id);
             if (record == null)
             {
@@ -158,6 +166,7 @@ namespace MisureRicci.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var record = await _customMeasurementService.GetDynamicMeasurementRecordByIdAsync(id);
             if (record == null)
             {
@@ -182,6 +191,17 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(DynamicMeasurementCreateViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                var currentUser0 = await _userManager.GetUserAsync(User);
+                var isAdmin0 = User.IsInRole("Admin");
+                var cliente0 = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser0?.NegozioId, isAdmin0);
+                var type0 = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
+                if (cliente0 != null) model.ClienteNome = $"{cliente0.Nome} {cliente0.Cognome}";
+                if (type0 != null) model.TipoNome = type0.Nome;
+                return View("Create", model);
+            }
+
             var currentUser = await _userManager.GetUserAsync(User);
             var isAdmin = User.IsInRole("Admin");
             var cliente = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser?.NegozioId, isAdmin);
@@ -194,11 +214,6 @@ namespace MisureRicci.Controllers
 
             model.ClienteNome = $"{cliente.Nome} {cliente.Cognome}";
             model.TipoNome = type.Nome;
-
-            if (!ModelState.IsValid)
-            {
-                return View("Create", model);
-            }
 
             try
             {
@@ -223,6 +238,7 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id, int clienteId)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var currentUser = await _userManager.GetUserAsync(User);
             var isAdmin = User.IsInRole("Admin");
             var cliente = await _clienteService.GetClienteScopedAsync(clienteId, currentUser?.NegozioId, isAdmin);
