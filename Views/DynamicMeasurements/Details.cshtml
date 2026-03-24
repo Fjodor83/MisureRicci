@@ -32,6 +32,8 @@
     </div>
 </section>
 
+<div class="row">
+    <div class="@(!string.IsNullOrEmpty(Model.MeasurementType?.ImageUrl) ? "col-lg-6" : "col-12")">
 @foreach (var group in groupedValues)
 {
     <section class="data-table-card mb-4">
@@ -69,6 +71,43 @@
             </table>
         </div>
     </section>
+}
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.MeasurementType?.ImageUrl))
+    {
+        <div class="col-lg-6 mt-4 mt-lg-0">
+            <div class="sticky-top" style="top: 100px;">
+                <div class="card card-static shadow-sm border-0">
+                    <div class="card-header bg-transparent border-bottom-0 pb-0 pt-4 px-4 text-center">
+                        <h3 class="card-title h6 rounded bg-gold text-white d-inline-block py-2 px-4 mb-0 shadow-sm"><i class="bi bi-image me-2"></i>Modello di Riferimento</h3>
+                    </div>
+                    <div class="card-body p-4 text-center">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#imageZoomModal">
+                            <img src="@Model.MeasurementType.ImageUrl" class="img-fluid rounded shadow-sm" alt="Modello di misurazione" style="max-height: 65vh; object-fit: contain; width: 100%; border: 1px solid var(--border); cursor: zoom-in;" />
+                        </a>
+                        <div class="form-text mt-2"><i class="bi bi-zoom-in"></i> Clicca sulla foto per ingrandirla</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!string.IsNullOrEmpty(Model.MeasurementType?.ImageUrl))
+{
+<div class="modal fade" id="imageZoomModal" tabindex="-1" aria-labelledby="imageZoomModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content border-0" style="background-color: transparent;">
+      <div class="modal-header border-0 pb-0 justify-content-end p-2 position-absolute w-100" style="z-index: 10;">
+        <button type="button" class="btn-close btn-close-white fs-4 rounded-circle p-2" style="background-color: rgba(0,0,0,0.5);" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+      </div>
+      <div class="modal-body text-center p-0">
+        <img src="@Model.MeasurementType.ImageUrl" class="img-fluid rounded shadow-lg" alt="Modello Ingrandito" style="max-height: 90vh; object-fit: contain; width: 100%;" />
+      </div>
+    </div>
+  </div>
+</div>
 }
 
 <div class="form-actions">
