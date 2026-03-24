@@ -53,7 +53,7 @@
                     : $"Filtro attivo: {Model.SearchString}")
             </div>
         </div>
-        <span class="toolbar-chip">@Model.Clienti.Count clienti visibili</span>
+        <span class="toolbar-chip">@Model.Clienti.Count() clienti visibili</span>
     </div>
 
     @if (Model.Clienti.Any())

@@ -60,7 +60,7 @@
                 @(clienteId.HasValue ? "Vista filtrata sul cliente selezionato." : "Vista complessiva delle commissioni accessibili.")
             </div>
         </div>
-        <span class="toolbar-chip">@Model.Items.Count record</span>
+        <span class="toolbar-chip">@Model.Items.Count() record</span>
     </div>
 
     @if (Model.Items.Any())

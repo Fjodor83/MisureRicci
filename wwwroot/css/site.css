@@ -2,9 +2,9 @@
     --font-ui: "Sora", sans-serif;
     --font-display: "Cormorant Garamond", serif;
     --font-mono: "IBM Plex Mono", monospace;
-    --sidebar-width: 290px;
-    --header-height: 88px;
-    --content-width: 1520px;
+    --sidebar-width: 240px;
+    --header-height: 64px;
+    --content-width: 1200px;
     --space-1: 0.25rem;
     --space-2: 0.5rem;
     --space-3: 0.75rem;
@@ -58,15 +58,37 @@ body.theme-dark {
     --shadow-md: 0 28px 70px rgba(0, 0, 0, 0.32);
 }
 
+body.theme-dark .popover {
+    --bs-popover-bg: var(--card-bg);
+    --bs-popover-body-color: var(--text-muted);
+    --bs-popover-color: var(--text-muted);
+    --bs-popover-header-bg: var(--header-bg);
+    --bs-popover-header-color: var(--text-main);
+    --bs-popover-border-color: var(--border-strong);
+}
+
+body.theme-dark .popover .popover-header {
+    background-color: var(--bs-popover-header-bg);
+    color: var(--bs-popover-header-color);
+}
+
+body.theme-dark .popover .popover-body {
+    color: var(--bs-popover-body-color);
+}
+
 *,
 *::before,
 *::after {
     box-sizing: border-box;
 }
 
+.popover {
+    max-width: 480px;
+}
+
 html {
     min-height: 100%;
-    font-size: 16px;
+    font-size: 13px;
     scroll-behavior: smooth;
 }
 
@@ -161,6 +183,9 @@ a {
     flex-direction: column;
     gap: var(--space-4);
     transition: transform var(--transition-slow);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
 }
 
 .sidebar-brand-panel,
@@ -308,7 +333,7 @@ a {
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    padding: 0.95rem 1rem;
+    padding: 0.65rem 0.85rem;
     border-radius: var(--radius-md);
     color: var(--text-muted);
     border: 1px solid transparent;
@@ -323,7 +348,6 @@ a {
     border-color: var(--accent-border);
 }
 
-.sidebar-link-icon,
 .metric-card__icon,
 .feature-card__icon,
 .empty-state__icon {
@@ -333,6 +357,21 @@ a {
     background: rgba(196, 138, 51, 0.14);
     color: var(--accent);
     font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-link-icon {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 0.6rem;
+    background: rgba(196, 138, 51, 0.14);
+    color: var(--accent);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .sidebar-profile-avatar,
@@ -346,16 +385,30 @@ a {
     font-weight: 700;
 }
 
-.theme-switch-btn,
-.quick-link {
+.theme-switch-btn {
     justify-content: center;
+    transition: transform var(--transition-fast), border-color var(--transition-base), background var(--transition-base);
+    color: var(--text-main);
+}
+
+.quick-link {
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
     transition: transform var(--transition-fast), border-color var(--transition-base), background var(--transition-base);
 }
 
-.theme-switch-btn:hover,
+.theme-switch-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-border);
+}
+
 .quick-link:hover {
     transform: translateY(-2px);
     border-color: var(--accent-border);
+    background: rgba(196, 138, 51, 0.08);
 }
 
 .app-content {
@@ -365,6 +418,15 @@ a {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    transition: margin-left var(--transition-slow);
+}
+
+.app-layout.sidebar-collapsed .app-sidebar {
+    transform: translateX(-100%);
+}
+
+.app-layout.sidebar-collapsed .app-content {
+    margin-left: 0;
 }
 
 .app-header {
@@ -441,7 +503,10 @@ a {
 }
 
 .hamburger-btn {
-    display: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
     width: 2.75rem;
     height: 2.75rem;
     border-radius: 1rem;
@@ -703,6 +768,9 @@ textarea.form-control {
     border-radius: 999px;
     padding: 0.78rem 1.15rem;
     font-weight: 600;
+    white-space: nowrap;
+    z-index: 1;
+    transform: translateZ(0);
     transition: transform var(--transition-fast), box-shadow var(--transition-base), background var(--transition-base), border-color var(--transition-base);
 }
 

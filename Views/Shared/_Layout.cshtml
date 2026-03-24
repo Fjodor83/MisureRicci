@@ -104,22 +104,6 @@
                 </nav>
             }
 
-            <div class="sidebar-footer">
-                @if (isSignedIn)
-                {
-                    <div class="sidebar-profile-card">
-                        <div class="sidebar-profile-avatar">@initials</div>
-                        <div>
-                            <div class="sidebar-profile-name">@(currentUser?.NomeCompleto ?? currentUser?.UserName)</div>
-                            <div class="sidebar-profile-meta">@roleLabel</div>
-                        </div>
-                    </div>
-                }
-                <button class="theme-switch-btn" id="themeToggleBtn" type="button" title="Cambia tema">
-                    <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
-                    <span>Tema interfaccia</span>
-                </button>
-            </div>
         </aside>
 
         <div class="app-content">
@@ -135,7 +119,10 @@
                 </div>
 
                 <div class="header-tools">
-                    <div class="header-chip">
+                    <button id="themeToggleBtn" type="button" class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center" style="width: 2.4rem; height: 2.4rem;" title="Cambia tema">
+                        <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+                    </button>
+                    <div class="header-chip d-none d-md-grid">
                         <span class="header-chip__label">Oggi</span>
                         <span class="header-chip__value">@DateTime.Now.ToString("dd MMM yyyy")</span>
                     </div>
@@ -169,8 +156,7 @@
             </div>
 
             <footer class="footer">
-                <div class="footer-copy">Misure Ricci design system refresh 2026</div>
-                <div class="footer-meta">Frontend enterprise per atelier, boutique e operation team</div>
+                <div class="footer-copy">Misure Ricci Design System 2026</div>
             </footer>
         </div>
     </div>

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * STEFANO RICCI — Premium SaaS Interaction Engine v3.0
  * Handles: Page loader, sidebar mobile, theme, animated counters,
  *          3D card tilt, button ripple, toast system, stagger animations,
@@ -46,7 +46,33 @@
 		document.body.style.overflow = '';
 	}
 
-	if (hamburger) hamburger.addEventListener('click', openSidebar);
+	function toggleSidebar() {
+		if (window.innerWidth < 992) {
+			if (sidebar && sidebar.classList.contains('open')) {
+				sidebar.classList.remove('open');
+				if (overlay) overlay.classList.remove('active');
+				document.body.style.overflow = '';
+			} else {
+				if (sidebar) sidebar.classList.add('open');
+				if (overlay) overlay.classList.add('active');
+				document.body.style.overflow = 'hidden';
+			}
+		} else {
+			var appLayout = document.querySelector('.app-layout');
+			if (appLayout) {
+				appLayout.classList.toggle('sidebar-collapsed');
+				var isCollapsed = appLayout.classList.contains('sidebar-collapsed');
+				localStorage.setItem('sr-sidebar-collapsed', isCollapsed ? 'true' : 'false');
+			}
+		}
+	}
+
+	var storedLayout = document.querySelector('.app-layout');
+	if (localStorage.getItem('sr-sidebar-collapsed') === 'true' && storedLayout && window.innerWidth >= 992) {
+		storedLayout.classList.add('sidebar-collapsed');
+	}
+
+	if (hamburger) hamburger.addEventListener('click', toggleSidebar);
 	if (overlay) overlay.addEventListener('click', closeSidebar);
 
 	/* ==========================================================
