@@ -22,7 +22,9 @@
     </div>
 </section>
 
-<form asp-action="@(Model.RecordId == 0 ? "Create" : "Edit")" method="post" class="form-shell">
+<div class="row">
+    <div class="@(!string.IsNullOrEmpty(Model.TypeImageUrl) ? "col-xl-7" : "col-12")">
+        <form asp-action="@(Model.RecordId == 0 ? "Create" : "Edit")" method="post" class="form-shell">
     <input type="hidden" asp-for="RecordId" />
     <input type="hidden" asp-for="ClienteId" />
     <input type="hidden" asp-for="MeasurementTypeId" />
@@ -179,6 +181,24 @@
         <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.ClienteId" class="btn btn-outline-secondary">Annulla</a>
     </div>
 </form>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.TypeImageUrl))
+    {
+        <div class="col-xl-5 mt-4 mt-xl-0">
+            <div class="sticky-top" style="top: 100px;">
+                <div class="card card-static shadow-sm border-0">
+                    <div class="card-header bg-transparent border-bottom-0 pb-0 pt-4 px-4 text-center">
+                        <h3 class="card-title h6 rounded bg-gold text-white d-inline-block py-2 px-4 mb-0 shadow-sm"><i class="bi bi-image me-2"></i>Modello di Riferimento</h3>
+                    </div>
+                    <div class="card-body p-4 text-center">
+                        <img src="@Model.TypeImageUrl" class="img-fluid rounded shadow-sm" alt="Modello di misurazione" style="max-height: 65vh; object-fit: contain; width: 100%; border: 1px solid var(--border);" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

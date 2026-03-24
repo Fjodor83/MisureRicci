@@ -38,6 +38,8 @@ namespace MisureRicci.Models.ViewModels
         /// </summary>
         public int? ReturnToCommessaId { get; set; }
 
+        public string? TypeImageUrl { get; set; }
+
         public List<DynamicFieldInputViewModel> Fields { get; set; } = new();
     }
 

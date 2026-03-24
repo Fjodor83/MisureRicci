@@ -15,10 +15,11 @@
     </div>
 </section>
 
-<form asp-action="EditType" method="post" class="form-shell">
+<form asp-action="EditType" method="post" class="form-shell" enctype="multipart/form-data">
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="IsSystem" />
     <input type="hidden" asp-for="CreatedAt" />
+    <input type="hidden" asp-for="ImageUrl" />
 
     <section class="form-section">
         <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
@@ -33,6 +34,23 @@
             <label asp-for="Descrizione" class="form-label"></label>
             <textarea asp-for="Descrizione" class="form-control"></textarea>
             <span asp-validation-for="Descrizione" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ImageUpload" class="form-label">Immagine di Riferimento (Opzionale)</label>
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <div class="mb-2">
+                    <img src="@Model.ImageUrl" alt="Modello misure" class="img-thumbnail" style="max-height: 120px;" />
+                    <div class="form-text mt-1 text-muted">Caricando un nuovo file, l'immagine attuale verr&agrave; sostituita.</div>
+                </div>
+            }
+            <input asp-for="ImageUpload" type="file" class="form-control" accept="image/*" />
+            <span asp-validation-for="ImageUpload" class="text-danger"></span>
+            @if (string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <div class="form-text text-muted">Carica una foto che servir&agrave; come guida visiva per la compilazione (es. JPEG, PNG max 2MB).</div>
+            }
         </div>
 
         <div class="form-check form-switch">

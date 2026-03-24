@@ -220,6 +220,7 @@ namespace MisureRicci.Services
                 MeasurementTypeId = record.MeasurementTypeId,
                 ClienteNome = $"{record.Cliente?.Nome} {record.Cliente?.Cognome}".Trim(),
                 TipoNome = record.MeasurementType?.Nome ?? string.Empty,
+                TypeImageUrl = record.MeasurementType?.ImageUrl,
                 Fields = fields.Select(f => new DynamicFieldInputViewModel
                 {
                     FieldDefinitionId = f.Id,

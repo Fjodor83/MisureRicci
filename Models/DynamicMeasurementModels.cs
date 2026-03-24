@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Http;
 
 namespace MisureRicci.Models
 {
@@ -40,6 +42,12 @@ namespace MisureRicci.Models
         public bool IsSystem { get; set; } = false;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [StringLength(500)]
+        public string? ImageUrl { get; set; }
+
+        [NotMapped]
+        public IFormFile? ImageUpload { get; set; }
 
         public virtual ICollection<MeasurementFieldDefinition> Campi { get; set; } = new List<MeasurementFieldDefinition>();
     }

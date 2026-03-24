@@ -14,13 +14,16 @@ namespace MisureRicci.Controllers
     {
         private readonly ICustomMeasurementService _customMeasurementService;
         private readonly ILogger<AdminMeasurementTypesController> _logger;
+        private readonly IWebHostEnvironment _env;
 
         public AdminMeasurementTypesController(
             ICustomMeasurementService customMeasurementService,
-            ILogger<AdminMeasurementTypesController> logger)
+            ILogger<AdminMeasurementTypesController> logger,
+            IWebHostEnvironment env)
         {
             _customMeasurementService = customMeasurementService;
             _logger = logger;
+            _env = env;
         }
 
         public async Task<IActionResult> Index()
@@ -46,6 +49,19 @@ namespace MisureRicci.Controllers
 
             try
             {
+                if (model.ImageUpload != null && model.ImageUpload.Length > 0)
+                {
+                    var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "measurement-types");
+                    Directory.CreateDirectory(uploadsFolder);
+                    var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(model.ImageUpload.FileName);
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.ImageUpload.CopyToAsync(stream);
+                    }
+                    model.ImageUrl = "/uploads/measurement-types/" + uniqueFileName;
+                }
+
                 await _customMeasurementService.CreateMeasurementTypeAsync(model);
                 return RedirectToAction(nameof(Index));
             }
@@ -89,6 +105,19 @@ namespace MisureRicci.Controllers
 
             try
             {
+                if (model.ImageUpload != null && model.ImageUpload.Length > 0)
+                {
+                    var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "measurement-types");
+                    Directory.CreateDirectory(uploadsFolder);
+                    var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(model.ImageUpload.FileName);
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.ImageUpload.CopyToAsync(stream);
+                    }
+                    model.ImageUrl = "/uploads/measurement-types/" + uniqueFileName;
+                }
+
                 await _customMeasurementService.UpdateMeasurementTypeAsync(model);
                 return RedirectToAction(nameof(Index));
             }

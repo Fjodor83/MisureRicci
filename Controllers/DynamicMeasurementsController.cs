@@ -57,6 +57,7 @@ namespace MisureRicci.Controllers
                 ClienteNome = $"{cliente.Nome} {cliente.Cognome}",
                 TipoNome = type.Nome,
                 ReturnToCommessaId = returnToCommessaId,
+                TypeImageUrl = type.ImageUrl,
                 Fields = fields.Select(f => new DynamicFieldInputViewModel
                 {
                     FieldDefinitionId = f.Id,
