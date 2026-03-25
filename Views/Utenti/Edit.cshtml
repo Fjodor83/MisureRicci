@@ -15,23 +15,26 @@
     </div>
 </section>
 
-<form asp-action="Edit" class="form-shell">
+<form asp-action="Edit" method="post" class="form-shell">
     <section class="form-section">
-        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <div asp-validation-summary="All"></div>
         <input type="hidden" asp-for="Form.Id" />
 
         <div class="row g-4">
             <div class="col-md-6">
                 <label asp-for="Form.NomeCompleto" class="form-label"></label>
                 <input asp-for="Form.NomeCompleto" class="form-control" />
+                <span asp-validation-for="Form.NomeCompleto" class="text-danger"></span>
             </div>
             <div class="col-md-6">
                 <label asp-for="Form.UserName" class="form-label"></label>
                 <input asp-for="Form.UserName" class="form-control" />
+                <span asp-validation-for="Form.UserName" class="text-danger"></span>
             </div>
             <div class="col-12">
                 <label asp-for="Form.Email" class="form-label"></label>
                 <input asp-for="Form.Email" class="form-control" />
+                <span asp-validation-for="Form.Email" class="text-danger"></span>
             </div>
             <div class="col-md-6">
                 <label asp-for="Form.Ruolo" class="form-label"></label>
@@ -41,12 +44,14 @@
                     <option value="Boutique">Personale Boutique</option>
                     <option value="Manager">Regional Manager</option>
                 </select>
+                <span asp-validation-for="Form.Ruolo" class="text-danger"></span>
             </div>
             <div class="col-md-6">
                 <label asp-for="Form.NegozioId" class="form-label"></label>
                 <select asp-for="Form.NegozioId" class="form-select" asp-items="@(new SelectList(Model.Negozi, "Id", "Nome"))">
                     <option value="">-- Seleziona Negozio --</option>
                 </select>
+                <span asp-validation-for="Form.NegozioId" class="text-danger"></span>
             </div>
         </div>
 
@@ -61,3 +66,7 @@
         <a asp-action="Index" class="btn btn-outline-secondary">Annulla</a>
     </div>
 </form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

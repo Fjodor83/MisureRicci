@@ -32,7 +32,7 @@ namespace MisureRicci.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> GlobalRegistry(string filter, int page = 1)
+        public async Task<IActionResult> GlobalRegistry(string? filter, int page = 1)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var currentUser = await _userManager.GetUserAsync(User);
@@ -73,7 +73,7 @@ namespace MisureRicci.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> Details(int? id, string tipoMisura, int? registryId)
+        public async Task<IActionResult> Details(int? id, string? tipoMisura, int? registryId)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null || string.IsNullOrEmpty(tipoMisura)) return NotFound();
@@ -93,7 +93,7 @@ namespace MisureRicci.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(int? id, string tipoMisura)
+        public async Task<IActionResult> Edit(int? id, string? tipoMisura)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null || string.IsNullOrEmpty(tipoMisura)) return NotFound();
@@ -135,7 +135,7 @@ namespace MisureRicci.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Delete(int? id, string tipoMisura, int? registryId)
+        public async Task<IActionResult> Delete(int? id, string? tipoMisura, int? registryId)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null || string.IsNullOrEmpty(tipoMisura)) return NotFound();
@@ -156,7 +156,7 @@ namespace MisureRicci.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id, string tipoMisura, int? registryId)
+        public async Task<IActionResult> DeleteConfirmed(int id, string? tipoMisura, int? registryId)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (string.IsNullOrEmpty(tipoMisura)) return NotFound();

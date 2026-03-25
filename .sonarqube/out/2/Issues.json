@@ -14,18 +14,18 @@
         {
           "ruleId": "CS0169",
           "level": "warning",
-          "message": "Il campo 'Views_Negozi_Delete.__tagHelperStringValueBuffer' non viene mai usato",
+          "message": "Il campo 'Views_Utenti_Edit.__tagHelperStringValueBuffer' non viene mai usato",
           "suppressionStates": [
             "suppressedInSource"
           ],
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/obj/Debug/net8.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Views_Negozi_Delete_cshtml.g.cs",
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/obj/Debug/net8.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Views_Utenti_Edit_cshtml.g.cs",
                 "region": {
-                  "startLine": 54,
+                  "startLine": 65,
                   "startColumn": 24,
-                  "endLine": 54,
+                  "endLine": 65,
                   "endColumn": 52
                 }
               }
@@ -38,14 +38,62 @@
         {
           "ruleId": "CS0169",
           "level": "warning",
-          "message": "Il campo 'Views_Utenti_Create.__tagHelperStringValueBuffer' non viene mai usato",
+          "message": "Il campo 'Views_Clienti_Create.__tagHelperStringValueBuffer' non viene mai usato",
           "suppressionStates": [
             "suppressedInSource"
           ],
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/obj/Debug/net8.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Views_Utenti_Create_cshtml.g.cs",
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/obj/Debug/net8.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Views_Clienti_Create_cshtml.g.cs",
+                "region": {
+                  "startLine": 60,
+                  "startColumn": 24,
+                  "endLine": 60,
+                  "endColumn": 52
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 3
+          }
+        },
+        {
+          "ruleId": "CS0169",
+          "level": "warning",
+          "message": "Il campo 'Views_Negozi_Details.__tagHelperStringValueBuffer' non viene mai usato",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/obj/Debug/net8.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Views_Negozi_Details_cshtml.g.cs",
+                "region": {
+                  "startLine": 51,
+                  "startColumn": 24,
+                  "endLine": 51,
+                  "endColumn": 52
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 3
+          }
+        },
+        {
+          "ruleId": "CS0169",
+          "level": "warning",
+          "message": "Il campo 'Views_Home_Index.__tagHelperStringValueBuffer' non viene mai usato",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/obj/Debug/net8.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Views_Home_Index_cshtml.g.cs",
                 "region": {
                   "startLine": 65,
                   "startColumn": 24,
@@ -86,14 +134,86 @@
         {
           "ruleId": "CS0169",
           "level": "warning",
-          "message": "Il campo 'Views_Utenti_Edit.__tagHelperStringValueBuffer' non viene mai usato",
+          "message": "Il campo 'Views_Report_Index.__tagHelperStringValueBuffer' non viene mai usato",
           "suppressionStates": [
             "suppressedInSource"
           ],
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/obj/Debug/net8.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Views_Utenti_Edit_cshtml.g.cs",
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/obj/Debug/net8.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Views_Report_Index_cshtml.g.cs",
+                "region": {
+                  "startLine": 52,
+                  "startColumn": 24,
+                  "endLine": 52,
+                  "endColumn": 52
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 3
+          }
+        },
+        {
+          "ruleId": "CS0169",
+          "level": "warning",
+          "message": "Il campo 'Views_Negozi_Delete.__tagHelperStringValueBuffer' non viene mai usato",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/obj/Debug/net8.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Views_Negozi_Delete_cshtml.g.cs",
+                "region": {
+                  "startLine": 54,
+                  "startColumn": 24,
+                  "endLine": 54,
+                  "endColumn": 52
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 3
+          }
+        },
+        {
+          "ruleId": "CS0169",
+          "level": "warning",
+          "message": "Il campo 'Views_Negozi_Edit.__tagHelperStringValueBuffer' non viene mai usato",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/obj/Debug/net8.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Views_Negozi_Edit_cshtml.g.cs",
+                "region": {
+                  "startLine": 59,
+                  "startColumn": 24,
+                  "endLine": 59,
+                  "endColumn": 52
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 3
+          }
+        },
+        {
+          "ruleId": "CS0169",
+          "level": "warning",
+          "message": "Il campo 'Views_Utenti_Create.__tagHelperStringValueBuffer' non viene mai usato",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/obj/Debug/net8.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Views_Utenti_Create_cshtml.g.cs",
                 "region": {
                   "startLine": 65,
                   "startColumn": 24,
@@ -134,42 +254,18 @@
         {
           "ruleId": "CS0169",
           "level": "warning",
-          "message": "Il campo 'Views_Negozi_Details.__tagHelperStringValueBuffer' non viene mai usato",
+          "message": "Il campo 'Views_Utenti_Delete.__tagHelperStringValueBuffer' non viene mai usato",
           "suppressionStates": [
             "suppressedInSource"
           ],
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/obj/Debug/net8.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Views_Negozi_Details_cshtml.g.cs",
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/obj/Debug/net8.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Views_Utenti_Delete_cshtml.g.cs",
                 "region": {
-                  "startLine": 51,
+                  "startLine": 54,
                   "startColumn": 24,
-                  "endLine": 51,
-                  "endColumn": 52
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 3
-          }
-        },
-        {
-          "ruleId": "CS0169",
-          "level": "warning",
-          "message": "Il campo 'Views_Negozi_Edit.__tagHelperStringValueBuffer' non viene mai usato",
-          "suppressionStates": [
-            "suppressedInSource"
-          ],
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/obj/Debug/net8.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Views_Negozi_Edit_cshtml.g.cs",
-                "region": {
-                  "startLine": 59,
-                  "startColumn": 24,
-                  "endLine": 59,
+                  "endLine": 54,
                   "endColumn": 52
                 }
               }
@@ -206,30 +302,6 @@
         {
           "ruleId": "CS0169",
           "level": "warning",
-          "message": "Il campo 'Views_Report_Index.__tagHelperStringValueBuffer' non viene mai usato",
-          "suppressionStates": [
-            "suppressedInSource"
-          ],
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/obj/Debug/net8.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Views_Report_Index_cshtml.g.cs",
-                "region": {
-                  "startLine": 52,
-                  "startColumn": 24,
-                  "endLine": 52,
-                  "endColumn": 52
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 3
-          }
-        },
-        {
-          "ruleId": "CS0169",
-          "level": "warning",
           "message": "Il campo 'Views_AdminMeasurementTypes_EditType.__tagHelperStringValueBuffer' non viene mai usato",
           "suppressionStates": [
             "suppressedInSource"
@@ -252,90 +324,18 @@
           }
         },
         {
-          "ruleId": "CS0169",
-          "level": "warning",
-          "message": "Il campo 'Views_Utenti_Delete.__tagHelperStringValueBuffer' non viene mai usato",
-          "suppressionStates": [
-            "suppressedInSource"
-          ],
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/obj/Debug/net8.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Views_Utenti_Delete_cshtml.g.cs",
-                "region": {
-                  "startLine": 54,
-                  "startColumn": 24,
-                  "endLine": 54,
-                  "endColumn": 52
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 3
-          }
-        },
-        {
-          "ruleId": "CS0169",
-          "level": "warning",
-          "message": "Il campo 'Views_Home_Index.__tagHelperStringValueBuffer' non viene mai usato",
-          "suppressionStates": [
-            "suppressedInSource"
-          ],
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/obj/Debug/net8.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Views_Home_Index_cshtml.g.cs",
-                "region": {
-                  "startLine": 65,
-                  "startColumn": 24,
-                  "endLine": 65,
-                  "endColumn": 52
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 3
-          }
-        },
-        {
-          "ruleId": "CS0169",
-          "level": "warning",
-          "message": "Il campo 'Views_Clienti_Create.__tagHelperStringValueBuffer' non viene mai usato",
-          "suppressionStates": [
-            "suppressedInSource"
-          ],
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/obj/Debug/net8.0/Microsoft.CodeAnalysis.Razor.Compiler/Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator/Views_Clienti_Create_cshtml.g.cs",
-                "region": {
-                  "startLine": 60,
-                  "startColumn": 24,
-                  "endLine": 60,
-                  "endColumn": 52
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 3
-          }
-        },
-        {
           "ruleId": "S1192",
           "level": "warning",
-          "message": "Define a constant instead of using this literal 'Si e verificato un errore interno. Riprovare.' 4 times.",
+          "message": "Define a constant instead of using this literal 'IX_Clienti_ClientCode' 4 times.",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/AdminMeasurementTypesController.cs",
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324092407_AddMeasurementTypeImageUrl.cs",
                 "region": {
-                  "startLine": 89,
-                  "startColumn": 56,
-                  "endLine": 89,
-                  "endColumn": 103
+                  "startLine": 14,
+                  "startColumn": 23,
+                  "endLine": 14,
+                  "endColumn": 46
                 }
               }
             }
@@ -343,34 +343,95 @@
           "relatedLocations": [
             {
               "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/AdminMeasurementTypesController.cs",
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324092407_AddMeasurementTypeImageUrl.cs",
                 "region": {
-                  "startLine": 262,
-                  "startColumn": 56,
-                  "endLine": 262,
-                  "endColumn": 103
+                  "startLine": 25,
+                  "startColumn": 23,
+                  "endLine": 25,
+                  "endColumn": 46
                 }
               }
             },
             {
               "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/AdminMeasurementTypesController.cs",
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324092407_AddMeasurementTypeImageUrl.cs",
                 "region": {
-                  "startLine": 324,
-                  "startColumn": 56,
-                  "endLine": 324,
-                  "endColumn": 103
+                  "startLine": 36,
+                  "startColumn": 23,
+                  "endLine": 36,
+                  "endColumn": 46
                 }
               }
             },
             {
               "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/AdminMeasurementTypesController.cs",
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324092407_AddMeasurementTypeImageUrl.cs",
                 "region": {
-                  "startLine": 363,
-                  "startColumn": 56,
-                  "endLine": 363,
-                  "endColumn": 103
+                  "startLine": 44,
+                  "startColumn": 23,
+                  "endLine": 44,
+                  "endColumn": 46
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "0": null,
+              "1": null,
+              "2": null
+            }
+          }
+        },
+        {
+          "ruleId": "S1192",
+          "level": "warning",
+          "message": "Define a constant instead of using this literal 'Clienti' 4 times.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324092407_AddMeasurementTypeImageUrl.cs",
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 24,
+                  "endLine": 15,
+                  "endColumn": 33
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324092407_AddMeasurementTypeImageUrl.cs",
+                "region": {
+                  "startLine": 26,
+                  "startColumn": 24,
+                  "endLine": 26,
+                  "endColumn": 33
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324092407_AddMeasurementTypeImageUrl.cs",
+                "region": {
+                  "startLine": 37,
+                  "startColumn": 24,
+                  "endLine": 37,
+                  "endColumn": 33
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324092407_AddMeasurementTypeImageUrl.cs",
+                "region": {
+                  "startLine": 45,
+                  "startColumn": 24,
+                  "endLine": 45,
+                  "endColumn": 33
                 }
               }
             }
@@ -4179,128 +4240,6 @@
         {
           "ruleId": "S1192",
           "level": "warning",
-          "message": "Define a constant instead of using this literal 'IX_Clienti_ClientCode' 4 times.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324092407_AddMeasurementTypeImageUrl.cs",
-                "region": {
-                  "startLine": 14,
-                  "startColumn": 23,
-                  "endLine": 14,
-                  "endColumn": 46
-                }
-              }
-            }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324092407_AddMeasurementTypeImageUrl.cs",
-                "region": {
-                  "startLine": 25,
-                  "startColumn": 23,
-                  "endLine": 25,
-                  "endColumn": 46
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324092407_AddMeasurementTypeImageUrl.cs",
-                "region": {
-                  "startLine": 36,
-                  "startColumn": 23,
-                  "endLine": 36,
-                  "endColumn": 46
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324092407_AddMeasurementTypeImageUrl.cs",
-                "region": {
-                  "startLine": 44,
-                  "startColumn": 23,
-                  "endLine": 44,
-                  "endColumn": 46
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "0": null,
-              "1": null,
-              "2": null
-            }
-          }
-        },
-        {
-          "ruleId": "S1192",
-          "level": "warning",
-          "message": "Define a constant instead of using this literal 'Clienti' 4 times.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324092407_AddMeasurementTypeImageUrl.cs",
-                "region": {
-                  "startLine": 15,
-                  "startColumn": 24,
-                  "endLine": 15,
-                  "endColumn": 33
-                }
-              }
-            }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324092407_AddMeasurementTypeImageUrl.cs",
-                "region": {
-                  "startLine": 26,
-                  "startColumn": 24,
-                  "endLine": 26,
-                  "endColumn": 33
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324092407_AddMeasurementTypeImageUrl.cs",
-                "region": {
-                  "startLine": 37,
-                  "startColumn": 24,
-                  "endLine": 37,
-                  "endColumn": 33
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324092407_AddMeasurementTypeImageUrl.cs",
-                "region": {
-                  "startLine": 45,
-                  "startColumn": 24,
-                  "endLine": 45,
-                  "endColumn": 33
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "0": null,
-              "1": null,
-              "2": null
-            }
-          }
-        },
-        {
-          "ruleId": "S1192",
-          "level": "warning",
           "message": "Define a constant instead of using this literal 'FK_CommissioniMisureLinks_RegistroMisure_MisuraClienteId' 4 times.",
           "locations": [
             {
@@ -6339,6 +6278,88 @@
         {
           "ruleId": "S1192",
           "level": "warning",
+          "message": "Define a constant instead of using this literal 'Si e verificato un errore interno. Riprovare.' 4 times.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/AdminMeasurementTypesController.cs",
+                "region": {
+                  "startLine": 89,
+                  "startColumn": 56,
+                  "endLine": 89,
+                  "endColumn": 103
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/AdminMeasurementTypesController.cs",
+                "region": {
+                  "startLine": 262,
+                  "startColumn": 56,
+                  "endLine": 262,
+                  "endColumn": 103
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/AdminMeasurementTypesController.cs",
+                "region": {
+                  "startLine": 324,
+                  "startColumn": 56,
+                  "endLine": 324,
+                  "endColumn": 103
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/AdminMeasurementTypesController.cs",
+                "region": {
+                  "startLine": 363,
+                  "startColumn": 56,
+                  "endLine": 363,
+                  "endColumn": 103
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "0": null,
+              "1": null,
+              "2": null
+            }
+          }
+        },
+        {
+          "ruleId": "S4487",
+          "level": "warning",
+          "message": "Remove this unread private field '_logger' or refactor the code to use its value.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/HomeController.cs",
+                "region": {
+                  "startLine": 11,
+                  "startColumn": 50,
+                  "endLine": 11,
+                  "endColumn": 57
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S1192",
+          "level": "warning",
           "message": "Define a constant instead of using this literal 'CommessaError' 4 times.",
           "locations": [
             {
@@ -6395,307 +6416,6 @@
               "1": null,
               "2": null
             }
-          }
-        },
-        {
-          "ruleId": "S1192",
-          "level": "warning",
-          "message": "Define a constant instead of using this literal 'Admin' 7 times.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
-                "region": {
-                  "startLine": 39,
-                  "startColumn": 41,
-                  "endLine": 39,
-                  "endColumn": 48
-                }
-              }
-            }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
-                "region": {
-                  "startLine": 89,
-                  "startColumn": 46,
-                  "endLine": 89,
-                  "endColumn": 53
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
-                "region": {
-                  "startLine": 98,
-                  "startColumn": 41,
-                  "endLine": 98,
-                  "endColumn": 48
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
-                "region": {
-                  "startLine": 197,
-                  "startColumn": 46,
-                  "endLine": 197,
-                  "endColumn": 53
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
-                "region": {
-                  "startLine": 206,
-                  "startColumn": 41,
-                  "endLine": 206,
-                  "endColumn": 48
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
-                "region": {
-                  "startLine": 243,
-                  "startColumn": 41,
-                  "endLine": 243,
-                  "endColumn": 48
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
-                "region": {
-                  "startLine": 256,
-                  "startColumn": 31,
-                  "endLine": 256,
-                  "endColumn": 38
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "0": null,
-              "1": null,
-              "2": null,
-              "3": null,
-              "4": null,
-              "5": null
-            }
-          }
-        },
-        {
-          "ruleId": "S1192",
-          "level": "warning",
-          "message": "Define a constant instead of using this literal 'Create' 4 times.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
-                "region": {
-                  "startLine": 187,
-                  "startColumn": 25,
-                  "endLine": 187,
-                  "endColumn": 33
-                }
-              }
-            }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
-                "region": {
-                  "startLine": 202,
-                  "startColumn": 29,
-                  "endLine": 202,
-                  "endColumn": 37
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
-                "region": {
-                  "startLine": 227,
-                  "startColumn": 29,
-                  "endLine": 227,
-                  "endColumn": 37
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
-                "region": {
-                  "startLine": 233,
-                  "startColumn": 29,
-                  "endLine": 233,
-                  "endColumn": 37
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "0": null,
-              "1": null,
-              "2": null
-            }
-          }
-        },
-        {
-          "ruleId": "S1192",
-          "level": "warning",
-          "message": "Define a constant instead of using this literal 'Commessa non trovata.' 4 times.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CommessaService.cs",
-                "region": {
-                  "startLine": 360,
-                  "startColumn": 36,
-                  "endLine": 360,
-                  "endColumn": 59
-                }
-              }
-            }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CommessaService.cs",
-                "region": {
-                  "startLine": 433,
-                  "startColumn": 36,
-                  "endLine": 433,
-                  "endColumn": 59
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CommessaService.cs",
-                "region": {
-                  "startLine": 477,
-                  "startColumn": 36,
-                  "endLine": 477,
-                  "endColumn": 59
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CommessaService.cs",
-                "region": {
-                  "startLine": 540,
-                  "startColumn": 36,
-                  "endLine": 540,
-                  "endColumn": 59
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "0": null,
-              "1": null,
-              "2": null
-            }
-          }
-        },
-        {
-          "ruleId": "S1192",
-          "level": "warning",
-          "message": "Define a constant instead of using this literal 'Accesso negato alla commessa.' 4 times.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CommessaService.cs",
-                "region": {
-                  "startLine": 365,
-                  "startColumn": 36,
-                  "endLine": 365,
-                  "endColumn": 67
-                }
-              }
-            }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CommessaService.cs",
-                "region": {
-                  "startLine": 438,
-                  "startColumn": 36,
-                  "endLine": 438,
-                  "endColumn": 67
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CommessaService.cs",
-                "region": {
-                  "startLine": 482,
-                  "startColumn": 36,
-                  "endLine": 482,
-                  "endColumn": 67
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CommessaService.cs",
-                "region": {
-                  "startLine": 545,
-                  "startColumn": 36,
-                  "endLine": 545,
-                  "endColumn": 67
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "0": null,
-              "1": null,
-              "2": null
-            }
-          }
-        },
-        {
-          "ruleId": "S4487",
-          "level": "warning",
-          "message": "Remove this unread private field '_logger' or refactor the code to use its value.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/HomeController.cs",
-                "region": {
-                  "startLine": 11,
-                  "startColumn": 50,
-                  "endLine": 11,
-                  "endColumn": 57
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
           }
         },
         {
@@ -6868,6 +6588,238 @@
                   "startColumn": 82,
                   "endLine": 310,
                   "endColumn": 101
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "0": null,
+              "1": null,
+              "2": null
+            }
+          }
+        },
+        {
+          "ruleId": "S4144",
+          "level": "warning",
+          "message": "Update this method so that its implementation is not identical to 'Details'.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/NegoziController.cs",
+                "region": {
+                  "startLine": 50,
+                  "startColumn": 42,
+                  "endLine": 50,
+                  "endColumn": 46
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/NegoziController.cs",
+                "region": {
+                  "startLine": 41,
+                  "startColumn": 42,
+                  "endLine": 41,
+                  "endColumn": 49
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "0": "Update this method so that its implementation is not identical to 'Edit'."
+            }
+          }
+        },
+        {
+          "ruleId": "S4144",
+          "level": "warning",
+          "message": "Update this method so that its implementation is not identical to 'Details'.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/NegoziController.cs",
+                "region": {
+                  "startLine": 87,
+                  "startColumn": 42,
+                  "endLine": 87,
+                  "endColumn": 48
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/NegoziController.cs",
+                "region": {
+                  "startLine": 41,
+                  "startColumn": 42,
+                  "endLine": 41,
+                  "endColumn": 49
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "0": "Update this method so that its implementation is not identical to 'Delete'."
+            }
+          }
+        },
+        {
+          "ruleId": "S1192",
+          "level": "warning",
+          "message": "Define a constant instead of using this literal 'Admin' 7 times.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
+                "region": {
+                  "startLine": 39,
+                  "startColumn": 41,
+                  "endLine": 39,
+                  "endColumn": 48
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
+                "region": {
+                  "startLine": 89,
+                  "startColumn": 46,
+                  "endLine": 89,
+                  "endColumn": 53
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
+                "region": {
+                  "startLine": 98,
+                  "startColumn": 41,
+                  "endLine": 98,
+                  "endColumn": 48
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
+                "region": {
+                  "startLine": 197,
+                  "startColumn": 46,
+                  "endLine": 197,
+                  "endColumn": 53
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
+                "region": {
+                  "startLine": 206,
+                  "startColumn": 41,
+                  "endLine": 206,
+                  "endColumn": 48
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
+                "region": {
+                  "startLine": 243,
+                  "startColumn": 41,
+                  "endLine": 243,
+                  "endColumn": 48
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
+                "region": {
+                  "startLine": 256,
+                  "startColumn": 31,
+                  "endLine": 256,
+                  "endColumn": 38
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "0": null,
+              "1": null,
+              "2": null,
+              "3": null,
+              "4": null,
+              "5": null
+            }
+          }
+        },
+        {
+          "ruleId": "S1192",
+          "level": "warning",
+          "message": "Define a constant instead of using this literal 'Create' 4 times.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
+                "region": {
+                  "startLine": 187,
+                  "startColumn": 25,
+                  "endLine": 187,
+                  "endColumn": 33
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
+                "region": {
+                  "startLine": 202,
+                  "startColumn": 29,
+                  "endLine": 202,
+                  "endColumn": 37
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
+                "region": {
+                  "startLine": 227,
+                  "startColumn": 29,
+                  "endLine": 227,
+                  "endColumn": 37
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/DynamicMeasurementsController.cs",
+                "region": {
+                  "startLine": 233,
+                  "startColumn": 29,
+                  "endLine": 233,
+                  "endColumn": 37
                 }
               }
             }
@@ -7131,80 +7083,6 @@
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/NegoziController.cs",
-                "region": {
-                  "startLine": 50,
-                  "startColumn": 42,
-                  "endLine": 50,
-                  "endColumn": 46
-                }
-              }
-            }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/NegoziController.cs",
-                "region": {
-                  "startLine": 41,
-                  "startColumn": 42,
-                  "endLine": 41,
-                  "endColumn": 49
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "0": "Update this method so that its implementation is not identical to 'Edit'."
-            }
-          }
-        },
-        {
-          "ruleId": "S4144",
-          "level": "warning",
-          "message": "Update this method so that its implementation is not identical to 'Details'.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/NegoziController.cs",
-                "region": {
-                  "startLine": 87,
-                  "startColumn": 42,
-                  "endLine": 87,
-                  "endColumn": 48
-                }
-              }
-            }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/NegoziController.cs",
-                "region": {
-                  "startLine": 41,
-                  "startColumn": 42,
-                  "endLine": 41,
-                  "endColumn": 49
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "0": "Update this method so that its implementation is not identical to 'Delete'."
-            }
-          }
-        },
-        {
-          "ruleId": "S4144",
-          "level": "warning",
-          "message": "Update this method so that its implementation is not identical to 'Details'.",
-          "locations": [
-            {
-              "resultFile": {
                 "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/UtentiController.cs",
                 "region": {
                   "startLine": 208,
@@ -7232,6 +7110,128 @@
             "warningLevel": 1,
             "customProperties": {
               "0": "Update this method so that its implementation is not identical to 'Delete'."
+            }
+          }
+        },
+        {
+          "ruleId": "S1192",
+          "level": "warning",
+          "message": "Define a constant instead of using this literal 'Commessa non trovata.' 4 times.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CommessaService.cs",
+                "region": {
+                  "startLine": 360,
+                  "startColumn": 36,
+                  "endLine": 360,
+                  "endColumn": 59
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CommessaService.cs",
+                "region": {
+                  "startLine": 433,
+                  "startColumn": 36,
+                  "endLine": 433,
+                  "endColumn": 59
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CommessaService.cs",
+                "region": {
+                  "startLine": 477,
+                  "startColumn": 36,
+                  "endLine": 477,
+                  "endColumn": 59
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CommessaService.cs",
+                "region": {
+                  "startLine": 540,
+                  "startColumn": 36,
+                  "endLine": 540,
+                  "endColumn": 59
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "0": null,
+              "1": null,
+              "2": null
+            }
+          }
+        },
+        {
+          "ruleId": "S1192",
+          "level": "warning",
+          "message": "Define a constant instead of using this literal 'Accesso negato alla commessa.' 4 times.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CommessaService.cs",
+                "region": {
+                  "startLine": 365,
+                  "startColumn": 36,
+                  "endLine": 365,
+                  "endColumn": 67
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CommessaService.cs",
+                "region": {
+                  "startLine": 438,
+                  "startColumn": 36,
+                  "endLine": 438,
+                  "endColumn": 67
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CommessaService.cs",
+                "region": {
+                  "startLine": 482,
+                  "startColumn": 36,
+                  "endLine": 482,
+                  "endColumn": 67
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CommessaService.cs",
+                "region": {
+                  "startLine": 545,
+                  "startColumn": 36,
+                  "endLine": 545,
+                  "endColumn": 67
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "0": null,
+              "1": null,
+              "2": null
             }
           }
         },
@@ -7281,6 +7281,27 @@
             "customProperties": {
               "redundantIndex": "2"
             }
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/DynamicMeasurementModels.cs",
+                "region": {
+                  "startLine": 31,
+                  "startColumn": 20,
+                  "endLine": 31,
+                  "endColumn": 22
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
           }
         },
         {
@@ -7366,6 +7387,240 @@
           }
         },
         {
+          "ruleId": "S6966",
+          "level": "warning",
+          "message": "Await RunAsync instead.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Program.cs",
+                "region": {
+                  "startLine": 86,
+                  "startColumn": 5,
+                  "endLine": 86,
+                  "endColumn": 14
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6966",
+          "level": "warning",
+          "message": "Await CloseAndFlushAsync instead.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Program.cs",
+                "region": {
+                  "startLine": 98,
+                  "startColumn": 5,
+                  "endLine": 98,
+                  "endColumn": 24
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/ViewModels/CommessaViewModels.cs",
+                "region": {
+                  "startLine": 64,
+                  "startColumn": 20,
+                  "endLine": 64,
+                  "endColumn": 29
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/DynamicMeasurementModels.cs",
+                "region": {
+                  "startLine": 58,
+                  "startColumn": 20,
+                  "endLine": 58,
+                  "endColumn": 22
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/DynamicMeasurementModels.cs",
+                "region": {
+                  "startLine": 61,
+                  "startColumn": 20,
+                  "endLine": 61,
+                  "endColumn": 37
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S1905",
+          "level": "warning",
+          "message": "Remove this unnecessary cast to 'List<MisureCliente>'.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Views/Clienti/Details.cshtml",
+                "region": {
+                  "startLine": 125,
+                  "startColumn": 57,
+                  "endLine": 125,
+                  "endColumn": 95
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/ViewModels/DynamicMeasurementViewModels.cs",
+                "region": {
+                  "startLine": 24,
+                  "startColumn": 20,
+                  "endLine": 24,
+                  "endColumn": 28
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/ViewModels/DynamicMeasurementViewModels.cs",
+                "region": {
+                  "startLine": 27,
+                  "startColumn": 20,
+                  "endLine": 27,
+                  "endColumn": 29
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/ViewModels/DynamicMeasurementViewModels.cs",
+                "region": {
+                  "startLine": 30,
+                  "startColumn": 20,
+                  "endLine": 30,
+                  "endColumn": 37
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Preferire il confronto 'Count' con 0 anziché usare 'Any()', sia per chiarezza che per prestazioni.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/PdfService.cs",
+                "region": {
+                  "startLine": 56,
+                  "startColumn": 29,
+                  "endLine": 56,
+                  "endColumn": 41
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "S2325",
+          "level": "warning",
+          "message": "Make 'RestoreMetadata' a static method.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/AdminMeasurementTypesController.cs",
+                "region": {
+                  "startLine": 343,
+                  "startColumn": 22,
+                  "endLine": 343,
+                  "endColumn": 37
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
           "ruleId": "S6964",
           "level": "warning",
           "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
@@ -7429,18 +7684,18 @@
           }
         },
         {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await RunAsync instead.",
+          "ruleId": "CA1822",
+          "level": "note",
+          "message": "Il membro RestoreMetadata non accede ai dati di istanza e può essere contrassegnato come static",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Program.cs",
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/AdminMeasurementTypesController.cs",
                 "region": {
-                  "startLine": 86,
-                  "startColumn": 5,
-                  "endLine": 86,
-                  "endColumn": 14
+                  "startLine": 343,
+                  "startColumn": 22,
+                  "endLine": 343,
+                  "endColumn": 37
                 }
               }
             }
@@ -7450,18 +7705,18 @@
           }
         },
         {
-          "ruleId": "S6966",
+          "ruleId": "S3358",
           "level": "warning",
-          "message": "Await CloseAndFlushAsync instead.",
+          "message": "Extract this nested ternary operation into an independent statement.",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Program.cs",
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Views/Shared/_Layout.cshtml",
                 "region": {
-                  "startLine": 98,
-                  "startColumn": 5,
-                  "endLine": 98,
-                  "endColumn": 24
+                  "startLine": 23,
+                  "startColumn": 11,
+                  "endLine": 29,
+                  "endColumn": 30
                 }
               }
             }
@@ -7471,18 +7726,39 @@
           }
         },
         {
-          "ruleId": "S6964",
+          "ruleId": "S3358",
           "level": "warning",
-          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "message": "Extract this nested ternary operation into an independent statement.",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/DynamicMeasurementModels.cs",
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Views/Shared/_Layout.cshtml",
                 "region": {
-                  "startLine": 31,
-                  "startColumn": 20,
-                  "endLine": 31,
-                  "endColumn": 22
+                  "startLine": 25,
+                  "startColumn": 15,
+                  "endLine": 29,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3358",
+          "level": "warning",
+          "message": "Extract this nested ternary operation into an independent statement.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Views/Shared/_Layout.cshtml",
+                "region": {
+                  "startLine": 27,
+                  "startColumn": 19,
+                  "endLine": 29,
+                  "endColumn": 30
                 }
               }
             }
@@ -7925,81 +8201,18 @@
           }
         },
         {
-          "ruleId": "S3358",
-          "level": "warning",
-          "message": "Extract this nested ternary operation into an independent statement.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Views/Shared/_Layout.cshtml",
-                "region": {
-                  "startLine": 23,
-                  "startColumn": 11,
-                  "endLine": 29,
-                  "endColumn": 30
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S3358",
-          "level": "warning",
-          "message": "Extract this nested ternary operation into an independent statement.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Views/Shared/_Layout.cshtml",
-                "region": {
-                  "startLine": 25,
-                  "startColumn": 15,
-                  "endLine": 29,
-                  "endColumn": 30
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S3358",
-          "level": "warning",
-          "message": "Extract this nested ternary operation into an independent statement.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Views/Shared/_Layout.cshtml",
-                "region": {
-                  "startLine": 27,
-                  "startColumn": 19,
-                  "endLine": 29,
-                  "endColumn": 30
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "CA1860",
+          "ruleId": "CA1861",
           "level": "note",
-          "message": "Preferire il confronto 'Count' con 0 anziché usare 'Any()', sia per chiarezza che per prestazioni.",
+          "message": "Preferisci i campi 'static readonly' rispetto agli argomenti di matrice costanti se il metodo chiamato viene chiamato ripetutamente e non modifica la matrice passata",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/PdfService.cs",
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324131120_NewTables.cs",
                 "region": {
-                  "startLine": 56,
-                  "startColumn": 29,
-                  "endLine": 56,
-                  "endColumn": 41
+                  "startLine": 369,
+                  "startColumn": 26,
+                  "endLine": 369,
+                  "endColumn": 64
                 }
               }
             }
@@ -8007,128 +8220,23 @@
           "properties": {
             "warningLevel": 1,
             "customProperties": {
-              "DiagnosticPropertyKey": "Count"
+              "paramName": "columns"
             }
           }
         },
         {
-          "ruleId": "S2325",
-          "level": "warning",
-          "message": "Make 'RestoreMetadata' a static method.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/AdminMeasurementTypesController.cs",
-                "region": {
-                  "startLine": 343,
-                  "startColumn": 22,
-                  "endLine": 343,
-                  "endColumn": 37
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6964",
-          "level": "warning",
-          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/ViewModels/CommessaViewModels.cs",
-                "region": {
-                  "startLine": 64,
-                  "startColumn": 20,
-                  "endLine": 64,
-                  "endColumn": 29
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6964",
-          "level": "warning",
-          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/DynamicMeasurementModels.cs",
-                "region": {
-                  "startLine": 58,
-                  "startColumn": 20,
-                  "endLine": 58,
-                  "endColumn": 22
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6964",
-          "level": "warning",
-          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/DynamicMeasurementModels.cs",
-                "region": {
-                  "startLine": 61,
-                  "startColumn": 20,
-                  "endLine": 61,
-                  "endColumn": 37
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "CA1822",
+          "ruleId": "CA1861",
           "level": "note",
-          "message": "Il membro RestoreMetadata non accede ai dati di istanza e può essere contrassegnato come static",
+          "message": "Preferisci i campi 'static readonly' rispetto agli argomenti di matrice costanti se il metodo chiamato viene chiamato ripetutamente e non modifica la matrice passata",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/AdminMeasurementTypesController.cs",
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324131120_NewTables.cs",
                 "region": {
-                  "startLine": 343,
-                  "startColumn": 22,
-                  "endLine": 343,
-                  "endColumn": 37
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "ASP0015",
-          "level": "note",
-          "message": "The header 'Content-Disposition' can be accessed using the ContentDisposition property",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/ReportController.cs",
-                "region": {
-                  "startLine": 46,
-                  "startColumn": 13,
-                  "endLine": 46,
-                  "endColumn": 52
+                  "startLine": 374,
+                  "startColumn": 26,
+                  "endLine": 374,
+                  "endColumn": 63
                 }
               }
             }
@@ -8136,87 +8244,23 @@
           "properties": {
             "warningLevel": 1,
             "customProperties": {
-              "HeaderName": "Content-Disposition",
-              "ResolvedPropertyName": "ContentDisposition"
+              "paramName": "columns"
             }
           }
         },
         {
-          "ruleId": "S6964",
-          "level": "warning",
-          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/ViewModels/DynamicMeasurementViewModels.cs",
-                "region": {
-                  "startLine": 24,
-                  "startColumn": 20,
-                  "endLine": 24,
-                  "endColumn": 28
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6964",
-          "level": "warning",
-          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/ViewModels/DynamicMeasurementViewModels.cs",
-                "region": {
-                  "startLine": 27,
-                  "startColumn": 20,
-                  "endLine": 27,
-                  "endColumn": 29
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6964",
-          "level": "warning",
-          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/ViewModels/DynamicMeasurementViewModels.cs",
-                "region": {
-                  "startLine": 30,
-                  "startColumn": 20,
-                  "endLine": 30,
-                  "endColumn": 37
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "ASP0015",
+          "ruleId": "CA1861",
           "level": "note",
-          "message": "The header 'Content-Disposition' can be accessed using the ContentDisposition property",
+          "message": "Preferisci i campi 'static readonly' rispetto agli argomenti di matrice costanti se il metodo chiamato viene chiamato ripetutamente e non modifica la matrice passata",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/ReportController.cs",
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324131120_NewTables.cs",
                 "region": {
-                  "startLine": 92,
-                  "startColumn": 13,
-                  "endLine": 92,
-                  "endColumn": 52
+                  "startLine": 386,
+                  "startColumn": 26,
+                  "endLine": 386,
+                  "endColumn": 67
                 }
               }
             }
@@ -8224,93 +8268,32 @@
           "properties": {
             "warningLevel": 1,
             "customProperties": {
-              "HeaderName": "Content-Disposition",
-              "ResolvedPropertyName": "ContentDisposition"
+              "paramName": "columns"
             }
           }
         },
         {
-          "ruleId": "S2589",
-          "level": "warning",
-          "message": "Remove this unnecessary check for null.",
+          "ruleId": "CA1861",
+          "level": "note",
+          "message": "Preferisci i campi 'static readonly' rispetto agli argomenti di matrice costanti se il metodo chiamato viene chiamato ripetutamente e non modifica la matrice passata",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/PdfController.cs",
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324131120_NewTables.cs",
                 "region": {
-                  "startLine": 53,
-                  "startColumn": 62,
-                  "endLine": 53,
-                  "endColumn": 69
+                  "startLine": 391,
+                  "startColumn": 26,
+                  "endLine": 391,
+                  "endColumn": 77
                 }
               }
             }
           ],
           "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6964",
-          "level": "warning",
-          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/ViewModels/LegacyMeasurementViewModels.cs",
-                "region": {
-                  "startLine": 19,
-                  "startColumn": 20,
-                  "endLine": 19,
-                  "endColumn": 22
-                }
-              }
+            "warningLevel": 1,
+            "customProperties": {
+              "paramName": "columns"
             }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6964",
-          "level": "warning",
-          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/ViewModels/LegacyMeasurementViewModels.cs",
-                "region": {
-                  "startLine": 20,
-                  "startColumn": 20,
-                  "endLine": 20,
-                  "endColumn": 29
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6964",
-          "level": "warning",
-          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/ViewModels/LegacyMeasurementViewModels.cs",
-                "region": {
-                  "startLine": 23,
-                  "startColumn": 21,
-                  "endLine": 23,
-                  "endColumn": 34
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
           }
         },
         {
@@ -8440,123 +8423,6 @@
           }
         },
         {
-          "ruleId": "CA1861",
-          "level": "note",
-          "message": "Preferisci i campi 'static readonly' rispetto agli argomenti di matrice costanti se il metodo chiamato viene chiamato ripetutamente e non modifica la matrice passata",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324131120_NewTables.cs",
-                "region": {
-                  "startLine": 369,
-                  "startColumn": 26,
-                  "endLine": 369,
-                  "endColumn": 64
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "paramName": "columns"
-            }
-          }
-        },
-        {
-          "ruleId": "CA1861",
-          "level": "note",
-          "message": "Preferisci i campi 'static readonly' rispetto agli argomenti di matrice costanti se il metodo chiamato viene chiamato ripetutamente e non modifica la matrice passata",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324131120_NewTables.cs",
-                "region": {
-                  "startLine": 374,
-                  "startColumn": 26,
-                  "endLine": 374,
-                  "endColumn": 63
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "paramName": "columns"
-            }
-          }
-        },
-        {
-          "ruleId": "CA1861",
-          "level": "note",
-          "message": "Preferisci i campi 'static readonly' rispetto agli argomenti di matrice costanti se il metodo chiamato viene chiamato ripetutamente e non modifica la matrice passata",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324131120_NewTables.cs",
-                "region": {
-                  "startLine": 386,
-                  "startColumn": 26,
-                  "endLine": 386,
-                  "endColumn": 67
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "paramName": "columns"
-            }
-          }
-        },
-        {
-          "ruleId": "CA1861",
-          "level": "note",
-          "message": "Preferisci i campi 'static readonly' rispetto agli argomenti di matrice costanti se il metodo chiamato viene chiamato ripetutamente e non modifica la matrice passata",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Migrations/20260324131120_NewTables.cs",
-                "region": {
-                  "startLine": 391,
-                  "startColumn": 26,
-                  "endLine": 391,
-                  "endColumn": 77
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "paramName": "columns"
-            }
-          }
-        },
-        {
-          "ruleId": "S6672",
-          "level": "warning",
-          "message": "Update this logger to use its enclosing type.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CustomSignInManager.cs",
-                "region": {
-                  "startLine": 16,
-                  "startColumn": 17,
-                  "endLine": 16,
-                  "endColumn": 47
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
           "ruleId": "S1066",
           "level": "warning",
           "message": "Merge this if statement with the enclosing one.",
@@ -8641,31 +8507,6 @@
         },
         {
           "ruleId": "CA1862",
-          "level": "note",
-          "message": "Preferire l'uso di \"string.Equals(string, StringComparison)\" per eseguire un confronto senza distinzione tra maiuscole e minuscole, ma tenere presente che ciò potrebbe causare lievi modifiche nel comportamento, quindi assicurarsi di eseguire test completi dopo l'applicazione del suggerimento o, se non è necessario un confronto sensibile a livello di cultura, provare a usare \"StringComparison.OrdinalIgnoreCase\"",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/LegacyMeasurementConverter.cs",
-                "region": {
-                  "startLine": 37,
-                  "startColumn": 26,
-                  "endLine": 37,
-                  "endColumn": 66
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "LeftOffendingMethod": "ToLower",
-              "RightOffendingMethod": "ToLower"
-            }
-          }
-        },
-        {
-          "ruleId": "CA1862",
           "ruleKey": "CA1862-001",
           "level": "note",
           "message": "Preferire l'overload del metodo di confronto di stringhe di \"string.Contains(string)\" che richiede un valore di enumerazione \"StringComparison\" per eseguire un confronto senza distinzione tra maiuscole e minuscole, ma tenere presente che ciò potrebbe causare lievi modifiche nel comportamento, quindi assicurarsi di eseguire test completi dopo l'applicazione del suggerimento o, se non è necessario un confronto sensibile a livello di cultura, provare a usare \"StringComparison.OrdinalIgnoreCase\"",
@@ -8691,6 +8532,31 @@
           }
         },
         {
+          "ruleId": "CA1862",
+          "level": "note",
+          "message": "Preferire l'uso di \"string.Equals(string, StringComparison)\" per eseguire un confronto senza distinzione tra maiuscole e minuscole, ma tenere presente che ciò potrebbe causare lievi modifiche nel comportamento, quindi assicurarsi di eseguire test completi dopo l'applicazione del suggerimento o, se non è necessario un confronto sensibile a livello di cultura, provare a usare \"StringComparison.OrdinalIgnoreCase\"",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/LegacyMeasurementConverter.cs",
+                "region": {
+                  "startLine": 37,
+                  "startColumn": 26,
+                  "endLine": 37,
+                  "endColumn": 66
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLower",
+              "RightOffendingMethod": "ToLower"
+            }
+          }
+        },
+        {
           "ruleId": "CA1822",
           "level": "note",
           "message": "Il membro ApplyRegistryFilter non accede ai dati di istanza e può essere contrassegnato come static",
@@ -8703,6 +8569,27 @@
                   "startColumn": 43,
                   "endLine": 247,
                   "endColumn": 62
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1859",
+          "level": "note",
+          "message": "Modificare il tipo di campo 'MeasurementUpdaters' da 'System.Collections.Generic.IReadOnlyDictionary<MisureRicci.Models.TipoMisuraLegacy, System.Func<MisureRicci.Services.MeasurementService, object, System.Threading.Tasks.Task<bool>>>' a 'System.Collections.Generic.Dictionary<MisureRicci.Models.TipoMisuraLegacy, System.Func<MisureRicci.Services.MeasurementService, object, System.Threading.Tasks.Task<bool>>>' per migliorare le prestazioni",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/MeasurementService.cs",
+                "region": {
+                  "startLine": 33,
+                  "startColumn": 117,
+                  "endLine": 33,
+                  "endColumn": 136
                 }
               }
             }
@@ -8733,18 +8620,18 @@
           }
         },
         {
-          "ruleId": "CA1859",
-          "level": "note",
-          "message": "Modificare il tipo di campo 'MeasurementUpdaters' da 'System.Collections.Generic.IReadOnlyDictionary<MisureRicci.Models.TipoMisuraLegacy, System.Func<MisureRicci.Services.MeasurementService, object, System.Threading.Tasks.Task<bool>>>' a 'System.Collections.Generic.Dictionary<MisureRicci.Models.TipoMisuraLegacy, System.Func<MisureRicci.Services.MeasurementService, object, System.Threading.Tasks.Task<bool>>>' per migliorare le prestazioni",
+          "ruleId": "S6672",
+          "level": "warning",
+          "message": "Update this logger to use its enclosing type.",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/MeasurementService.cs",
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CustomSignInManager.cs",
                 "region": {
-                  "startLine": 33,
-                  "startColumn": 117,
-                  "endLine": 33,
-                  "endColumn": 136
+                  "startLine": 16,
+                  "startColumn": 17,
+                  "endLine": 16,
+                  "endColumn": 47
                 }
               }
             }
@@ -8874,24 +8761,137 @@
           }
         },
         {
-          "ruleId": "CA1859",
-          "level": "note",
-          "message": "Modificare il tipo di parametro 'allowedFields' da 'System.Collections.Generic.IReadOnlyDictionary<int, MisureRicci.Models.MeasurementFieldDefinition>' a 'System.Collections.Generic.Dictionary<int, MisureRicci.Models.MeasurementFieldDefinition>' per migliorare le prestazioni",
+          "ruleId": "S2589",
+          "level": "warning",
+          "message": "Remove this unnecessary check for null.",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CustomMeasurementService.cs",
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/PdfController.cs",
                 "region": {
-                  "startLine": 300,
-                  "startColumn": 66,
-                  "endLine": 300,
-                  "endColumn": 79
+                  "startLine": 53,
+                  "startColumn": 62,
+                  "endLine": 53,
+                  "endColumn": 69
                 }
               }
             }
           ],
           "properties": {
             "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "ASP0015",
+          "level": "note",
+          "message": "The header 'Content-Disposition' can be accessed using the ContentDisposition property",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/ReportController.cs",
+                "region": {
+                  "startLine": 46,
+                  "startColumn": 13,
+                  "endLine": 46,
+                  "endColumn": 52
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "HeaderName": "Content-Disposition",
+              "ResolvedPropertyName": "ContentDisposition"
+            }
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/ViewModels/LegacyMeasurementViewModels.cs",
+                "region": {
+                  "startLine": 19,
+                  "startColumn": 20,
+                  "endLine": 19,
+                  "endColumn": 22
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/ViewModels/LegacyMeasurementViewModels.cs",
+                "region": {
+                  "startLine": 20,
+                  "startColumn": 20,
+                  "endLine": 20,
+                  "endColumn": 29
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Models/ViewModels/LegacyMeasurementViewModels.cs",
+                "region": {
+                  "startLine": 23,
+                  "startColumn": 21,
+                  "endLine": 23,
+                  "endColumn": 34
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "ASP0015",
+          "level": "note",
+          "message": "The header 'Content-Disposition' can be accessed using the ContentDisposition property",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Controllers/ReportController.cs",
+                "region": {
+                  "startLine": 92,
+                  "startColumn": 13,
+                  "endLine": 92,
+                  "endColumn": 52
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "HeaderName": "Content-Disposition",
+              "ResolvedPropertyName": "ContentDisposition"
+            }
           }
         },
         {
@@ -8916,18 +8916,18 @@
           }
         },
         {
-          "ruleId": "S1905",
-          "level": "warning",
-          "message": "Remove this unnecessary cast to 'List<MisureCliente>'.",
+          "ruleId": "CA1859",
+          "level": "note",
+          "message": "Modificare il tipo di parametro 'allowedFields' da 'System.Collections.Generic.IReadOnlyDictionary<int, MisureRicci.Models.MeasurementFieldDefinition>' a 'System.Collections.Generic.Dictionary<int, MisureRicci.Models.MeasurementFieldDefinition>' per migliorare le prestazioni",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Views/Clienti/Details.cshtml",
+                "uri": "file:///C:/Users/Techservice02/Desktop/My%20WorkSpace/MisureRicci/Services/CustomMeasurementService.cs",
                 "region": {
-                  "startLine": 125,
-                  "startColumn": 57,
-                  "endLine": 125,
-                  "endColumn": 95
+                  "startLine": 300,
+                  "startColumn": 66,
+                  "endLine": 300,
+                  "endColumn": 79
                 }
               }
             }

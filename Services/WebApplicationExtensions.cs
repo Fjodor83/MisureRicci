@@ -62,9 +62,9 @@ namespace Microsoft.AspNetCore.Builder
                 context.Response.Headers.Append(
                     "Content-Security-Policy",
                     "default-src 'none'; " +
-                    "connect-src 'self'; " +
-                    "script-src 'self'; " +
-                    "style-src 'self' https://fonts.googleapis.com https://cdn.jsdelivr.net; " +
+                    "connect-src 'self' http://localhost:* ws://localhost:*; " +
+                    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; " +
+                    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; " +
                     "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
                     "img-src 'self' data:; " +
                     "frame-ancestors 'none'; " +

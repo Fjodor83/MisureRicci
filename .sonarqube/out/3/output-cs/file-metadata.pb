@@ -13,12 +13,12 @@ tC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\Measu
 dC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\MeasurementServiceTests.csutf-8q
 hC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\MeasurementsControllerTests.csutf-8u
 lC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\LegacyMeasurementConverterTests.csutf-8i
-`C:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\HomeControllerTests.csutf-8k
+`C:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\HomeControllerTests.csutf-8x
+oC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\DynamicMeasurementsControllerTests.csutf-8k
 bC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\DashboardServiceTests.csutf-8s
 jC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\CustomMeasurementServiceTests.csutf-8p
 gC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\CommissioniControllerTests.csutf-8j
 aC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\CommessaServiceTests.csutf-8l
-cC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\ClientiControllerTests.csutf-8x
-oC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\DynamicMeasurementsControllerTests.csutf-8i
+cC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\ClientiControllerTests.csutf-8i
 `C:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\ClienteServiceTests.csutf-8z
 qC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\AdminMeasurementTypesControllerTests.csutf-8

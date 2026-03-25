@@ -41,9 +41,9 @@ eC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\Models\ViewModels\Utent
 pC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\Models\ViewModels\MeasurementsGlobalRegistryViewModel.csutf-8t
 kC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\Models\ViewModels\MeasurementsDashboardViewModel.csutf-8s
 jC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\Models\ViewModels\MeasurementFieldPageViewModel.csutf-8q
-hC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\Models\ViewModels\LegacyMeasurementViewModels.csutf-8k
-bC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\Models\ViewModels\DashboardKpiViewModel.csutf-8r
-iC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\Models\ViewModels\DynamicMeasurementViewModels.csutf-8h
+hC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\Models\ViewModels\LegacyMeasurementViewModels.csutf-8r
+iC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\Models\ViewModels\DynamicMeasurementViewModels.csutf-8k
+bC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\Models\ViewModels\DashboardKpiViewModel.csutf-8h
 _C:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\Models\ViewModels\CommessaViewModels.csutf-8k
 bC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\Models\ViewModels\ClientiIndexViewModel.csutf-8j
 aC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\Models\ViewModels\ClientePageViewModel.csutf-8m

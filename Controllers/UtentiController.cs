@@ -68,9 +68,7 @@ namespace MisureRicci.Controllers
             var user = new ApplicationUser
             {
                 UserName = vm.UserName,
-                NormalizedUserName = vm.UserName.ToUpperInvariant(),
                 Email = vm.Email,
-                NormalizedEmail = vm.Email.ToUpperInvariant(),
                 NomeCompleto = vm.NomeCompleto,
                 Ruolo = vm.Ruolo,
                 NegozioId = vm.NegozioId,
@@ -159,8 +157,8 @@ namespace MisureRicci.Controllers
                 return NotFound();
             }
 
-            ModelState.Remove(nameof(vm.Password));
-            ModelState.Remove(nameof(vm.ConfirmPassword));
+            ModelState.Remove($"{nameof(UtenteAdminPageViewModel.Form)}.{nameof(vm.Password)}");
+            ModelState.Remove($"{nameof(UtenteAdminPageViewModel.Form)}.{nameof(vm.ConfirmPassword)}");
             ValidateRoleAssignment(vm);
 
             if (!ModelState.IsValid)
@@ -176,9 +174,7 @@ namespace MisureRicci.Controllers
             }
 
             user.UserName = vm.UserName;
-            user.NormalizedUserName = vm.UserName.ToUpperInvariant();
             user.Email = vm.Email;
-            user.NormalizedEmail = vm.Email.ToUpperInvariant();
             user.NomeCompleto = vm.NomeCompleto;
             user.Ruolo = vm.Ruolo;
             user.NegozioId = vm.NegozioId;

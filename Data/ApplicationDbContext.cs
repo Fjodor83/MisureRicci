@@ -93,11 +93,9 @@ namespace MisureRicci.Data
             builder.Entity<CommessaMisuraLink>().HasQueryFilter(l =>
                 _isTenantAdmin || (l.CommessaSartoriale != null && l.CommessaSartoriale.NegozioId == _currentTenantId));
 
-            builder.Entity<Negozio>().HasQueryFilter(n =>
-                _isTenantAdmin || (n.Id == _currentTenantId));
-
-            builder.Entity<ApplicationUser>().HasQueryFilter(u =>
-                _isTenantAdmin || (u.NegozioId == _currentTenantId));
+            // Negozi e Utenti: NON filtrati per tenant.
+            // - Negozi: visibili a tutti (dropdown, selezione, ecc.)
+            // - ApplicationUser: filtrati dalla [Authorize(Roles)] nei controller, non dal DbContext
 
             // Legacy measurement filters
             builder.Entity<GiaccaMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));

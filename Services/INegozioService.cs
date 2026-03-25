@@ -10,5 +10,6 @@ namespace MisureRicci.Services
         Task UpdateAsync(Negozio negozio);
         Task DeleteAsync(int id);
         bool Exists(int id);
+        void InvalidateCache();
     }
 }

@@ -26,7 +26,7 @@ namespace MisureRicci.Controllers
         }
 
         // GET: Clienti
-        public async Task<IActionResult> Index(string searchString, int page = 1)
+        public async Task<IActionResult> Index(string? searchString, int page = 1)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             bool isAdmin = _tenantService.IsAdmin();

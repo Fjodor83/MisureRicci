@@ -33,8 +33,14 @@ namespace MisureRicci.Controllers
             if (ModelState.IsValid)
             {
                 await _negozioService.CreateAsync(negozio);
+                _negozioService.InvalidateCache();
                 return RedirectToAction(nameof(Index));
             }
+
+            // Log validation errors for debugging
+            var errors = string.Join("; ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+            Serilog.Log.Warning("Creazione negozio fallita per errori di validazione: {Errors}", errors);
+
             return View(negozio);
         }
 
@@ -70,6 +76,7 @@ namespace MisureRicci.Controllers
             try
             {
                 await _negozioService.UpdateAsync(negozio);
+                _negozioService.InvalidateCache();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -99,6 +106,7 @@ namespace MisureRicci.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             await _negozioService.DeleteAsync(id);
+            _negozioService.InvalidateCache();
             return RedirectToAction(nameof(Index));
         }
     }

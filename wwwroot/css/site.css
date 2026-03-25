@@ -1331,3 +1331,30 @@ textarea.form-control {
         padding: 1.15rem;
     }
 }
+
+/* ── Validation Summary ───────────────────────────────────────────────── */
+/* Hide when there are no validation errors (ASP.NET adds this class) */
+.validation-summary-valid {
+    display: none !important;
+}
+
+/* Show with danger styling only when there are actual errors */
+.validation-summary-errors {
+    display: block !important;
+    padding: 0.85rem 1.1rem;
+    border-radius: var(--radius-md);
+    background: rgba(199, 78, 57, 0.12);
+    border: 1px solid rgba(199, 78, 57, 0.32);
+    color: var(--danger);
+    font-size: 0.87rem;
+}
+
+.validation-summary-errors ul {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.validation-summary-errors ul li {
+    margin-bottom: 0.2rem;
+}
+

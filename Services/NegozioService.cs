@@ -21,12 +21,17 @@ namespace MisureRicci.Services
         {
             return await _cache.GetOrCreateAsync(NegoziCacheKey, async entry =>
             {
-                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30);
                 return await _context.Negozi
                     .AsNoTracking()
                     .OrderBy(x => x.Nome)
                     .ToListAsync();
             }) ?? new List<Negozio>();
+        }
+
+        public void InvalidateCache()
+        {
+            _cache.Remove(NegoziCacheKey);
         }
 
         public async Task<Negozio?> GetByIdAsync(int id)

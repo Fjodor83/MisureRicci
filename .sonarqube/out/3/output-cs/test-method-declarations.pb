@@ -45,7 +45,22 @@ hC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\Measu
 -MisureRicci.Tests.MeasurementsControllerTests-Index_ReturnsViewWithDashboard_WhenSuccessfulf
 -MisureRicci.Tests.MeasurementsControllerTests5Details_RedirectsToDynamic_WhenRegistryEntryIsDynamicT
 -MisureRicci.Tests.MeasurementsControllerTests#Edit_GET_ReturnsViewWithLegacyModelY
--MisureRicci.Tests.MeasurementsControllerTests(DeleteConfirmed_RedirectsToClientDetailsô
+-MisureRicci.Tests.MeasurementsControllerTests(DeleteConfirmed_RedirectsToClientDetails×
+lC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\LegacyMeasurementConverterTests.csMisureRicci.Testsy
+1MisureRicci.Tests.LegacyMeasurementConverterTestsDConvertAsync_GiaccaLegacy_CreatesRecordValuesAndDynamicRegistryEntryY
+1MisureRicci.Tests.LegacyMeasurementConverterTests$ConvertAsync_UnknownType_ReturnsNullÍ
+`C:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\HomeControllerTests.csMisureRicci.TestsJ
+%MisureRicci.Tests.HomeControllerTests!Index_ReturnsViewWithDashboardKpi<
+%MisureRicci.Tests.HomeControllerTestsPrivacy_ReturnsViewL
+%MisureRicci.Tests.HomeControllerTests#Error_ReturnsViewWithErrorViewModel£
+oC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\DynamicMeasurementsControllerTests.csMisureRicci.Testsj
+4MisureRicci.Tests.DynamicMeasurementsControllerTests2Create_GET_ReturnsViewWithViewModel_WhenSuccessfulk
+4MisureRicci.Tests.DynamicMeasurementsControllerTests3Create_POST_RedirectsToClientDetails_WhenSuccessfulf
+4MisureRicci.Tests.DynamicMeasurementsControllerTests.Details_ReturnsNotFound_WhenRecordDoesNotExist\
+4MisureRicci.Tests.DynamicMeasurementsControllerTests$Delete_POST_RedirectsToClientDetailsº
+bC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\DashboardServiceTests.csMisureRicci.Tests]
+'MisureRicci.Tests.DashboardServiceTests2GetKpiAsync_NonAdmin_ReturnsOnlyOwnNegozioSnapshotb
+'MisureRicci.Tests.DashboardServiceTests7GetKpiAsync_NonAdminWithoutNegozio_ReturnsEmptySnapshotô
 jC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\CustomMeasurementServiceTests.csMisureRicci.Testst
 /MisureRicci.Tests.CustomMeasurementServiceTestsACreateDynamicMeasurementAsync_CreatesRecordValuesAndRegistryEntryq
 /MisureRicci.Tests.CustomMeasurementServiceTests>UpdateDynamicMeasurementAsync_ReplacesExistingValuesAtomically‰
@@ -55,17 +70,7 @@ gC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\Commi
 ,MisureRicci.Tests.CommissioniControllerTests2Create_GET_ReturnsNotFound_WhenClienteDoesNotExist]
 ,MisureRicci.Tests.CommissioniControllerTests-Create_POST_RedirectsToDetails_WhenSuccessfulZ
 ,MisureRicci.Tests.CommissioniControllerTests*Details_ReturnsNotFound_WhenDetailsAreNullO
-,MisureRicci.Tests.CommissioniControllerTestsAdvanceStato_RedirectsToDetailsº
-bC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\DashboardServiceTests.csMisureRicci.Tests]
-'MisureRicci.Tests.DashboardServiceTests2GetKpiAsync_NonAdmin_ReturnsOnlyOwnNegozioSnapshotb
-'MisureRicci.Tests.DashboardServiceTests7GetKpiAsync_NonAdminWithoutNegozio_ReturnsEmptySnapshot×
-lC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\LegacyMeasurementConverterTests.csMisureRicci.Testsy
-1MisureRicci.Tests.LegacyMeasurementConverterTestsDConvertAsync_GiaccaLegacy_CreatesRecordValuesAndDynamicRegistryEntryY
-1MisureRicci.Tests.LegacyMeasurementConverterTests$ConvertAsync_UnknownType_ReturnsNullÍ
-`C:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\HomeControllerTests.csMisureRicci.TestsJ
-%MisureRicci.Tests.HomeControllerTests!Index_ReturnsViewWithDashboardKpi<
-%MisureRicci.Tests.HomeControllerTestsPrivacy_ReturnsViewL
-%MisureRicci.Tests.HomeControllerTests#Error_ReturnsViewWithErrorViewModelË
+,MisureRicci.Tests.CommissioniControllerTestsAdvanceStato_RedirectsToDetailsË
 aC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\CommessaServiceTests.csMisureRicci.Testsl
 &MisureRicci.Tests.CommessaServiceTestsBCreateCommessaAsync_CreatesOpeningEventAndSelectedMeasurementLinkse
 &MisureRicci.Tests.CommessaServiceTests;CreateCommessaAsync_WithMeasurementFromAnotherCliente_Fails­
@@ -80,12 +85,7 @@ cC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\Clien
 (MisureRicci.Tests.ClientiControllerTests%Edit_GET_ReturnsNotFound_WhenIdIsNullU
 (MisureRicci.Tests.ClientiControllerTests)Edit_POST_RedirectsToIndex_WhenSuccessful^
 (MisureRicci.Tests.ClientiControllerTests2Delete_GET_ReturnsNotFound_WhenClienteDoesNotExist[
-(MisureRicci.Tests.ClientiControllerTests/DeleteConfirmed_RedirectsToIndex_WhenSuccessful£
-oC:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\DynamicMeasurementsControllerTests.csMisureRicci.Testsj
-4MisureRicci.Tests.DynamicMeasurementsControllerTests2Create_GET_ReturnsViewWithViewModel_WhenSuccessfulk
-4MisureRicci.Tests.DynamicMeasurementsControllerTests3Create_POST_RedirectsToClientDetails_WhenSuccessfulf
-4MisureRicci.Tests.DynamicMeasurementsControllerTests.Details_ReturnsNotFound_WhenRecordDoesNotExist\
-4MisureRicci.Tests.DynamicMeasurementsControllerTests$Delete_POST_RedirectsToClientDetails
+(MisureRicci.Tests.ClientiControllerTests/DeleteConfirmed_RedirectsToIndex_WhenSuccessful
 `C:\Users\Techservice02\Desktop\My WorkSpace\MisureRicci\MisureRicci.Tests\ClienteServiceTests.csMisureRicci.Testsa
 %MisureRicci.Tests.ClienteServiceTests8GetClienteScopedAsync_NonAdminWithoutNegozio_ReturnsNullk
 %MisureRicci.Tests.ClienteServiceTestsBCreateClienteScopedAsync_NonAdminAssignsNegozioAndNormalizesFieldsa

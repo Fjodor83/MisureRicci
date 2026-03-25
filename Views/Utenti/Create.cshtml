@@ -16,7 +16,7 @@
 </section>
 
 <form asp-action="Create" method="post" class="form-shell">
-    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+    <div asp-validation-summary="All"></div>
 
     <section class="form-section">
         <div class="row g-4">
@@ -28,10 +28,12 @@
             <div class="col-md-6">
                 <label asp-for="Form.NomeCompleto" class="form-label"></label>
                 <input asp-for="Form.NomeCompleto" class="form-control" />
+                <span asp-validation-for="Form.NomeCompleto" class="text-danger"></span>
             </div>
             <div class="col-12">
                 <label asp-for="Form.Email" class="form-label"></label>
                 <input asp-for="Form.Email" class="form-control" />
+                <span asp-validation-for="Form.Email" class="text-danger"></span>
             </div>
         </div>
     </section>
@@ -52,6 +54,7 @@
                 <select asp-for="Form.NegozioId" class="form-select" asp-items="@(new SelectList(Model.Negozi, "Id", "Nome"))">
                     <option value="">Seleziona negozio...</option>
                 </select>
+                <span asp-validation-for="Form.NegozioId" class="text-danger"></span>
             </div>
         </div>
     </section>
@@ -76,3 +79,7 @@
         <button type="submit" class="btn btn-primary">Crea account staff</button>
     </div>
 </form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

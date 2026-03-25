@@ -3,5 +3,5 @@ projectKey=Fjodor83_MisureRicci
 serverUrl=https://sonarcloud.io
 serverVersion=8.0.0.83824
 dashboardUrl=https://sonarcloud.io/dashboard?id=Fjodor83_MisureRicci
-ceTaskId=AZ0g0QdFW8TE_8_-wWsE
-ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZ0g0QdFW8TE_8_-wWsE
+ceTaskId=AZ0g3OL4RlIiWkRZ5GPA
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZ0g3OL4RlIiWkRZ5GPA
