@@ -76,7 +76,7 @@
                     <span class="sidebar-link-icon"><i class="bi bi-journal-check"></i></span>
                     <span>Commissioni</span>
                 </a>
-                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Sartoria") || User.IsInRole("Boutique"))
                 {
                     <a class="sidebar-link" asp-area="" asp-controller="Report" asp-action="Index">
                         <span class="sidebar-link-icon"><i class="bi bi-bar-chart-line-fill"></i></span>
@@ -85,22 +85,28 @@
                 }
             </nav>
 
-            @if (User.IsInRole("Admin"))
+            @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
             {
                 <div class="sidebar-section-label">Configurazione</div>
                 <nav class="sidebar-nav">
-                    <a class="sidebar-link" asp-area="" asp-controller="Negozi" asp-action="Index">
-                        <span class="sidebar-link-icon"><i class="bi bi-shop"></i></span>
-                        <span>Boutique</span>
-                    </a>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a class="sidebar-link" asp-area="" asp-controller="Negozi" asp-action="Index">
+                            <span class="sidebar-link-icon"><i class="bi bi-shop"></i></span>
+                            <span>Boutique</span>
+                        </a>
+                    }
                     <a class="sidebar-link" asp-area="" asp-controller="Utenti" asp-action="Index">
                         <span class="sidebar-link-icon"><i class="bi bi-person-badge-fill"></i></span>
                         <span>Staff</span>
                     </a>
-                    <a class="sidebar-link" asp-area="" asp-controller="AdminMeasurementTypes" asp-action="Index">
-                        <span class="sidebar-link-icon"><i class="bi bi-sliders2"></i></span>
-                        <span>Tipologie Dinamiche</span>
-                    </a>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a class="sidebar-link" asp-area="" asp-controller="AdminMeasurementTypes" asp-action="Index">
+                            <span class="sidebar-link-icon"><i class="bi bi-sliders2"></i></span>
+                            <span>Tipologie Dinamiche</span>
+                        </a>
+                    }
                 </nav>
             }
 

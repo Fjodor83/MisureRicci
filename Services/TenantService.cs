@@ -32,7 +32,8 @@ namespace MisureRicci.Services
 
         public bool IsAdmin()
         {
-            return _httpContextAccessor.HttpContext?.User?.IsInRole(ApplicationRoles.Admin) ?? false;
+            var user = _httpContextAccessor.HttpContext?.User;
+            return user?.IsInRole(ApplicationRoles.Admin) ?? false;
         }
 
         public string? GetUserId()

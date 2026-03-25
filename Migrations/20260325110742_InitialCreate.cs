@@ -26,7 +26,7 @@ namespace MisureRicci.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MeasurementTypes",
+                name: "DynamicMeasurementTypes",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -35,11 +35,12 @@ namespace MisureRicci.Migrations
                     Descrizione = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     IsSystem = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MeasurementTypes", x => x.Id);
+                    table.PrimaryKey("PK_DynamicMeasurementTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -82,7 +83,7 @@ namespace MisureRicci.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MeasurementFieldDefinitions",
+                name: "DynamicFieldDefinitions",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -103,11 +104,11 @@ namespace MisureRicci.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MeasurementFieldDefinitions", x => x.Id);
+                    table.PrimaryKey("PK_DynamicFieldDefinitions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MeasurementFieldDefinitions_MeasurementTypes_MeasurementTypeId",
+                        name: "FK_DynamicFieldDefinitions_DynamicMeasurementTypes_MeasurementTypeId",
                         column: x => x.MeasurementTypeId,
-                        principalTable: "MeasurementTypes",
+                        principalTable: "DynamicMeasurementTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -152,7 +153,7 @@ namespace MisureRicci.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ClientCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true, computedColumnSql: "CAST('SR-' + CAST(YEAR([DataRegistrazione]) AS nvarchar(4)) + '-' + RIGHT('00000' + CAST([Id] AS nvarchar(5)), 5) AS nvarchar(20))", stored: true),
+                    ClientCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Cognome = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -287,20 +288,18 @@ namespace MisureRicci.Migrations
                         name: "FK_CommissioniSartoriali_AspNetUsers_CreatedByUserId",
                         column: x => x.CreatedByUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_CommissioniSartoriali_Clienti_ClienteId",
                         column: x => x.ClienteId,
                         principalTable: "Clienti",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_CommissioniSartoriali_Negozi_NegozioId",
                         column: x => x.NegozioId,
                         principalTable: "Negozi",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -321,20 +320,19 @@ namespace MisureRicci.Migrations
                         name: "FK_DynamicMeasurementRecords_AspNetUsers_CreatedByUserId",
                         column: x => x.CreatedByUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_DynamicMeasurementRecords_Clienti_ClienteId",
                         column: x => x.ClienteId,
                         principalTable: "Clienti",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_DynamicMeasurementRecords_MeasurementTypes_MeasurementTypeId",
+                        name: "FK_DynamicMeasurementRecords_DynamicMeasurementTypes_MeasurementTypeId",
                         column: x => x.MeasurementTypeId,
-                        principalTable: "MeasurementTypes",
+                        principalTable: "DynamicMeasurementTypes",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -616,8 +614,7 @@ namespace MisureRicci.Migrations
                         name: "FK_CommissioniEventi_AspNetUsers_CreatedByUserId",
                         column: x => x.CreatedByUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_CommissioniEventi_CommissioniSartoriali_CommessaSartorialeId",
                         column: x => x.CommessaSartorialeId,
@@ -640,17 +637,17 @@ namespace MisureRicci.Migrations
                 {
                     table.PrimaryKey("PK_DynamicMeasurementValues", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_DynamicMeasurementValues_DynamicFieldDefinitions_MeasurementFieldDefinitionId",
+                        column: x => x.MeasurementFieldDefinitionId,
+                        principalTable: "DynamicFieldDefinitions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_DynamicMeasurementValues_DynamicMeasurementRecords_DynamicMeasurementRecordId",
                         column: x => x.DynamicMeasurementRecordId,
                         principalTable: "DynamicMeasurementRecords",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_DynamicMeasurementValues_MeasurementFieldDefinitions_MeasurementFieldDefinitionId",
-                        column: x => x.MeasurementFieldDefinitionId,
-                        principalTable: "MeasurementFieldDefinitions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -680,13 +677,13 @@ namespace MisureRicci.Migrations
                         column: x => x.GiaccaId,
                         principalTable: "MisureGiacca",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_MisureAbitoCompleto_MisurePantalone_PantaloneId",
                         column: x => x.PantaloneId,
                         principalTable: "MisurePantalone",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -707,8 +704,7 @@ namespace MisureRicci.Migrations
                         name: "FK_CommissioniMisureLinks_AspNetUsers_LinkedByUserId",
                         column: x => x.LinkedByUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_CommissioniMisureLinks_CommissioniSartoriali_CommessaSartorialeId",
                         column: x => x.CommessaSartorialeId,
@@ -720,7 +716,7 @@ namespace MisureRicci.Migrations
                         column: x => x.MisuraClienteId,
                         principalTable: "RegistroMisure",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -768,12 +764,6 @@ namespace MisureRicci.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Clienti_ClientCode",
-                table: "Clienti",
-                column: "ClientCode",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Clienti_NegozioId",
                 table: "Clienti",
                 column: "NegozioId");
@@ -789,10 +779,9 @@ namespace MisureRicci.Migrations
                 column: "CreatedByUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommissioniMisureLinks_CommessaSartorialeId_MisuraClienteId",
+                name: "IX_CommissioniMisureLinks_CommessaSartorialeId",
                 table: "CommissioniMisureLinks",
-                columns: new[] { "CommessaSartorialeId", "MisuraClienteId" },
-                unique: true);
+                column: "CommessaSartorialeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CommissioniMisureLinks_LinkedByUserId",
@@ -805,16 +794,9 @@ namespace MisureRicci.Migrations
                 column: "MisuraClienteId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommissioniSartoriali_ClienteId_DataApertura",
+                name: "IX_CommissioniSartoriali_ClienteId",
                 table: "CommissioniSartoriali",
-                columns: new[] { "ClienteId", "DataApertura" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CommissioniSartoriali_CommessaCode",
-                table: "CommissioniSartoriali",
-                column: "CommessaCode",
-                unique: true,
-                filter: "[CommessaCode] IS NOT NULL");
+                column: "ClienteId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CommissioniSartoriali_CreatedByUserId",
@@ -827,9 +809,10 @@ namespace MisureRicci.Migrations
                 column: "NegozioId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommissioniSartoriali_Stato_DataConsegnaPrevista",
-                table: "CommissioniSartoriali",
-                columns: new[] { "Stato", "DataConsegnaPrevista" });
+                name: "IX_DynamicFieldDefinitions_MeasurementTypeId_NomeCampo",
+                table: "DynamicFieldDefinitions",
+                columns: new[] { "MeasurementTypeId", "NomeCampo" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_DynamicMeasurementRecords_ClienteId",
@@ -847,6 +830,12 @@ namespace MisureRicci.Migrations
                 column: "MeasurementTypeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DynamicMeasurementTypes_Nome",
+                table: "DynamicMeasurementTypes",
+                column: "Nome",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_DynamicMeasurementValues_DynamicMeasurementRecordId",
                 table: "DynamicMeasurementValues",
                 column: "DynamicMeasurementRecordId");
@@ -855,18 +844,6 @@ namespace MisureRicci.Migrations
                 name: "IX_DynamicMeasurementValues_MeasurementFieldDefinitionId",
                 table: "DynamicMeasurementValues",
                 column: "MeasurementFieldDefinitionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MeasurementFieldDefinitions_MeasurementTypeId_NomeCampo",
-                table: "MeasurementFieldDefinitions",
-                columns: new[] { "MeasurementTypeId", "NomeCampo" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MeasurementTypes_Nome",
-                table: "MeasurementTypes",
-                column: "Nome",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_MisureAbitoCompleto_ClienteId",
@@ -929,9 +906,9 @@ namespace MisureRicci.Migrations
                 column: "ClienteId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RegistroMisure_ClienteId_DataCreazione",
+                name: "IX_RegistroMisure_ClienteId",
                 table: "RegistroMisure",
-                columns: new[] { "ClienteId", "DataCreazione" });
+                column: "ClienteId");
         }
 
         /// <inheritdoc />
@@ -995,10 +972,10 @@ namespace MisureRicci.Migrations
                 name: "RegistroMisure");
 
             migrationBuilder.DropTable(
-                name: "DynamicMeasurementRecords");
+                name: "DynamicFieldDefinitions");
 
             migrationBuilder.DropTable(
-                name: "MeasurementFieldDefinitions");
+                name: "DynamicMeasurementRecords");
 
             migrationBuilder.DropTable(
                 name: "MisureGiacca");
@@ -1010,7 +987,7 @@ namespace MisureRicci.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "MeasurementTypes");
+                name: "DynamicMeasurementTypes");
 
             migrationBuilder.DropTable(
                 name: "Clienti");

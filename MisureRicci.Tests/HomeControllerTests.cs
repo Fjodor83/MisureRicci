@@ -15,19 +15,17 @@ namespace MisureRicci.Tests;
 
 public class HomeControllerTests
 {
-    private readonly Mock<ILogger<HomeController>> _mockLogger;
     private readonly Mock<IDashboardService> _mockDashboardService;
     private readonly Mock<UserManager<ApplicationUser>> _mockUserManager;
     private readonly HomeController _controller;
 
     public HomeControllerTests()
     {
-        _mockLogger = new Mock<ILogger<HomeController>>();
         _mockDashboardService = new Mock<IDashboardService>();
         var store = new Mock<IUserStore<ApplicationUser>>();
         _mockUserManager = new Mock<UserManager<ApplicationUser>>(store.Object, null!, null!, null!, null!, null!, null!, null!, null!);
         
-        _controller = new HomeController(_mockLogger.Object, _mockDashboardService.Object, _mockUserManager.Object);
+        _controller = new HomeController(_mockDashboardService.Object, _mockUserManager.Object);
         
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
         {

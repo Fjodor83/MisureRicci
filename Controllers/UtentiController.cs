@@ -2,13 +2,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
 
 namespace MisureRicci.Controllers
 {
-    [Authorize(Roles = ApplicationRoles.Admin)]
+    [Authorize(Roles = "Admin,Manager")]
     public class UtentiController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -22,9 +23,23 @@ namespace MisureRicci.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var users = await _userManager.Users
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
+            
+            var query = _userManager.Users
                 .AsNoTracking()
                 .Include(u => u.Negozio)
+                .AsQueryable();
+
+            if (!isAdmin)
+            {
+                if (userId == null) return Forbid();
+                var currentUser = await _userManager.FindByIdAsync(userId);
+                if (currentUser?.NegozioId == null) return Forbid();
+                query = query.Where(u => u.NegozioId == currentUser.NegozioId);
+            }
+
+            var users = await query
                 .OrderBy(u => u.NomeCompleto)
                 .ToListAsync();
 
@@ -38,11 +53,21 @@ namespace MisureRicci.Controllers
 
         public async Task<IActionResult> Create()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
+            
             var pageModel = new UtenteAdminPageViewModel
             {
-                Form = new UtenteAdminViewModel(),
-                Negozi = await _negozioService.GetAllAsync()
+                Form = new UtenteAdminViewModel { Attivo = true },
+                Negozi = isAdmin ? await _negozioService.GetAllAsync() : new List<Negozio>()
             };
+
+            if (!isAdmin && userId != null)
+            {
+                var currentUser = await _userManager.FindByIdAsync(userId);
+                pageModel.Form.NegozioId = currentUser?.NegozioId;
+            }
+
             return View(pageModel);
         }
 
@@ -50,6 +75,8 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(UtenteAdminPageViewModel model)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
             var vm = model.Form;
 
             if (string.IsNullOrWhiteSpace(vm.Password))
@@ -57,11 +84,25 @@ namespace MisureRicci.Controllers
                 ModelState.AddModelError(nameof(vm.Password), "La password è obbligatoria per la creazione.");
             }
 
+            if (!isAdmin)
+            {
+                if (userId != null)
+                {
+                    var currentUser = await _userManager.FindByIdAsync(userId);
+                    vm.NegozioId = currentUser?.NegozioId;
+                }
+                
+                if (vm.Ruolo == ApplicationRoles.Admin)
+                {
+                    ModelState.AddModelError(nameof(vm.Ruolo), "Non hai i permessi per creare un amministratore.");
+                }
+            }
+
             ValidateRoleAssignment(vm);
 
             if (!ModelState.IsValid)
             {
-                model.Negozi = await _negozioService.GetAllAsync();
+                model.Negozi = isAdmin ? await _negozioService.GetAllAsync() : new List<Negozio>();
                 return View(model);
             }
 
@@ -94,24 +135,32 @@ namespace MisureRicci.Controllers
                 ModelState.AddModelError(string.Empty, error.Description);
             }
 
-            model.Negozi = await _negozioService.GetAllAsync();
+            model.Negozi = isAdmin ? await _negozioService.GetAllAsync() : new List<Negozio>();
             return View(model);
         }
 
         public async Task<IActionResult> Details(string? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
 
             var user = await _userManager.Users
                 .AsNoTracking()
                 .Include(u => u.Negozio)
                 .FirstOrDefaultAsync(u => u.Id == id);
-            if (user == null)
+
+            if (user == null) return NotFound();
+
+            if (!isAdmin)
             {
-                return NotFound();
+                if (userId == null) return Forbid();
+                var currentUser = await _userManager.FindByIdAsync(userId);
+                if (user.NegozioId != currentUser?.NegozioId)
+                {
+                    return Forbid();
+                }
             }
 
             user.Ruolo = await ResolveAssignedRoleAsync(user);
@@ -120,15 +169,22 @@ namespace MisureRicci.Controllers
 
         public async Task<IActionResult> Edit(string? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
 
             var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
+            if (user == null) return NotFound();
+
+            if (!isAdmin)
             {
-                return NotFound();
+                if (userId == null) return Forbid();
+                var currentUser = await _userManager.FindByIdAsync(userId);
+                if (user.NegozioId != currentUser?.NegozioId)
+                {
+                    return Forbid();
+                }
             }
 
             return View(new UtenteAdminPageViewModel
@@ -143,7 +199,7 @@ namespace MisureRicci.Controllers
                     NegozioId = user.NegozioId,
                     Attivo = user.Attivo
                 },
-                Negozi = await _negozioService.GetAllAsync()
+                Negozi = isAdmin ? await _negozioService.GetAllAsync() : new List<Negozio>()
             });
         }
 
@@ -151,10 +207,29 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, UtenteAdminPageViewModel model)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
             var vm = model.Form;
-            if (id != vm.Id)
+
+            if (id != vm.Id) return NotFound();
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
+            if (!isAdmin)
             {
-                return NotFound();
+                if (userId == null) return Forbid();
+                var currentUser = await _userManager.FindByIdAsync(userId);
+                if (user.NegozioId != currentUser?.NegozioId)
+                {
+                    return Forbid();
+                }
+                
+                vm.NegozioId = user.NegozioId;
+                if (vm.Ruolo == ApplicationRoles.Admin)
+                {
+                    ModelState.AddModelError(nameof(vm.Ruolo), "Non puoi assegnare il ruolo di amministratore.");
+                }
             }
 
             ModelState.Remove($"{nameof(UtenteAdminPageViewModel.Form)}.{nameof(vm.Password)}");
@@ -163,14 +238,8 @@ namespace MisureRicci.Controllers
 
             if (!ModelState.IsValid)
             {
-                model.Negozi = await _negozioService.GetAllAsync();
+                model.Negozi = isAdmin ? await _negozioService.GetAllAsync() : new List<Negozio>();
                 return View(model);
-            }
-
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-            {
-                return NotFound();
             }
 
             user.UserName = vm.UserName;
@@ -197,24 +266,32 @@ namespace MisureRicci.Controllers
                 ModelState.AddModelError(string.Empty, error.Description);
             }
 
-            model.Negozi = await _negozioService.GetAllAsync();
+            model.Negozi = isAdmin ? await _negozioService.GetAllAsync() : new List<Negozio>();
             return View(model);
         }
 
         public async Task<IActionResult> Delete(string? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
 
             var user = await _userManager.Users
                 .AsNoTracking()
                 .Include(u => u.Negozio)
                 .FirstOrDefaultAsync(u => u.Id == id);
-            if (user == null)
+
+            if (user == null) return NotFound();
+
+            if (!isAdmin)
             {
-                return NotFound();
+                if (userId == null) return Forbid();
+                var currentUser = await _userManager.FindByIdAsync(userId);
+                if (user.NegozioId != currentUser?.NegozioId)
+                {
+                    return Forbid();
+                }
             }
 
             user.Ruolo = await ResolveAssignedRoleAsync(user);
@@ -225,9 +302,22 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
+
             var user = await _userManager.FindByIdAsync(id);
             if (user != null)
             {
+                if (!isAdmin)
+                {
+                    if (userId == null) return Forbid();
+                    var currentUser = await _userManager.FindByIdAsync(userId);
+                    if (user.NegozioId != currentUser?.NegozioId)
+                    {
+                        return Forbid();
+                    }
+                }
+
                 await _userManager.DeleteAsync(user);
             }
 

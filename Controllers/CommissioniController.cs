@@ -7,12 +7,20 @@ using MisureRicci.Services;
 
 namespace MisureRicci.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin,Manager,Sartoria,Boutique")]
     public class CommissioniController : Controller
     {
         private readonly ICommessaService _commessaService;
         private readonly IClienteService _clienteService;
         private readonly ITenantService _tenantService;
+
+        private const string ImpossibileCreareLaCommessa = "Impossibile creare la commessa.";
+        private const string OperazioneNonConsentita = "Operazione non consentita.";
+        private const string ImpossibileAggiungereLaNota = "Impossibile aggiungere la nota.";
+        private const string ImpossibileCollegareLaMisura = "Impossibile collegare la misura.";
+        private const string ImpossibileScollegareLaMisura = "Impossibile scollegare la misura.";
+        
+        private const string CommissioneError = "CommissioneError";
 
         public CommissioniController(ICommessaService commessaService, IClienteService clienteService, ITenantService tenantService)
         {
@@ -26,6 +34,8 @@ namespace MisureRicci.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var isAdmin = _tenantService.IsAdmin();
             var currentNegozioId = _tenantService.GetCurrentNegozioId();
+
+            if (!isAdmin && !currentNegozioId.HasValue) return Forbid();
 
             const int pageSize = 20;
             var result = await _commessaService.GetCommissioniPagedAsync(clienteId, currentNegozioId, isAdmin, page, pageSize);
@@ -97,7 +107,7 @@ namespace MisureRicci.Controllers
             var result = await _commessaService.CreateCommessaAsync(model, userId, currentNegozioId, isAdmin);
             if (!result.IsSuccess || result.Value == null)
             {
-                ModelState.AddModelError(string.Empty, result.Error ?? "Impossibile creare la commessa.");
+                ModelState.AddModelError(string.Empty, result.Error ?? ImpossibileCreareLaCommessa);
                 model.MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(model.ClienteId, currentNegozioId, isAdmin);
                 return View(model);
             }
@@ -132,7 +142,7 @@ namespace MisureRicci.Controllers
             var result = await _commessaService.AdvanceStatoAsync(id, nuovoStato, note, userId, currentNegozioId, isAdmin);
             if (!result.IsSuccess)
             {
-                TempData["CommessaError"] = result.Error ?? "Operazione non consentita.";
+                TempData[CommissioneError] = result.Error ?? OperazioneNonConsentita;
                 return RedirectToAction(nameof(Details), new { id });
             }
 
@@ -151,7 +161,7 @@ namespace MisureRicci.Controllers
             var result = await _commessaService.AddNotaAsync(id, nota, userId, currentNegozioId, isAdmin);
             if (!result.IsSuccess)
             {
-                TempData["CommessaError"] = result.Error ?? "Impossibile aggiungere la nota.";
+                TempData[CommissioneError] = result.Error ?? ImpossibileAggiungereLaNota;
                 return RedirectToAction(nameof(Details), new { id });
             }
 
@@ -170,7 +180,7 @@ namespace MisureRicci.Controllers
             var result = await _commessaService.LinkMisuraAsync(id, misuraClienteId, userId, currentNegozioId, isAdmin);
             if (!result.IsSuccess)
             {
-                TempData["CommessaError"] = result.Error ?? "Impossibile collegare la misura alla commessa.";
+                TempData[CommissioneError] = result.Error ?? ImpossibileCollegareLaMisura;
                 return RedirectToAction(nameof(Details), new { id });
             }
 
@@ -188,7 +198,7 @@ namespace MisureRicci.Controllers
             var result = await _commessaService.UnlinkMisuraAsync(id, misuraClienteId, currentNegozioId, isAdmin);
             if (!result.IsSuccess)
             {
-                TempData["CommessaError"] = result.Error ?? "Impossibile scollegare la misura dalla commessa.";
+                TempData[CommissioneError] = result.Error ?? ImpossibileScollegareLaMisura;
                 return RedirectToAction(nameof(Details), new { id });
             }
 

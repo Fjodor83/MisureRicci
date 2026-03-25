@@ -50,7 +50,7 @@ namespace MisureRicci.Controllers
 
             if (bytes == null || bytes.Length == 0) return NotFound();
 
-            return File(bytes, "application/pdf", $"dossier-{cliente?.ClientCode ?? "cliente"}.pdf");
+            return File(bytes, "application/pdf", $"dossier-{cliente.ClientCode ?? "cliente"}.pdf");
         }
     }
 }

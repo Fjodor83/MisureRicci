@@ -50,7 +50,7 @@ namespace MisureRicci.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<MisureCliente>> GetGlobalRegistryAsync(string filter, int? negozioId, bool isAdmin)
+        public async Task<IEnumerable<MisureCliente>> GetGlobalRegistryAsync(string? filter, int? negozioId, bool isAdmin)
         {
             if (!CanAccessTenant(negozioId, isAdmin))
             {
@@ -67,7 +67,7 @@ namespace MisureRicci.Services
             return await query.OrderByDescending(m => m.DataCreazione).ToListAsync();
         }
 
-        public async Task<(IEnumerable<MisureCliente> Items, int TotalCount)> GetGlobalRegistryPagedAsync(string filter, int? negozioId, bool isAdmin, int page, int pageSize)
+        public async Task<(IEnumerable<MisureCliente> Items, int TotalCount)> GetGlobalRegistryPagedAsync(string? filter, int? negozioId, bool isAdmin, int page, int pageSize)
         {
             if (!CanAccessTenant(negozioId, isAdmin))
             {
@@ -244,7 +244,7 @@ namespace MisureRicci.Services
             return true;
         }
 
-        private IQueryable<MisureCliente> ApplyRegistryFilter(IQueryable<MisureCliente> query, string filter, int? negozioId, bool isAdmin)
+        private IQueryable<MisureCliente> ApplyRegistryFilter(IQueryable<MisureCliente> query, string? filter, int? negozioId, bool isAdmin)
         {
             if (!string.IsNullOrWhiteSpace(filter))
             {

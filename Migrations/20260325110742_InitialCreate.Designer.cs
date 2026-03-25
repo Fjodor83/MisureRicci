@@ -12,8 +12,8 @@ using MisureRicci.Data;
 namespace MisureRicci.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260324131120_NewTables")]
-    partial class NewTables
+    [Migration("20260325110742_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

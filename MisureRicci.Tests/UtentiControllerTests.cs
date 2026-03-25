@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MisureRicci.Controllers;
@@ -7,6 +8,7 @@ using MisureRicci.Services;
 using Moq;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -24,6 +26,24 @@ public class UtentiControllerTests
         _mockUserManager = new Mock<UserManager<ApplicationUser>>(store.Object, null!, null!, null!, null!, null!, null!, null!, null!);
         _mockNegozioService = new Mock<INegozioService>();
         _controller = new UtentiController(_mockUserManager.Object, _mockNegozioService.Object);
+        
+        SetupControllerUser("1", ApplicationRoles.Admin);
+    }
+
+    private void SetupControllerUser(string userId, string role)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId),
+            new Claim(ClaimTypes.Role, role)
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var principal = new ClaimsPrincipal(identity);
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = principal }
+        };
     }
 
     [Fact]

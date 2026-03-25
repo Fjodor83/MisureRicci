@@ -48,7 +48,7 @@ namespace MisureRicci.Models
 
         public DateTime DataRegistrazione { get; set; } = DateTime.UtcNow;
 
-        [Display(Name = "Negozio (Opzionale)")]
+        [Display(Name = "Negozio")]
         public int? NegozioId { get; set; }
         public virtual Negozio? Negozio { get; set; }
     }

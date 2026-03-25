@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MisureRicci.Controllers
 {
-    [Authorize(Roles = "Admin,Manager")]
+    [Authorize(Roles = "Admin,Manager,Sartoria,Boutique")]
     [Route("Report")]
     public class ReportController : Controller
     {
@@ -26,8 +26,16 @@ namespace MisureRicci.Controllers
         }
 
         [HttpGet("")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            var isAdmin = _tenantService.IsAdmin();
+            var currentNegozioId = _tenantService.GetCurrentNegozioId();
+
+            if (!isAdmin && !currentNegozioId.HasValue)
+            {
+                return Forbid();
+            }
+
             return View();
         }
 

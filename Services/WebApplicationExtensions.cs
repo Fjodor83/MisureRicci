@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MisureRicci.Data;
 using MisureRicci.Models;
+using MisureRicci.Models.Options;
 using MisureRicci.Services;
+using Microsoft.Extensions.Options;
 using Serilog;
 
 namespace Microsoft.AspNetCore.Builder
@@ -30,6 +32,38 @@ namespace Microsoft.AspNetCore.Builder
                     if (!await roleManager.RoleExistsAsync(roleName))
                     {
                         await roleManager.CreateAsync(new IdentityRole(roleName));
+                    }
+                }
+
+                // 3. Seed Admin User
+                var adminOptions = services.GetRequiredService<IOptions<BootstrapAdminOptions>>().Value;
+                if (adminOptions.Enabled && !string.IsNullOrWhiteSpace(adminOptions.Email))
+                {
+                    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+                    var adminUser = await userManager.FindByEmailAsync(adminOptions.Email);
+                    if (adminUser == null)
+                    {
+                        adminUser = new ApplicationUser
+                        {
+                            UserName = adminOptions.Email,
+                            Email = adminOptions.Email,
+                            EmailConfirmed = true,
+                            NomeCompleto = adminOptions.NomeCompleto,
+                            Ruolo = ApplicationRoles.Admin,
+                            Attivo = true
+                        };
+
+                        var result = await userManager.CreateAsync(adminUser, adminOptions.Password!);
+                        if (result.Succeeded)
+                        {
+                            await userManager.AddToRoleAsync(adminUser, ApplicationRoles.Admin);
+                            Log.Information("Admin user {Email} created via bootstrap.", adminOptions.Email);
+                        }
+                        else
+                        {
+                            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                            Log.Error("Failed to create admin user {Email}: {Errors}", adminOptions.Email, errors);
+                        }
                     }
                 }
 

@@ -8,18 +8,9 @@ namespace MisureRicci.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        private readonly ITenantService? _tenantService;
-        private readonly int? _currentTenantId;
-        private readonly bool _isTenantAdmin;
-
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ITenantService? tenantService = null)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-            _tenantService = tenantService;
-            _currentTenantId = _tenantService?.GetCurrentNegozioId();
-            // In testing or design-time (migrations), if no service is provided, we default to Admin=true
-            // to ensure all data is visible/manageable.
-            _isTenantAdmin = _tenantService?.IsAdmin() ?? true;
         }
 
         public DbSet<Negozio> Negozi { get; set; } = default!;
@@ -70,44 +61,14 @@ namespace MisureRicci.Data
             builder.Entity<CravattaMeasurement>().ToTable("MisureCravatta");
             builder.Entity<CinturaMeasurement>().ToTable("MisureCintura");
 
-            // Global Query Filters per Multi-Tenancy
-            // Use local fields initialized in constructor to ensure proper expression translation
-            builder.Entity<CommessaSartoriale>().HasQueryFilter(c => 
-                _isTenantAdmin || (c.NegozioId == _currentTenantId));
-            
-            builder.Entity<MisureCliente>().HasQueryFilter(m => 
-                _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
-            
-            builder.Entity<Cliente>().HasQueryFilter(c => 
-                _isTenantAdmin || (c.NegozioId == _currentTenantId));
-            
-            builder.Entity<DynamicMeasurementRecord>().HasQueryFilter(r => 
-                _isTenantAdmin || (r.Cliente != null && r.Cliente.NegozioId == _currentTenantId));
+            // Computed Column handling for ClientCode
+            builder.Entity<Cliente>()
+                .Property(c => c.ClientCode)
+                .ValueGeneratedOnAddOrUpdate()
+                .Metadata.SetAfterSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Ignore);
 
-            builder.Entity<DynamicMeasurementValue>().HasQueryFilter(v =>
-                _isTenantAdmin || (v.DynamicMeasurementRecord != null && v.DynamicMeasurementRecord.Cliente != null && v.DynamicMeasurementRecord.Cliente.NegozioId == _currentTenantId));
-
-            builder.Entity<CommessaEvento>().HasQueryFilter(e =>
-                _isTenantAdmin || (e.CommessaSartoriale != null && e.CommessaSartoriale.NegozioId == _currentTenantId));
-
-            builder.Entity<CommessaMisuraLink>().HasQueryFilter(l =>
-                _isTenantAdmin || (l.CommessaSartoriale != null && l.CommessaSartoriale.NegozioId == _currentTenantId));
-
-            // Negozi e Utenti: NON filtrati per tenant.
-            // - Negozi: visibili a tutti (dropdown, selezione, ecc.)
-            // - ApplicationUser: filtrati dalla [Authorize(Roles)] nei controller, non dal DbContext
-
-            // Legacy measurement filters
-            builder.Entity<GiaccaMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
-            builder.Entity<PantaloneMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
-            builder.Entity<GiletMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
-            builder.Entity<CamiciaMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
-            builder.Entity<AbitoCompletoMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
-            builder.Entity<MaglieMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
-            builder.Entity<OutdoorMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
-            builder.Entity<ScarpeMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
-            builder.Entity<CravattaMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
-            builder.Entity<CinturaMeasurement>().HasQueryFilter(m => _isTenantAdmin || (m.Cliente != null && m.Cliente.NegozioId == _currentTenantId));
+            // Note: Multi-tenancy filters have been removed from DbContext to avoid stale state capture 
+            // and circular dependency issues. Scoping is now enforced exclusively in the service layer.
         }
     }
 }

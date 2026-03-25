@@ -1,8 +1,10 @@
 @{
     ViewData["Title"] = "Report & Export";
     var isAdmin = User.IsInRole("Admin");
+    var isManager = User.IsInRole("Manager");
+    var isBoutique = User.IsInRole("Boutique");
+    var canSeeAll = isAdmin;
 }
-
 <section class="page-hero">
     <div class="page-hero__content">
         <span class="page-kicker">Reporting workspace</span>

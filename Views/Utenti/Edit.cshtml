@@ -39,7 +39,10 @@
             <div class="col-md-6">
                 <label asp-for="Form.Ruolo" class="form-label"></label>
                 <select asp-for="Form.Ruolo" class="form-select">
-                    <option value="Admin">Amministratore</option>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <option value="Admin">Amministratore</option>
+                    }
                     <option value="Sartoria">Mastro Sarto</option>
                     <option value="Boutique">Personale Boutique</option>
                     <option value="Manager">Regional Manager</option>
@@ -48,9 +51,17 @@
             </div>
             <div class="col-md-6">
                 <label asp-for="Form.NegozioId" class="form-label"></label>
-                <select asp-for="Form.NegozioId" class="form-select" asp-items="@(new SelectList(Model.Negozi, "Id", "Nome"))">
-                    <option value="">-- Seleziona Negozio --</option>
-                </select>
+                @if (User.IsInRole("Admin"))
+                {
+                    <select asp-for="Form.NegozioId" class="form-select" asp-items="@(new SelectList(Model.Negozi, "Id", "Nome"))">
+                        <option value="">-- Seleziona Negozio --</option>
+                    </select>
+                }
+                else
+                {
+                    <input type="hidden" asp-for="Form.NegozioId" />
+                    <input class="form-control" value="@(Model.Negozi.FirstOrDefault(n => n.Id == Model.Form.NegozioId)?.Nome ?? "Negozio non assegnato")" readonly />
+                }
                 <span asp-validation-for="Form.NegozioId" class="text-danger"></span>
             </div>
         </div>

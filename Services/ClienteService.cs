@@ -13,7 +13,7 @@ namespace MisureRicci.Services
             _context = context;
         }
 
-        public async Task<(IEnumerable<Cliente> Items, int TotalCount)> GetClientiPagedAsync(string searchString, int? negozioId, bool isAdmin, int page, int pageSize)
+        public async Task<(IEnumerable<Cliente> Items, int TotalCount)> GetClientiPagedAsync(string? searchString, int? negozioId, bool isAdmin, int page, int pageSize)
         {
             var query = ApplyClienteScope(_context.Clienti.AsNoTracking(), negozioId, isAdmin);
 
@@ -109,7 +109,6 @@ namespace MisureRicci.Services
             }
 
             NormalizeCliente(cliente);
-            cliente.ClientCode = null;
 
             if (isAdmin)
             {
@@ -201,8 +200,14 @@ namespace MisureRicci.Services
         public async Task UpdateClienteAsync(Cliente cliente)
         {
             NormalizeCliente(cliente);
-            _context.Update(cliente);
-            await _context.SaveChangesAsync();
+            
+            var existing = await _context.Clienti.FindAsync(cliente.Id);
+            if (existing != null)
+            {
+                _context.Entry(existing).CurrentValues.SetValues(cliente);
+                _context.Entry(existing).Property(x => x.ClientCode).IsModified = false;
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task DeleteClienteAsync(int id)

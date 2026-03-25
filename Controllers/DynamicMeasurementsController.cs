@@ -8,7 +8,7 @@ using MisureRicci.Services;
 
 namespace MisureRicci.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin,Manager,Sartoria,Boutique")]
     public class DynamicMeasurementsController : Controller
     {
         private readonly ICustomMeasurementService _customMeasurementService;
@@ -16,6 +16,8 @@ namespace MisureRicci.Controllers
         private readonly ICommessaService _commessaService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<DynamicMeasurementsController> _logger;
+        private const string Admin = "Admin";
+        private const string Crea = "Crea";
 
         public DynamicMeasurementsController(
             ICustomMeasurementService customMeasurementService,
@@ -36,7 +38,7 @@ namespace MisureRicci.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = User.IsInRole("Admin");
+            var isAdmin = User.IsInRole(ApplicationRoles.Admin);
             var cliente = await _clienteService.GetClienteScopedAsync(clienteId, currentUser?.NegozioId, isAdmin);
             if (cliente == null)
             {
@@ -86,7 +88,7 @@ namespace MisureRicci.Controllers
             if (!ModelState.IsValid)
             {
                 var currentUser0 = await _userManager.GetUserAsync(User);
-                var isAdmin0 = User.IsInRole("Admin");
+                var isAdmin0 = User.IsInRole(ApplicationRoles.Admin);
                 var cliente0 = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser0?.NegozioId, isAdmin0);
                 var type0 = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
                 if (cliente0 != null) model.ClienteNome = $"{cliente0.Nome} {cliente0.Cognome}";
@@ -95,7 +97,7 @@ namespace MisureRicci.Controllers
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = User.IsInRole("Admin");
+            var isAdmin = User.IsInRole(ApplicationRoles.Admin);
             var cliente = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser?.NegozioId, isAdmin);
             var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
 
@@ -184,7 +186,7 @@ namespace MisureRicci.Controllers
                 return NotFound();
             }
 
-            return View("Create", vm);
+            return View(Crea, vm);
         }
 
         [HttpPost]
@@ -194,16 +196,16 @@ namespace MisureRicci.Controllers
             if (!ModelState.IsValid)
             {
                 var currentUser0 = await _userManager.GetUserAsync(User);
-                var isAdmin0 = User.IsInRole("Admin");
+                var isAdmin0 = User.IsInRole(ApplicationRoles.Admin);
                 var cliente0 = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser0?.NegozioId, isAdmin0);
                 var type0 = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
                 if (cliente0 != null) model.ClienteNome = $"{cliente0.Nome} {cliente0.Cognome}";
                 if (type0 != null) model.TipoNome = type0.Nome;
-                return View("Create", model);
+                return View(Crea, model);
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = User.IsInRole("Admin");
+            var isAdmin = User.IsInRole(ApplicationRoles.Admin);
             var cliente = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser?.NegozioId, isAdmin);
             var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
 
@@ -224,13 +226,13 @@ namespace MisureRicci.Controllers
             {
                 _logger.LogWarning(ex, "Operazione non valida in modifica misura dinamica record {RecordId}", model.RecordId);
                 ModelState.AddModelError(string.Empty, "I dati inseriti non sono validi.");
-                return View("Create", model);
+                return View(Crea, model);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Errore imprevisto durante la modifica misura dinamica record {RecordId}", model.RecordId);
                 ModelState.AddModelError(string.Empty, "Si è verificato un errore interno. Riprovare.");
-                return View("Create", model);
+                return View(Crea, model);
             }
         }
 
@@ -240,7 +242,7 @@ namespace MisureRicci.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = User.IsInRole("Admin");
+            var isAdmin = User.IsInRole(ApplicationRoles.Admin);
             var cliente = await _clienteService.GetClienteScopedAsync(clienteId, currentUser?.NegozioId, isAdmin);
             if (cliente == null)
             {
@@ -253,7 +255,7 @@ namespace MisureRicci.Controllers
 
         private async Task<bool> CanAccessClienteAsync(int? clienteNegozioId)
         {
-            if (User.IsInRole("Admin"))
+            if (User.IsInRole(ApplicationRoles.Admin))
             {
                 return true;
             }

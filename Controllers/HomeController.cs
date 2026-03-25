@@ -8,13 +8,11 @@ namespace MisureRicci.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly IDashboardService _dashboardService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public HomeController(ILogger<HomeController> logger, IDashboardService dashboardService, UserManager<ApplicationUser> userManager)
+        public HomeController(IDashboardService dashboardService, UserManager<ApplicationUser> userManager)
         {
-            _logger = logger;
             _dashboardService = dashboardService;
             _userManager = userManager;
         }

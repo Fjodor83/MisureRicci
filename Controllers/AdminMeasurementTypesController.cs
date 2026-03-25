@@ -13,11 +13,12 @@ namespace MisureRicci.Controllers
     public class AdminMeasurementTypesController : Controller
     {
         private const long MaxImageUploadRequestSize = 6 * 1024 * 1024;
-
+        private const string EsisteGiaUnaTipologiaConQuestoNome = "Esiste gia una tipologia con questo nome.";
+        private const string SiEVerificatoUnErroreInternoRiprovare = "Si e verificato un errore interno. Riprovare.";
         private readonly ICustomMeasurementService _customMeasurementService;
         private readonly IMeasurementTypeImageStorageService _measurementTypeImageStorageService;
         private readonly ILogger<AdminMeasurementTypesController> _logger;
-
+        
         public AdminMeasurementTypesController(
             ICustomMeasurementService customMeasurementService,
             IMeasurementTypeImageStorageService measurementTypeImageStorageService,
@@ -45,6 +46,7 @@ namespace MisureRicci.Controllers
         [RequestFormLimits(MultipartBodyLengthLimit = MaxImageUploadRequestSize)]
         public async Task<IActionResult> CreateType(MeasurementType model)
         {
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -75,7 +77,7 @@ namespace MisureRicci.Controllers
                     await _measurementTypeImageStorageService.DeleteImageAsync(storedImageUrl, HttpContext.RequestAborted);
                 }
 
-                ModelState.AddModelError(nameof(model.Nome), "Esiste gia una tipologia con questo nome.");
+                ModelState.AddModelError(nameof(model.Nome), EsisteGiaUnaTipologiaConQuestoNome);
                 return View(model);
             }
             catch (Exception ex)
@@ -86,7 +88,7 @@ namespace MisureRicci.Controllers
                 }
 
                 _logger.LogError(ex, "Errore durante la creazione della tipologia misura {Nome}", model.Nome);
-                ModelState.AddModelError(string.Empty, "Si e verificato un errore interno. Riprovare.");
+                ModelState.AddModelError(string.Empty, SiEVerificatoUnErroreInternoRiprovare);
                 return View(model);
             }
         }
@@ -251,7 +253,7 @@ namespace MisureRicci.Controllers
             }
             catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
             {
-                ModelState.AddModelError(nameof(model.NomeCampo), "Esiste gia un campo con questo nome per la tipologia selezionata.");
+                ModelState.AddModelError(nameof(model.NomeCampo), "EsisteGiaUnCampoConQuestoNomePerLaTipologiaSelezionata");
                 var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
                 pageModel.TypeName = type?.Nome ?? string.Empty;
                 return View(pageModel);
@@ -259,7 +261,7 @@ namespace MisureRicci.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Errore durante la creazione del campo {NomeCampo} per tipo {TypeId}", model.NomeCampo, model.MeasurementTypeId);
-                ModelState.AddModelError(string.Empty, "Si e verificato un errore interno. Riprovare.");
+                ModelState.AddModelError(string.Empty, SiEVerificatoUnErroreInternoRiprovare);
                 var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
                 pageModel.TypeName = type?.Nome ?? string.Empty;
                 return View(pageModel);
@@ -313,7 +315,7 @@ namespace MisureRicci.Controllers
             }
             catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
             {
-                ModelState.AddModelError(nameof(model.NomeCampo), "Esiste gia un campo con questo nome per la tipologia selezionata.");
+                ModelState.AddModelError(nameof(model.NomeCampo), "EsisteGiaUnCampoConQuestoNomePerLaTipologiaSelezionata");
                 var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
                 pageModel.TypeName = type?.Nome ?? string.Empty;
                 return View(pageModel);
@@ -321,7 +323,7 @@ namespace MisureRicci.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Errore durante la modifica del campo {Id}", model.Id);
-                ModelState.AddModelError(string.Empty, "Si e verificato un errore interno. Riprovare.");
+                ModelState.AddModelError(string.Empty, SiEVerificatoUnErroreInternoRiprovare);
                 var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
                 pageModel.TypeName = type?.Nome ?? string.Empty;
                 return View(pageModel);
@@ -340,7 +342,7 @@ namespace MisureRicci.Controllers
                 || message.Contains("duplicate", StringComparison.OrdinalIgnoreCase);
         }
 
-        private void RestoreMetadata(MeasurementType model, MeasurementType existing, string? imageUrlOverride = null)
+        private static void RestoreMetadata(MeasurementType model, MeasurementType existing, string? imageUrlOverride = null)
         {
             model.ImageUrl = imageUrlOverride ?? existing.ImageUrl;
             model.CreatedAt = existing.CreatedAt;
@@ -355,12 +357,12 @@ namespace MisureRicci.Controllers
             }
             else if (ex is DbUpdateException dbEx && IsUniqueConstraintViolation(dbEx))
             {
-                ModelState.AddModelError(nameof(model.Nome), "Esiste gia una tipologia con questo nome.");
+                ModelState.AddModelError(nameof(model.Nome), EsisteGiaUnaTipologiaConQuestoNome);
             }
             else
             {
                 _logger.LogError(ex, "Errore durante la modifica della tipologia misura {Id}", model.Id);
-                ModelState.AddModelError(string.Empty, "Si e verificato un errore interno. Riprovare.");
+                ModelState.AddModelError(string.Empty, SiEVerificatoUnErroreInternoRiprovare);
             }
         }
 

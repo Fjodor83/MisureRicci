@@ -26,17 +26,34 @@ namespace MisureRicci.Services
             {
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2);
 
-                var totalClients = await _context.Clienti.CountAsync();
-                var totalMeasurements = await _context.Misure.CountAsync();
-                var totalStores = await _context.Negozi.CountAsync();
-                var totalStaff = await _context.Users.CountAsync();
+                var clientsQuery = _context.Clienti.AsQueryable();
+                var measurementsQuery = _context.Misure.AsQueryable();
+                var storesQuery = _context.Negozi.AsQueryable();
+                var staffQuery = _context.Users.AsQueryable();
+
+                if (!isAdmin)
+                {
+                    if (negozioId.HasValue)
+                    {
+                        clientsQuery = clientsQuery.Where(x => x.NegozioId == negozioId.Value);
+                        measurementsQuery = measurementsQuery.Where(x => x.Cliente!.NegozioId == negozioId.Value);
+                        // Stores: depends on requirement, but usually staff sees only their store
+                        storesQuery = storesQuery.Where(x => x.Id == negozioId.Value);
+                        staffQuery = staffQuery.Where(x => x.NegozioId == negozioId.Value);
+                    }
+                    else
+                    {
+                        // No access if not admin and no store assigned
+                        return new DashboardKpiViewModel();
+                    }
+                }
 
                 return new DashboardKpiViewModel
                 {
-                    TotalClients = totalClients,
-                    TotalMeasurements = totalMeasurements,
-                    TotalStores = totalStores,
-                    TotalStaff = totalStaff
+                    TotalClients = await clientsQuery.CountAsync(),
+                    TotalMeasurements = await measurementsQuery.CountAsync(),
+                    TotalStores = await storesQuery.CountAsync(),
+                    TotalStaff = await staffQuery.CountAsync()
                 };
             }) ?? new DashboardKpiViewModel();
         }

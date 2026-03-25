@@ -87,7 +87,7 @@ public class DashboardServiceTests
 
         mockTenant.Setup(s => s.GetCurrentNegozioId()).Returns(negozio1Id);
 
-        using (var actContext = factory.CreateContext(mockTenant.Object))
+        using (var actContext = factory.CreateContext())
         {
             var service = new DashboardService(actContext, new MemoryCache(new MemoryCacheOptions()));
             var result = await service.GetKpiAsync(negozio1Id, isAdmin: false);
@@ -107,7 +107,7 @@ public class DashboardServiceTests
         mockTenant.Setup(s => s.IsAdmin()).Returns(false);
         mockTenant.Setup(s => s.GetCurrentNegozioId()).Returns((int?)null);
 
-        using var context = factory.CreateContext(mockTenant.Object);
+        using var context = factory.CreateContext();
 
         var service = new DashboardService(context, new MemoryCache(new MemoryCacheOptions()));
         var result = await service.GetKpiAsync(negozioId: null, isAdmin: false);

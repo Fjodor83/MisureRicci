@@ -18,13 +18,13 @@ internal sealed class TestDbContextFactory : IDisposable
         context.Database.EnsureCreated();
     }
 
-    public ApplicationDbContext CreateContext(Services.ITenantService? tenantService = null)
+    public ApplicationDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseSqlite(_connection)
             .Options;
 
-        return new ApplicationDbContext(options, tenantService);
+        return new ApplicationDbContext(options);
     }
 
     public void Dispose()

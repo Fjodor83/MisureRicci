@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 using MisureRicci.Models.Options;
 using QuestPDF.Infrastructure;
 using Serilog;
@@ -41,6 +42,11 @@ try
         .AddProjectIdentity()
         .AddProjectServices()
         .AddProjectRateLimiters();
+
+    builder.Services.AddOptions<BootstrapAdminOptions>()
+        .BindConfiguration(BootstrapAdminOptions.SectionName)
+        .ValidateOnStart();
+    builder.Services.AddSingleton<IValidateOptions<BootstrapAdminOptions>, BootstrapAdminOptionsValidator>();
 
     builder.Services.AddHealthChecks()
         .AddCheck<MisureRicci.Services.SqlServerHealthCheck>("sqlserver", tags: new[] { "ready" });
