@@ -1,21 +1,6 @@
+/* Sincronizzazione totale con Misure Ricci Design System */
 :root {
-    --login-max-width: 440px;
-    --gold-gradient: linear-gradient(135deg, #d4af37 0%, #c48a33 50%, #8a5920 100%);
-    
-    /* Variabili specifiche per il login (versione Light di default) */
-    --login-card-bg: rgba(255, 251, 246, 0.7);
-    --login-border: rgba(196, 138, 51, 0.2);
-    --login-input-border: rgba(16, 32, 51, 0.1);
-    --login-bg-color: #f8f4ef;
-    --login-texture: rgba(196, 138, 51, 0.05);
-}
-
-body.theme-dark {
-    --login-card-bg: rgba(18, 27, 41, 0.4);
-    --login-border: rgba(196, 138, 51, 0.15);
-    --login-input-border: rgba(255, 255, 255, 0.1);
-    --login-bg-color: #0b121e;
-    --login-texture: rgba(196, 138, 51, 0.03);
+    --login-container-width: 440px;
 }
 
 body.login-page {
@@ -23,170 +8,137 @@ body.login-page {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--space-6);
-    background-color: var(--login-bg-color);
-    background-image: 
-        radial-gradient(circle at 0% 0%, rgba(196, 138, 51, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 100% 100%, rgba(60, 116, 197, 0.05) 0%, transparent 40%);
+    padding: var(--space-5);
+    /* Utilizzo del gradiente identico al body di site.css */
+    background: 
+        radial-gradient(circle at top left, rgba(196, 138, 51, 0.12), transparent 30%),
+        radial-gradient(circle at 85% 12%, rgba(60, 116, 197, 0.08), transparent 28%),
+        linear-gradient(135deg, var(--bg-main), var(--bg-alt));
     position: relative;
-    overflow: hidden;
-    transition: background-color 0.5s ease;
+    overflow-x: hidden;
 }
 
+/* Griglia di sfondo identica a site.css */
 body.login-page::before {
     content: "";
     position: fixed;
     inset: 0;
     pointer-events: none;
-    background-image: 
-        linear-gradient(var(--login-texture) 1px, transparent 1px),
-        linear-gradient(90deg, var(--login-texture) 1px, transparent 1px);
-    background-size: 30px 30px;
-    mask-image: radial-gradient(circle at center, black 20%, transparent 80%);
+    background-image:
+        linear-gradient(rgba(196, 138, 51, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(196, 138, 51, 0.05) 1px, transparent 1px);
+    background-size: 34px 34px;
+    mask-image: radial-gradient(circle at center, black 28%, transparent 88%);
 }
 
 .login-container {
     width: 100%;
-    max-width: var(--login-max-width);
-    position: relative;
-    z-index: 2;
-    animation: login-reveal 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+    max-width: var(--login-container-width);
+    z-index: 10;
+    animation: page-enter 0.6s var(--transition-slow);
 }
 
-.login-brand {
+.login-brand-panel {
     text-align: center;
-    margin-bottom: 3.5rem;
+    margin-bottom: var(--space-7);
 }
 
-.login-logo-text {
+/* Logo identico alla sidebar */
+.login-brand-mark {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    margin: 0 auto var(--space-4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    color: #fff7ef;
     font-family: var(--font-display);
-    font-size: 3.2rem;
-    font-weight: 500;
-    line-height: 1;
+    font-size: 2rem;
+    font-weight: 700;
+    box-shadow: 0 12px 24px rgba(138, 89, 32, 0.22);
+}
+
+.login-brand-text {
+    font-family: var(--font-display);
+    font-size: 2.8rem;
     color: var(--text-main);
-    letter-spacing: 0.05em;
-    margin-bottom: 0.5rem;
-    text-transform: uppercase;
+    line-height: 1;
+    margin-bottom: var(--space-2);
 }
 
-.login-logo-sub {
-    font-family: var(--font-ui);
-    font-size: 0.75rem;
-    color: var(--accent);
+.login-brand-sub {
+    color: var(--text-soft);
     text-transform: uppercase;
-    letter-spacing: 0.4em;
-    font-weight: 600;
-    opacity: 0.8;
+    letter-spacing: 0.18em;
+    font-size: 0.78rem;
+    font-weight: 700;
 }
 
+/* Card identica a .card / .form-shell del sistema */
 .login-card {
-    background: var(--login-card-bg);
-    border: 1px solid var(--login-border);
-    border-radius: 2px;
-    padding: 3.5rem 3rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: clamp(1.5rem, 3vw, 3rem);
     box-shadow: var(--shadow-md);
-    backdrop-filter: blur(20px);
     position: relative;
-    transition: background 0.5s ease;
+    overflow: hidden;
 }
 
-.login-card::before {
+/* Accento decorativo superiore tipico del tuo sistema */
+.login-card::after {
     content: "";
     position: absolute;
     top: 0;
-    left: 15%;
-    right: 15%;
-    height: 1px;
-    background: var(--gold-gradient);
-    opacity: 0.6;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+    opacity: 0.8;
 }
 
 .login-header {
-    margin-bottom: 2.5rem;
-    text-align: center;
+    margin-bottom: var(--space-6);
 }
 
 .login-title {
     font-family: var(--font-display);
-    font-size: 1.6rem;
-    font-weight: 400;
+    font-size: 1.8rem;
+    margin: 0;
     color: var(--text-main);
-    font-style: italic;
 }
 
-.login-form .form-label {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: var(--text-soft);
-    margin-bottom: 0.8rem;
+.login-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: var(--space-2);
 }
 
-.login-form .input-group {
-    background: transparent;
-    border-bottom: 1px solid var(--login-input-border);
-    border-radius: 0;
-    margin-bottom: 2.2rem;
-    transition: border-color 0.4s ease;
-}
-
-.login-form .input-group:focus-within {
-    border-bottom-color: var(--accent);
-}
-
-.login-form .input-group-text {
-    background: transparent;
-    border: none;
-    color: var(--accent);
-    padding-left: 0;
-}
-
-.login-form .form-control {
-    background: transparent !important;
-    border: none !important;
-    color: var(--text-main) !important;
-    font-family: var(--font-display);
-    font-size: 1.2rem;
-    padding: 0.6rem 0.8rem;
-}
-
+/* Stile pulsante unificato */
 .btn-login {
     width: 100%;
-    background: transparent;
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    border-radius: 0;
-    padding: 1.1rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.3em;
-    transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.btn-login:hover {
-    background: var(--accent);
-    color: #fff;
-    transform: translateY(-2px);
+    margin-top: var(--space-4);
+    padding: 1rem;
+    font-size: 0.9rem;
 }
 
 .login-footer {
     text-align: center;
-    margin-top: 3.5rem;
+    margin-top: var(--space-7);
     color: var(--text-soft);
-    font-family: var(--font-display);
-    font-style: italic;
+    font-size: 0.8rem;
 }
 
-/* Theme Toggle Button for Login */
-.login-theme-toggle {
-    position: absolute;
-    top: 2rem;
-    right: 2rem;
-    z-index: 10;
+/* Floating Theme Toggle identico all'header */
+.login-theme-switch {
+    position: fixed;
+    top: var(--space-5);
+    right: var(--space-5);
+    z-index: 100;
 }
 
-@keyframes login-reveal {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+@media (max-width: 575.98px) {
+    .login-brand-text { font-size: 2.2rem; }
 }

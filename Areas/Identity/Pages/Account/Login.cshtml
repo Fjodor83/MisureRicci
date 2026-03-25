@@ -2,7 +2,7 @@
 @model MisureRicci.Areas.Identity.Pages.Account.LoginModel
 
 @{
-    ViewData["Title"] = "Ingresso Atelier";
+    ViewData["Title"] = "Accedi";
     Layout = null;
 }
 
@@ -20,70 +20,70 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
     <script>
-        // Script immediato per evitare il flash di luce se l'utente preferisce il dark mode
         (function () {
             const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
             if (theme === 'dark') {
                 document.documentElement.classList.add('theme-dark');
-                document.body.classList.add('theme-dark');
             }
         })();
     </script>
 </head>
 <body class="login-page">
-    <div class="login-theme-toggle">
-        <button type="button" id="themeToggle" class="btn btn-outline-gold btn-sm" style="border-radius: 999px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
-            <i class="bi bi-moon-stars-fill"></i>
+    <div class="login-theme-switch">
+        <button type="button" id="themeToggle" class="btn btn-outline-secondary btn-sm header-theme-toggle" title="Cambia tema" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+            <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
         </button>
     </div>
 
     <div class="login-container">
-        <header class="login-brand">
-            <h1 class="login-logo-text">Misure Ricci</h1>
-            <div class="login-logo-sub">Master Tailor Workspace</div>
+        <header class="login-brand-panel">
+            <div class="login-brand-mark">MR</div>
+            <h1 class="login-brand-text">Misure Ricci</h1>
+            <div class="login-brand-sub">Tailoring Business Workspace</div>
         </header>
         
-        <div class="login-card">
+        <div class="login-card card">
             <div class="login-header">
-                <h2 class="login-title">Autenticazione Richiesta</h2>
+                <h2 class="login-title">Autenticazione</h2>
+                <p class="login-subtitle">Accedi per gestire il tuo atelier</p>
             </div>
             
             <form id="account" method="post" class="login-form">
-                <div asp-validation-summary="ModelOnly" class="validation-summary-errors mb-5"></div>
+                <div asp-validation-summary="ModelOnly" class="validation-summary-errors mb-4"></div>
                 
-                <div class="mb-2">
-                    <label asp-for="Input.Email" class="form-label">Identificativo Professionale</label>
+                <div class="mb-4">
+                    <label asp-for="Input.Email" class="form-label">Identificativo Staff</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-envelope-at"></i></span>
-                        <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="atelier@mizurericci.it" />
+                        <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="staff@mizurericci.it" />
                     </div>
+                    <span asp-validation-for="Input.Email" class="text-danger small mt-1 d-block"></span>
                 </div>
 
-                <div class="mb-2">
-                    <label asp-for="Input.Password" class="form-label">Chiave Personale</label>
+                <div class="mb-4">
+                    <label asp-for="Input.Password" class="form-label">Chiave d'Accesso</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
-                        <input asp-for="Input.Password" type="password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Inserire password" />
+                        <input asp-for="Input.Password" type="password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="••••••••" />
                     </div>
+                    <span asp-validation-for="Input.Password" class="text-danger small mt-1 d-block"></span>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-4">
                     <div class="form-check">
                         <input class="form-check-input" asp-for="Input.RememberMe" />
-                        <label class="form-check-label" asp-for="Input.RememberMe" style="font-size: 0.75rem; color: var(--text-soft); letter-spacing: 0.05em;">
-                            Mantieni l'accesso
+                        <label class="form-check-label" asp-for="Input.RememberMe" style="font-size: 0.85rem; color: var(--text-muted);">
+                            Ricorda sessione
                         </label>
                     </div>
                 </div>
 
-                <button id="login-submit" type="submit" class="btn btn-login">
-                    Entra nell'Atelier
+                <button id="login-submit" type="submit" class="btn btn-gold btn-login">
+                    Accedi al Sistema <i class="bi bi-arrow-right ms-2"></i>
                 </button>
             </form>
         </div>
         
         <footer class="login-footer">
-            Eccellenza Italiana &middot; Sartoria su Misura &middot; 2026
+            &copy; 2026 Misure Ricci Design System &middot; Eccellenza Italiana
         </footer>
     </div>
 
@@ -91,28 +91,33 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function() {
+            const body = $('body');
+            const html = $('html');
             const themeToggle = $('#themeToggle');
-            const icon = themeToggle.find('i');
+            const icon = $('#themeIcon');
             
             function updateTheme(isDark) {
                 if (isDark) {
-                    $('body, html').addClass('theme-dark');
+                    body.addClass('theme-dark');
+                    html.addClass('theme-dark');
                     icon.removeClass('bi-moon-stars-fill').addClass('bi-sun-fill');
                     localStorage.setItem('theme', 'dark');
                 } else {
-                    $('body, html').removeClass('theme-dark');
+                    body.removeClass('theme-dark');
+                    html.removeClass('theme-dark');
                     icon.removeClass('bi-sun-fill').addClass('bi-moon-stars-fill');
                     localStorage.setItem('theme', 'light');
                 }
             }
 
-            // Inizializzazione icona
-            if ($('body').hasClass('theme-dark')) {
+            // Inizializzazione basata su classe esistente (settata dallo script nell'head)
+            if (html.hasClass('theme-dark')) {
+                body.addClass('theme-dark');
                 icon.removeClass('bi-moon-stars-fill').addClass('bi-sun-fill');
             }
 
             themeToggle.on('click', function() {
-                const isDark = !$('body').hasClass('theme-dark');
+                const isDark = !html.hasClass('theme-dark');
                 updateTheme(isDark);
             });
         });
