@@ -12,6 +12,8 @@
     </div>
     <div class="page-actions">
         <span class="status-pill @(Model.Attivo ? "status-pill--success" : "status-pill--danger")">@(Model.Attivo ? "Operativo" : "Non operativo")</span>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Modifica</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">Elimina</a>
         <a asp-action="Index" class="btn btn-outline-secondary">Torna alla lista</a>
     </div>
 </section>

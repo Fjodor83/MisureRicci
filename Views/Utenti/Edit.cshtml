@@ -63,6 +63,7 @@
 
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">Salva</button>
+        <a asp-action="Delete" asp-route-id="@Model.Form.Id" class="btn btn-outline-danger ms-auto">Elimina</a>
         <a asp-action="Index" class="btn btn-outline-secondary">Annulla</a>
     </div>
 </form>
