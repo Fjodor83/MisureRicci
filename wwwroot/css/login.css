@@ -1,165 +1,192 @@
 :root {
-    --login-bg: #050810;
+    --login-max-width: 440px;
+    --gold-gradient: linear-gradient(135deg, #d4af37 0%, #c48a33 50%, #8a5920 100%);
+    
+    /* Variabili specifiche per il login (versione Light di default) */
+    --login-card-bg: rgba(255, 251, 246, 0.7);
+    --login-border: rgba(196, 138, 51, 0.2);
+    --login-input-border: rgba(16, 32, 51, 0.1);
+    --login-bg-color: #f8f4ef;
+    --login-texture: rgba(196, 138, 51, 0.05);
+}
+
+body.theme-dark {
+    --login-card-bg: rgba(18, 27, 41, 0.4);
+    --login-border: rgba(196, 138, 51, 0.15);
+    --login-input-border: rgba(255, 255, 255, 0.1);
+    --login-bg-color: #0b121e;
+    --login-texture: rgba(196, 138, 51, 0.03);
 }
 
 body.login-page {
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--login-bg);
+    padding: var(--space-6);
+    background-color: var(--login-bg-color);
     background-image: 
-        radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.05) 0%, transparent 40%),
-        radial-gradient(circle at 80% 70%, rgba(212, 175, 55, 0.05) 0%, transparent 40%);
+        radial-gradient(circle at 0% 0%, rgba(196, 138, 51, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 100% 100%, rgba(60, 116, 197, 0.05) 0%, transparent 40%);
+    position: relative;
     overflow: hidden;
-    margin: 0;
-    font-family: 'Playfair Display', serif;
+    transition: background-color 0.5s ease;
+}
+
+body.login-page::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: 
+        linear-gradient(var(--login-texture) 1px, transparent 1px),
+        linear-gradient(90deg, var(--login-texture) 1px, transparent 1px);
+    background-size: 30px 30px;
+    mask-image: radial-gradient(circle at center, black 20%, transparent 80%);
 }
 
 .login-container {
     width: 100%;
-    max-width: 450px;
-    padding: 20px;
-    animation: fadeIn 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+    max-width: var(--login-max-width);
+    position: relative;
+    z-index: 2;
+    animation: login-reveal 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.login-brand {
+    text-align: center;
+    margin-bottom: 3.5rem;
+}
+
+.login-logo-text {
+    font-family: var(--font-display);
+    font-size: 3.2rem;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--text-main);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.login-logo-sub {
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.4em;
+    font-weight: 600;
+    opacity: 0.8;
 }
 
 .login-card {
-    background: rgba(18, 32, 58, 0.7);
-    border: 1px solid rgba(212, 175, 55, 0.2);
-    border-radius: var(--r-lg);
-    backdrop-filter: blur(25px) saturate(1.6);
-    -webkit-backdrop-filter: blur(25px) saturate(1.6);
-    padding: 3.5rem 2.5rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(212, 175, 55, 0.05);
+    background: var(--login-card-bg);
+    border: 1px solid var(--login-border);
+    border-radius: 2px;
+    padding: 3.5rem 3rem;
+    box-shadow: var(--shadow-md);
+    backdrop-filter: blur(20px);
     position: relative;
+    transition: background 0.5s ease;
 }
 
 .login-card::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--sr-gold), transparent);
-}
-
-.login-logo {
-    text-align: center;
-    margin-bottom: 3rem;
-}
-
-.login-logo h1 {
-    font-family: 'Cinzel', serif;
-    color: var(--sr-gold);
-    font-size: 2.2rem;
-    font-weight: 700;
-    letter-spacing: 0.35em;
-    margin: 0;
-    text-shadow: 0 0 25px rgba(212, 175, 55, 0.4);
-}
-
-.login-logo p {
-    font-family: 'Cinzel', serif;
-    font-size: 0.6rem;
-    color: var(--text-2);
-    letter-spacing: 0.5em;
-    text-transform: uppercase;
-    margin-top: 0.75rem;
+    left: 15%;
+    right: 15%;
+    height: 1px;
+    background: var(--gold-gradient);
     opacity: 0.6;
 }
 
-.login-card .form-label {
-    font-size: 0.65rem;
-    font-weight: 700;
-    color: var(--sr-gold-light);
+.login-header {
+    margin-bottom: 2.5rem;
+    text-align: center;
+}
+
+.login-title {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 400;
+    color: var(--text-main);
+    font-style: italic;
+}
+
+.login-form .form-label {
+    font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    margin-bottom: 0.5rem;
+    color: var(--text-soft);
+    margin-bottom: 0.8rem;
 }
 
-.login-card .input-group {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+.login-form .input-group {
+    background: transparent;
+    border-bottom: 1px solid var(--login-input-border);
+    border-radius: 0;
+    margin-bottom: 2.2rem;
+    transition: border-color 0.4s ease;
 }
 
-.login-card .input-group-text {
-    background: rgba(255, 255, 255, 0.03) !important;
-    border-color: rgba(212, 175, 55, 0.15) !important;
-    color: var(--sr-gold-dark) !important;
+.login-form .input-group:focus-within {
+    border-bottom-color: var(--accent);
 }
 
-.login-card .form-control {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border-color: rgba(212, 175, 55, 0.15) !important;
-    color: #fff !important;
-    font-size: 0.95rem !important;
-    padding: 0.75rem 1rem !important;
+.login-form .input-group-text {
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    padding-left: 0;
 }
 
-.login-card .form-control:focus {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border-color: var(--sr-gold) !important;
-    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15) !important;
+.login-form .form-control {
+    background: transparent !important;
+    border: none !important;
+    color: var(--text-main) !important;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    padding: 0.6rem 0.8rem;
 }
 
 .btn-login {
-    background: linear-gradient(135deg, var(--sr-gold-light) 0%, var(--sr-gold) 50%, var(--sr-gold-dark) 100%) !important;
-    border: none !important;
-    color: var(--sr-navy-deep) !important;
-    font-weight: 800 !important;
-    letter-spacing: 0.2em !important;
-    padding: 1rem !important;
-    margin-top: 2rem;
     width: 100%;
-    border-radius: var(--r-md) !important;
-    transition: all 0.4s var(--ease-out) !important;
-    box-shadow: 0 10px 20px -5px rgba(212, 175, 55, 0.3) !important;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    border-radius: 0;
+    padding: 1.1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .btn-login:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 30px -5px rgba(212, 175, 55, 0.5) !important;
-    filter: brightness(1.1);
+    background: var(--accent);
+    color: #fff;
+    transform: translateY(-2px);
 }
 
-.login-card .form-check-label {
-    color: var(--text-2);
-    font-size: 0.85rem;
-    letter-spacing: 0.05em;
+.login-footer {
+    text-align: center;
+    margin-top: 3.5rem;
+    color: var(--text-soft);
+    font-family: var(--font-display);
+    font-style: italic;
 }
 
-.login-card .form-check-input {
-    border-color: rgba(212, 175, 55, 0.3) !important;
-    background-color: transparent !important;
+/* Theme Toggle Button for Login */
+.login-theme-toggle {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    z-index: 10;
 }
 
-.login-card .form-check-input:checked {
-    background-color: var(--sr-gold) !important;
-    border-color: var(--sr-gold) !important;
-}
-
-@keyframes fadeIn {
+@keyframes login-reveal {
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
-}
-
-.footer-login {
-    font-family: 'Cinzel', serif;
-    font-size: 0.55rem;
-    color: var(--text-3);
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    margin-top: 3rem;
-    text-align: center;
-    opacity: 0.5;
-}
-
-.login-auth-title {
-    font-size: 0.8rem !important;
-    opacity: 0.9;
-}
-
-.login-btn-icon {
-    font-size: 0.7rem;
 }
