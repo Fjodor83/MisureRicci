@@ -1,6 +1,8 @@
 @using Microsoft.AspNetCore.Identity
+@using MisureRicci.Helpers
 @inject SignInManager<MisureRicci.Models.ApplicationUser> SignInManager
 @inject UserManager<MisureRicci.Models.ApplicationUser> UserManager
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @{
     var controller = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "Home").Trim();
     var action = (ViewContext.RouteData.Values["action"]?.ToString() ?? "Index").Trim();
@@ -161,15 +163,108 @@
                 </main>
             </div>
 
-            <footer class="footer">
-                <div class="footer-copy">Misure Ricci Design System 2026</div>
+            <footer class="app-footer d-none d-md-block">
+                <div class="footer-container">
+                    <div class="footer-grid">
+                        <div class="footer-column-brand">
+                            <div class="footer-brand-wrap">
+                                <div class="footer-mark">MR</div>
+                                <div>
+                                    <div class="footer-brand-name">Misure Ricci</div>
+                                    <div class="footer-brand-tag">Master Tailor Workspace</div>
+                                </div>
+                            </div>
+                            <p class="footer-description">
+                                Piattaforma esclusiva per la gestione della sartoria su misura e l'eccellenza artigianale italiana.
+                            </p>
+                        </div>
+
+                        <div class="footer-column">
+                            <h5 class="footer-heading">Workspace</h5>
+                            <ul class="footer-list">
+                                <li><a asp-controller="Home" asp-action="Index">Dashboard</a></li>
+                                <li><a asp-controller="Clienti" asp-action="Index">Anagrafica Clienti</a></li>
+                                <li><a asp-controller="Measurements" asp-action="GlobalRegistry">Registro Misure</a></li>
+                                <li><a asp-controller="Commissioni" asp-action="Index">Ordini & Commissioni</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="footer-column">
+                            <h5 class="footer-heading">Supporto</h5>
+                            <ul class="footer-list">
+                                <li><a href="#">Guida all'uso</a></li>
+                                <li><a href="#">Standard Sartoriali</a></li>
+                                <li><a href="#">Assistenza Tecnica</a></li>
+                                <li><a href="#">Log Attività</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="footer-column-status">
+                            <h5 class="footer-heading">Sistema</h5>
+                            <div class="footer-status-pill">
+                                <span class="status-indicator"></span>
+                                <span>Sistema Online</span>
+                            </div>
+                            <div class="footer-meta">
+                                <span>Versione 3.0.4</span>
+                                <span>&copy; 2026 Stefano Ricci S.p.A.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="footer-bottom-bar">
+                        <div class="footer-legal">
+                            <span>Privacy Policy</span>
+                            <span class="dot-separator"></span>
+                            <span>Termini di Servizio</span>
+                            <span class="dot-separator"></span>
+                            <span>Standard di Sicurezza</span>
+                        </div>
+                        <div class="footer-signature">
+                            Eccellenza Italiana <i class="bi bi-patch-check-fill text-gold ms-1"></i>
+                        </div>
+                    </div>
+                </div>
             </footer>
         </div>
     </div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <nav class="mobile-bottom-nav d-md-none">
+        <div class="mobile-nav-item @(controller == "Home" ? "active" : "")">
+            <a asp-controller="Home" asp-action="Index">
+                <i class="bi bi-grid-1x2-fill"></i>
+                <span>Home</span>
+            </a>
+        </div>
+        <div class="mobile-nav-item @(controller == "Clienti" ? "active" : "")">
+            <a asp-controller="Clienti" asp-action="Index">
+                <i class="bi bi-people-fill"></i>
+                <span>Clienti</span>
+            </a>
+        </div>
+        <div class="mobile-nav-primary">
+            <button type="button" class="btn-mobile-primary" id="mobileQuickActionBtn">
+                <i class="bi bi-plus-lg"></i>
+            </button>
+        </div>
+        <div class="mobile-nav-item @(controller == "Commissioni" ? "active" : "")">
+            <a asp-controller="Commissioni" asp-action="Index">
+                <i class="bi bi-journal-check"></i>
+                <span>Ordini</span>
+            </a>
+        </div>
+        <div class="mobile-nav-item @(controller == "Measurements" ? "active" : "")">
+            <a asp-controller="Measurements" asp-action="GlobalRegistry">
+                <i class="bi bi-rulers"></i>
+                <span>Misure</span>
+            </a>
+        </div>
+    </nav>
+
+    <script nonce="@HttpContextAccessor.GetNonce()" src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script nonce="@HttpContextAccessor.GetNonce()" src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script nonce="@HttpContextAccessor.GetNonce()" src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

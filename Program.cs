@@ -35,6 +35,7 @@ try
     // Register Services using modular extension methods
     builder.Services.AddControllersWithViews();
     builder.Services.AddRazorPages();
+    builder.Services.AddHttpContextAccessor();
     builder.Services.AddMemoryCache();
 
     builder.Services

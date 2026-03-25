@@ -393,4 +393,18 @@
 		}
 	});
 
+	/* ==========================================================
+	   15. MOBILE NAVIGATION HANDLERS
+	========================================================== */
+	var mobileQuickActionBtn = document.getElementById('mobileQuickActionBtn');
+	if (mobileQuickActionBtn) {
+		mobileQuickActionBtn.addEventListener('click', function() {
+			// Azione rapida: reindirizza alla creazione cliente o mostra un toast
+			window.SRToast.show('Funzione rapida: Apertura Registro Clienti...', 'info');
+			setTimeout(function() {
+				window.location.href = '/Clienti/Index';
+			}, 500);
+		});
+	}
+
 }());

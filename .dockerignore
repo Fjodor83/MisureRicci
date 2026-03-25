@@ -1,0 +1,14 @@
+**/.vs
+**/bin
+**/obj
+**/.git
+**/.github
+**/.sonarqube
+**/.vscode
+**/logs
+**/coverage.xml
+**/TestResults
+Dockerfile
+.dockerignore
+railway.json
+node_modules

@@ -88,6 +88,12 @@ namespace Microsoft.AspNetCore.Builder
         {
             return app.Use(async (context, next) =>
             {
+                // Generate a cryptographically secure nonce for each request
+                var nonce = GenerateNonce();
+
+                // Make the nonce available to Razor Pages / Views
+                context.Items["CSP-Nonce"] = nonce;
+
                 context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
                 context.Response.Headers.Append("X-Frame-Options", "DENY");
                 context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
@@ -95,10 +101,10 @@ namespace Microsoft.AspNetCore.Builder
                 context.Response.Headers.Append("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
                 context.Response.Headers.Append(
                     "Content-Security-Policy",
-                    "default-src 'none'; " +
-                    "connect-src 'self' http://localhost:* ws://localhost:*; " +
-                    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; " +
-                    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; " +
+                    $"default-src 'none'; " +
+                    $"connect-src 'self' http://localhost:* ws://localhost:*; " +
+                    $"script-src 'self' 'nonce-{nonce}' https://cdn.jsdelivr.net; " +
+                    $"style-src 'self' 'nonce-{nonce}' https://fonts.googleapis.com https://cdn.jsdelivr.net; " +
                     "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
                     "img-src 'self' data:; " +
                     "frame-ancestors 'none'; " +
@@ -109,6 +115,16 @@ namespace Microsoft.AspNetCore.Builder
 
                 await next();
             });
+        }
+
+        private static string GenerateNonce()
+        {
+            var bytes = new byte[32];
+            using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(bytes);
+            }
+            return Convert.ToBase64String(bytes);
         }
     }
 }
