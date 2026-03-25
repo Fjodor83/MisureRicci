@@ -28,7 +28,7 @@
     --bg-alt: #efe5d7;
     --sidebar-bg: rgba(255, 251, 246, 0.84);
     --header-bg: rgba(255, 250, 244, 0.8);
-    --card-bg: rgba(255, 255, 255, 0.78);
+    --card-bg: rgb(255, 255, 255);
     --surface: rgba(255, 255, 255, 0.48);
     --border: rgba(16, 32, 51, 0.1);
     --border-strong: rgba(16, 32, 51, 0.14);
@@ -47,7 +47,7 @@ body.theme-dark {
     --bg-alt: #152136;
     --sidebar-bg: rgba(13, 21, 33, 0.92);
     --header-bg: rgba(11, 18, 30, 0.84);
-    --card-bg: rgba(18, 27, 41, 0.82);
+    --card-bg: rgb(18, 27, 41);
     --surface: rgba(255, 255, 255, 0.04);
     --border: rgba(255, 255, 255, 0.08);
     --border-strong: rgba(255, 255, 255, 0.12);
@@ -661,25 +661,25 @@ a {
     background: rgba(255, 255, 255, 0.08);
 }
 
-.metric-bar > span {
+.metric-bar>span {
     display: block;
     height: 100%;
     background: linear-gradient(90deg, var(--accent), #efc16f);
 }
 
-.metric-bar--78 > span {
+.metric-bar--78>span {
     width: 78%;
 }
 
-.metric-bar--64 > span {
+.metric-bar--64>span {
     width: 64%;
 }
 
-.metric-bar--72 > span {
+.metric-bar--72>span {
     width: 72%;
 }
 
-.metric-bar--58 > span {
+.metric-bar--58>span {
     width: 58%;
 }
 
@@ -1137,6 +1137,13 @@ textarea.form-control {
     flex-shrink: 0;
 }
 
+/* Allow field-help-trigger to grow when it's also a standard button with text */
+.btn.field-help-trigger {
+    width: auto;
+    height: auto;
+    padding: 0.75rem 1.25rem;
+}
+
 .popover.sr-help-popover {
     border-radius: 1rem;
     border: 1px solid var(--accent-border);
@@ -1265,6 +1272,7 @@ textarea.form-control {
 }
 
 @media (max-width: 1199.98px) {
+
     .selection-grid,
     .feature-grid,
     .detail-grid {
@@ -1315,6 +1323,7 @@ textarea.form-control {
 }
 
 @media (max-width: 767.98px) {
+
     .metric-grid,
     .feature-grid,
     .selection-grid,
@@ -1357,4 +1366,3 @@ textarea.form-control {
 .validation-summary-errors ul li {
     margin-bottom: 0.2rem;
 }
-
