@@ -1,10 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MisureRicci.Data;
 using MisureRicci.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MisureRicci.Services
 {
@@ -17,10 +13,10 @@ namespace MisureRicci.Services
             [TipoMisuraLegacy.Giacca] = async (service, id) => await service._context.MisureGiacca.AsNoTracking().Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
             [TipoMisuraLegacy.Pantalone] = async (service, id) => await service._context.MisurePantalone.AsNoTracking().Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
             [TipoMisuraLegacy.Abito] = async (service, id) => await service._context.MisureAbitoCompleto.AsNoTracking()
-                .Include(m => m.Cliente)
-                .Include(m => m.Giacca)
-                .Include(m => m.Pantalone)
-                .FirstOrDefaultAsync(m => m.Id == id),
+                             .Include(m => m.Cliente)
+                             .Include(m => m.Giacca)
+                             .Include(m => m.Pantalone)
+                             .FirstOrDefaultAsync(m => m.Id == id),
             [TipoMisuraLegacy.Gilet] = async (service, id) => await service._context.MisureGilet.AsNoTracking().Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
             [TipoMisuraLegacy.Maglie] = async (service, id) => await service._context.MisureMaglie.AsNoTracking().Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),
             [TipoMisuraLegacy.Outdoor] = async (service, id) => await service._context.MisureOutdoor.AsNoTracking().Include(m => m.Cliente).FirstOrDefaultAsync(m => m.Id == id),

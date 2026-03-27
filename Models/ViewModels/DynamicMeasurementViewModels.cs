@@ -29,6 +29,9 @@ namespace MisureRicci.Models.ViewModels
         [Required]
         public int MeasurementTypeId { get; set; }
 
+        [Required]
+        public MeasurementUnit SelectedUnit { get; set; } = MeasurementUnit.Centimeters;
+
         public string ClienteNome { get; set; } = string.Empty;
         public string TipoNome { get; set; } = string.Empty;
 

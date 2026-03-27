@@ -196,7 +196,7 @@
                     @if (Model.MeasurementTypes.Any())
                     {
                         <div class="row g-3 align-items-end">
-                            <div class="col-md-7">
+                            <div class="col-md-5">
                                 <label class="form-label">Tipo di misura</label>
                                 <select id="newMisuraTypeSelect" class="form-select">
                                     @foreach (var t in Model.MeasurementTypes)
@@ -205,12 +205,20 @@
                                     }
                                 </select>
                             </div>
-                            <div class="col-md-5 d-grid">
+                            <div class="col-md-3">
+                                <label class="form-label">Unita'</label>
+                                <select id="newMisuraUnitSelect" class="form-select">
+                                    <option value="@MeasurementUnit.Centimeters">CM</option>
+                                    <option value="@MeasurementUnit.Inches">INCH</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 d-grid">
                                 <a id="btnCreaCollegaMisura"
                                    asp-controller="DynamicMeasurements"
                                    asp-action="Create"
                                    asp-route-clienteId="@commessa.ClienteId"
                                    asp-route-typeId="@Model.MeasurementTypes.First().Id"
+                                   asp-route-unit="@MeasurementUnit.Centimeters"
                                    asp-route-returnToCommessaId="@commessa.Id"
                                    class="btn btn-primary">
                                     Crea e collega misura
@@ -242,11 +250,16 @@
                                         <option value="@t.Id">@t.Nome</option>
                                     }
                                 </select>
+                                <select id="addMisuraUnitSelect" class="form-select">
+                                    <option value="@MeasurementUnit.Centimeters">CM</option>
+                                    <option value="@MeasurementUnit.Inches">INCH</option>
+                                </select>
                                 <a id="btnAggiungiMisura"
                                    asp-controller="DynamicMeasurements"
                                    asp-action="Create"
                                    asp-route-clienteId="@commessa.ClienteId"
                                    asp-route-typeId="@Model.MeasurementTypes.First().Id"
+                                   asp-route-unit="@MeasurementUnit.Centimeters"
                                    asp-route-returnToCommessaId="@commessa.Id"
                                    class="btn btn-outline-gold">
                                     + Nuova misura
@@ -311,11 +324,16 @@
                                         <option value="@t.Id">@t.Nome</option>
                                     }
                                 </select>
+                                <select id="addMisuraUnitSelectFull" class="form-select">
+                                    <option value="@MeasurementUnit.Centimeters">CM</option>
+                                    <option value="@MeasurementUnit.Inches">INCH</option>
+                                </select>
                                 <a id="btnAggiungiMisuraFull"
                                    asp-controller="DynamicMeasurements"
                                    asp-action="Create"
                                    asp-route-clienteId="@commessa.ClienteId"
                                    asp-route-typeId="@Model.MeasurementTypes.First().Id"
+                                   asp-route-unit="@MeasurementUnit.Centimeters"
                                    asp-route-returnToCommessaId="@commessa.Id"
                                    class="btn btn-outline-gold">
                                     + Nuova misura

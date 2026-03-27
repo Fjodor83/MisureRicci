@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Dettaglio Misura Dinamica";
+    var selectedUnitLabel = MeasurementUnitHelper.ToShortLabel(Model.MeasurementUnit);
     var groupedValues = Model.Values
         .OrderBy(v => v.MeasurementFieldDefinition?.OrdineGruppo)
         .ThenBy(v => v.MeasurementFieldDefinition?.Gruppo)
@@ -22,6 +23,7 @@
         <p class="page-subtitle">Cliente: <strong>@Model.Cliente?.Nome @Model.Cliente?.Cognome</strong></p>
     </div>
     <div class="page-actions">
+        <span class="toolbar-chip">Unita' @selectedUnitLabel</span>
         <span class="toolbar-chip">@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
         <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Modifica</a>
         <form asp-action="Delete" method="post" class="d-inline">
@@ -56,6 +58,9 @@
                 <tbody>
                     @foreach (var value in group)
                     {
+                        var fieldType = value.MeasurementFieldDefinition?.TipoDato ?? DynamicFieldType.Text;
+                        var unitLabel = MeasurementUnitHelper.GetFieldUnitLabel(value.MeasurementFieldDefinition?.UnitaMisura, fieldType, Model.MeasurementUnit);
+                        var displayValue = MeasurementUnitHelper.ConvertStorageToDisplay(value.Valore, fieldType, value.MeasurementFieldDefinition?.UnitaMisura, Model.MeasurementUnit);
                         <tr>
                             <td>
                                 <div class="fw-bold">@value.MeasurementFieldDefinition?.Etichetta</div>
@@ -64,7 +69,7 @@
                                     <div class="text-muted small">@value.MeasurementFieldDefinition?.HelpText</div>
                                 }
                             </td>
-                            <td>@value.Valore @(string.IsNullOrWhiteSpace(value.MeasurementFieldDefinition?.UnitaMisura) ? "" : value.MeasurementFieldDefinition?.UnitaMisura)</td>
+                            <td>@displayValue @(string.IsNullOrWhiteSpace(unitLabel) ? "" : unitLabel)</td>
                         </tr>
                     }
                 </tbody>

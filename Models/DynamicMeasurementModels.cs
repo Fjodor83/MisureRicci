@@ -119,6 +119,8 @@ namespace MisureRicci.Models
 
         public virtual ApplicationUser? CreatedByUser { get; set; }
 
+        public MeasurementUnit MeasurementUnit { get; set; } = MeasurementUnit.Centimeters;
+
         public virtual ICollection<DynamicMeasurementValue> Values { get; set; } = new List<DynamicMeasurementValue>();
     }
 

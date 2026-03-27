@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Nuova Misura Dinamica";
+    var selectedUnitLabel = MeasurementUnitHelper.ToShortLabel(Model.SelectedUnit);
     var groupedFields = Model.Fields
         .OrderBy(f => f.OrdineGruppo)
         .ThenBy(f => f.Gruppo)
@@ -15,9 +16,10 @@
     <div class="page-hero__content">
         <span class="page-kicker">Dynamic measurement</span>
         <h1 class="page-title">@Model.TipoNome</h1>
-        <p class="page-subtitle">Cliente: <strong>@Model.ClienteNome</strong>. Compila i campi usando il layout guidato per gruppi.</p>
+        <p class="page-subtitle">Cliente: <strong>@Model.ClienteNome</strong>. Compila i campi usando il layout guidato per gruppi e l'unita' selezionata.</p>
     </div>
     <div class="page-actions">
+        <span class="toolbar-chip">Unita' @selectedUnitLabel</span>
         <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.ClienteId" class="btn btn-outline-secondary">Torna alle tipologie</a>
     </div>
 </section>
@@ -28,8 +30,33 @@
     <input type="hidden" asp-for="RecordId" />
     <input type="hidden" asp-for="ClienteId" />
     <input type="hidden" asp-for="MeasurementTypeId" />
+    <input type="hidden" asp-for="ReturnToCommessaId" />
 
     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+    <section class="form-section mb-4">
+        <div class="form-section__header">
+            <div>
+                <h2 class="form-section__title">Unita' di rilevazione</h2>
+                <p class="form-section__text">La scelta si applica ai campi numerici in lunghezza del form corrente.</p>
+            </div>
+        </div>
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label asp-for="SelectedUnit" class="form-label">Unita'</label>
+                <select asp-for="SelectedUnit"
+                        class="form-select"
+                        id="measurementUnitSelect"
+                        data-current-unit="@Model.SelectedUnit">
+                    <option value="@MeasurementUnit.Centimeters">CM</option>
+                    <option value="@MeasurementUnit.Inches">INCH</option>
+                </select>
+            </div>
+            <div class="col-md-8">
+                <div class="form-text mb-2">Se cambi unita', i valori numerici compatibili vengono convertiti automaticamente.</div>
+            </div>
+        </div>
+    </section>
 
     @if (!Model.Fields.Any())
     {
@@ -72,6 +99,8 @@
                     @foreach (var field in group)
                     {
                         var fieldIndex = Model.Fields.FindIndex(x => x.FieldDefinitionId == field.FieldDefinitionId);
+                        var supportsUnitConversion = MeasurementUnitHelper.SupportsConversion(Model.Fields[fieldIndex].TipoDato, Model.Fields[fieldIndex].UnitaMisura);
+                        var displayUnit = MeasurementUnitHelper.GetFieldUnitLabel(Model.Fields[fieldIndex].UnitaMisura, Model.Fields[fieldIndex].TipoDato, Model.SelectedUnit);
                         var isStructure = field.Template == MisureRicci.Models.DynamicFieldTemplate.SectionHeader
                             || field.Template == MisureRicci.Models.DynamicFieldTemplate.Divider
                             || field.Template == MisureRicci.Models.DynamicFieldTemplate.AlertNote;
@@ -114,9 +143,13 @@
                                 <div class="@shellClass @(field.Template != MisureRicci.Models.DynamicFieldTemplate.Notes ? "d-flex align-items-center justify-content-between py-2 px-3" : "py-2 px-3")">
                                     <label class="form-label mb-0 me-3 text-uppercase fw-bold small">
                                         @Model.Fields[fieldIndex].Etichetta
-                                        @if (!string.IsNullOrWhiteSpace(Model.Fields[fieldIndex].UnitaMisura))
+                                        @if (!string.IsNullOrWhiteSpace(displayUnit))
                                         {
-                                            <span class="text-muted small">(@Model.Fields[fieldIndex].UnitaMisura)</span>
+                                            <span class="text-muted small"
+                                                  data-measurement-unit-label="true"
+                                                  data-convertible-length="@(supportsUnitConversion ? "true" : "false")">
+                                                (@displayUnit)
+                                            </span>
                                         }
                                         @if (Model.Fields[fieldIndex].Obbligatorio)
                                         {
@@ -128,10 +161,22 @@
                                     @switch (Model.Fields[fieldIndex].TipoDato)
                                     {
                                         case MisureRicci.Models.DynamicFieldType.Number:
-                                            <input asp-for="Fields[fieldIndex].Valore" type="number" step="1" class="form-control text-center" placeholder="@Model.Fields[fieldIndex].Placeholder" />
+                                            <input asp-for="Fields[fieldIndex].Valore"
+                                                   type="number"
+                                                   step="1"
+                                                   class="form-control text-center"
+                                                   placeholder="@Model.Fields[fieldIndex].Placeholder"
+                                                   data-measurement-field="true"
+                                                   data-convertible-length="@(supportsUnitConversion ? "true" : "false")" />
                                             break;
                                         case MisureRicci.Models.DynamicFieldType.Decimal:
-                                            <input asp-for="Fields[fieldIndex].Valore" type="number" step="0.01" class="form-control text-center" placeholder="@Model.Fields[fieldIndex].Placeholder" />
+                                            <input asp-for="Fields[fieldIndex].Valore"
+                                                   type="number"
+                                                   step="0.01"
+                                                   class="form-control text-center"
+                                                   placeholder="@Model.Fields[fieldIndex].Placeholder"
+                                                   data-measurement-field="true"
+                                                   data-convertible-length="@(supportsUnitConversion ? "true" : "false")" />
                                             break;
                                         case MisureRicci.Models.DynamicFieldType.Date:
                                             <input asp-for="Fields[fieldIndex].Valore" type="date" class="form-control" />

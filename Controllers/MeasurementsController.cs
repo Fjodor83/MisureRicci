@@ -4,7 +4,6 @@ using System.Security.Claims;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 
 namespace MisureRicci.Controllers
@@ -18,8 +17,6 @@ namespace MisureRicci.Controllers
         private readonly ICustomMeasurementService _customMeasurementService;
         private readonly ILegacyMeasurementUiService _legacyMeasurementUiService;
         private readonly UserManager<ApplicationUser> _userManager;
-        private const string Admin = "Admin";
-        private const string Create = "Create";
         private const string Dettagli = "Details";
         private const string Clienti = "Clienti";
         private const string DynamicMeasurements = "DynamicMeasurements";

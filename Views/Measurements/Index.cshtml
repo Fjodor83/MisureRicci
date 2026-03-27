@@ -11,7 +11,7 @@
         <span class="page-kicker">Measurement workspace</span>
         <h1 class="page-title">Seleziona una tipologia</h1>
         <p class="page-subtitle">
-            Cliente: <strong>@Model.ClienteNome</strong>. Scegli la categoria di misura e apri subito il form piu' adatto.
+            Cliente: <strong>@Model.ClienteNome</strong>. Scegli la categoria di misura e indica se vuoi rilevare in <strong>CM</strong> oppure in <strong>INCH</strong>.
         </p>
     </div>
     <div class="page-actions">
@@ -32,20 +32,27 @@ else
     <section class="feature-grid">
         @foreach (var type in dynamicTypes)
         {
-            <a asp-controller="DynamicMeasurements"
-               asp-action="Create"
-               asp-route-clienteId="@clienteId"
-               asp-route-typeId="@type.Id"
-               class="feature-card">
+            <article class="feature-card h-100">
                 <div class="feature-card__icon"><i class="bi bi-sliders2-vertical"></i></div>
                 <div>
                     <h2 class="feature-card__title">@type.Nome</h2>
                     <p class="feature-card__text">@type.Descrizione</p>
                 </div>
                 <div class="feature-card__actions">
-                    <span class="btn btn-outline-gold">Apri form</span>
+                    <a asp-controller="DynamicMeasurements"
+                       asp-action="Create"
+                       asp-route-clienteId="@clienteId"
+                       asp-route-typeId="@type.Id"
+                       asp-route-unit="@MeasurementUnit.Centimeters"
+                       class="btn btn-outline-gold">CM</a>
+                    <a asp-controller="DynamicMeasurements"
+                       asp-action="Create"
+                       asp-route-clienteId="@clienteId"
+                       asp-route-typeId="@type.Id"
+                       asp-route-unit="@MeasurementUnit.Inches"
+                       class="btn btn-outline-secondary">INCH</a>
                 </div>
-            </a>
+            </article>
         }
     </section>
 }

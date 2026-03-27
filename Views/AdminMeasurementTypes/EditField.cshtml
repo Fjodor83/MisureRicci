@@ -74,7 +74,7 @@
             <div class="col-md-4">
                 <div class="field-label-row">
                     <label asp-for="Field.UnitaMisura" class="form-label mb-0"></label>
-                    <button type="button" class="field-help-trigger" data-bs-toggle="popover" data-bs-trigger="manual" data-bs-placement="top" data-bs-custom-class="sr-help-popover" data-bs-title="Unita Misura" data-bs-content="Testo mostrato vicino all'etichetta del campo, ad esempio cm o pollici. Se non serve, lascialo vuoto.">?</button>
+                    <button type="button" class="field-help-trigger" data-bs-toggle="popover" data-bs-trigger="manual" data-bs-placement="top" data-bs-custom-class="sr-help-popover" data-bs-title="Unita Misura" data-bs-content="Testo mostrato vicino all'etichetta del campo. Per i campi di misura che devono poter passare da CM a INCH usa cm come unita' base; il form sostituira' automaticamente l'etichetta in base alla scelta operatore.">?</button>
                 </div>
                 <input asp-for="Field.UnitaMisura" class="form-control" />
             </div>

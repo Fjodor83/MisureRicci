@@ -117,10 +117,11 @@ END
 
 IF OBJECT_ID(N'[dbo].[DynamicMeasurementRecords]', N'U') IS NULL
 BEGIN
-    CREATE TABLE [DynamicMeasurementRecords] (
+        CREATE TABLE [DynamicMeasurementRecords] (
         [Id] int NOT NULL IDENTITY,
         [ClienteId] int NOT NULL,
         [MeasurementTypeId] int NOT NULL,
+        [MeasurementUnit] int NOT NULL DEFAULT 0,
         [CreatedAt] datetime2 NOT NULL DEFAULT GETUTCDATE(),
         [CreatedByUserId] nvarchar(450) NULL,
         CONSTRAINT [PK_DynamicMeasurementRecords] PRIMARY KEY ([Id]),
@@ -141,6 +142,12 @@ BEGIN
         CONSTRAINT [FK_DynamicMeasurementValues_DynamicFieldDefinitions_MeasurementFieldDefinitionId] FOREIGN KEY ([MeasurementFieldDefinitionId]) REFERENCES [DynamicFieldDefinitions] ([Id]) ON DELETE CASCADE,
         CONSTRAINT [FK_DynamicMeasurementValues_DynamicMeasurementRecords_DynamicMeasurementRecordId] FOREIGN KEY ([DynamicMeasurementRecordId]) REFERENCES [DynamicMeasurementRecords] ([Id]) ON DELETE CASCADE
     );
+END
+
+IF OBJECT_ID(N'[dbo].[DynamicMeasurementRecords]', N'U') IS NOT NULL
+BEGIN
+    IF COL_LENGTH(N'dbo.DynamicMeasurementRecords', N'MeasurementUnit') IS NULL
+        ALTER TABLE [dbo].[DynamicMeasurementRecords] ADD [MeasurementUnit] int NOT NULL DEFAULT 0;
 END
 
 -- 4. Registry and Legacy Columns

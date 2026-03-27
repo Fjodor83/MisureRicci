@@ -54,6 +54,7 @@ public class CustomMeasurementServiceTests
                 NomeCampo = "Torace",
                 Etichetta = "Torace",
                 TipoDato = DynamicFieldType.Decimal,
+                UnitaMisura = "cm",
                 Obbligatorio = true,
                 IsActive = true
             };
@@ -73,6 +74,7 @@ public class CustomMeasurementServiceTests
             {
                 ClienteId = clienteId,
                 MeasurementTypeId = typeId,
+                SelectedUnit = MeasurementUnit.Centimeters,
                 Fields = new List<DynamicFieldInputViewModel>
                 {
                     new()
@@ -100,6 +102,7 @@ public class CustomMeasurementServiceTests
             Assert.Equal(clienteId, record.ClienteId);
             Assert.Equal(typeId, record.MeasurementTypeId);
             Assert.Equal("creator-1", record.CreatedByUserId);
+            Assert.Equal(MeasurementUnit.Centimeters, record.MeasurementUnit);
             Assert.Equal(record.Id, value.DynamicMeasurementRecordId);
             Assert.Equal(fieldId, value.MeasurementFieldDefinitionId);
             Assert.Equal("51.5", value.Valore);
@@ -144,6 +147,7 @@ public class CustomMeasurementServiceTests
                 NomeCampo = "Lunghezza",
                 Etichetta = "Lunghezza",
                 TipoDato = DynamicFieldType.Decimal,
+                UnitaMisura = "cm",
                 Obbligatorio = true,
                 IsActive = true
             };
@@ -155,6 +159,7 @@ public class CustomMeasurementServiceTests
             {
                 ClienteId = cliente.Id,
                 MeasurementTypeId = type.Id,
+                MeasurementUnit = MeasurementUnit.Centimeters,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -182,6 +187,7 @@ public class CustomMeasurementServiceTests
             {
                 RecordId = recordId,
                 MeasurementTypeId = typeId,
+                SelectedUnit = MeasurementUnit.Inches,
                 Fields = new List<DynamicFieldInputViewModel>
                 {
                     new()
@@ -191,7 +197,7 @@ public class CustomMeasurementServiceTests
                         Etichetta = "Lunghezza",
                         TipoDato = DynamicFieldType.Decimal,
                         Template = DynamicFieldTemplate.Standard,
-                        Valore = "105"
+                        Valore = "10"
                     }
                 }
             };
@@ -201,12 +207,89 @@ public class CustomMeasurementServiceTests
 
         using (var assertContext = factory.CreateContext())
         {
+            var record = await assertContext.DynamicMeasurementRecords.SingleAsync();
             var values = await assertContext.DynamicMeasurementValues
                 .Where(x => x.DynamicMeasurementRecordId == recordId)
                 .ToListAsync();
 
             Assert.Single(values);
-            Assert.Equal("105", values[0].Valore);
+            Assert.Equal(MeasurementUnit.Inches, record.MeasurementUnit);
+            Assert.Equal("25.4", values[0].Valore);
+        }
+    }
+
+    [Fact]
+    public async Task BuildDynamicMeasurementEditViewModelAsync_ConvertsStoredCentimetersToInches()
+    {
+        using var factory = new TestDbContextFactory();
+
+        int recordId;
+
+        using (var seedContext = factory.CreateContext())
+        {
+            var cliente = new Cliente
+            {
+                Nome = "Giulia",
+                Cognome = "Neri",
+                Email = "giulia.neri@example.com",
+                Paese = "Italy"
+            };
+
+            var type = new MeasurementType
+            {
+                Nome = "Giacca",
+                IsActive = true
+            };
+
+            seedContext.Clienti.Add(cliente);
+            seedContext.DynamicMeasurementTypes.Add(type);
+            await seedContext.SaveChangesAsync();
+
+            var field = new MeasurementFieldDefinition
+            {
+                MeasurementTypeId = type.Id,
+                NomeCampo = "Manica",
+                Etichetta = "Manica",
+                TipoDato = DynamicFieldType.Decimal,
+                UnitaMisura = "cm",
+                Obbligatorio = true,
+                IsActive = true
+            };
+
+            seedContext.DynamicFieldDefinitions.Add(field);
+            await seedContext.SaveChangesAsync();
+
+            var record = new DynamicMeasurementRecord
+            {
+                ClienteId = cliente.Id,
+                MeasurementTypeId = type.Id,
+                MeasurementUnit = MeasurementUnit.Inches,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            seedContext.DynamicMeasurementRecords.Add(record);
+            await seedContext.SaveChangesAsync();
+
+            seedContext.DynamicMeasurementValues.Add(new DynamicMeasurementValue
+            {
+                DynamicMeasurementRecordId = record.Id,
+                MeasurementFieldDefinitionId = field.Id,
+                Valore = "25.4"
+            });
+
+            await seedContext.SaveChangesAsync();
+            recordId = record.Id;
+        }
+
+        using (var actContext = factory.CreateContext())
+        {
+            var service = new CustomMeasurementService(actContext, new MemoryCache(new MemoryCacheOptions()));
+            var result = await service.BuildDynamicMeasurementEditViewModelAsync(recordId);
+
+            Assert.NotNull(result);
+            Assert.Equal(MeasurementUnit.Inches, result!.SelectedUnit);
+            Assert.Single(result.Fields);
+            Assert.Equal("10", result.Fields[0].Valore);
         }
     }
 
@@ -251,6 +334,7 @@ public class CustomMeasurementServiceTests
                 NomeCampo = "Torace",
                 Etichetta = "Torace",
                 TipoDato = DynamicFieldType.Decimal,
+                UnitaMisura = "cm",
                 Obbligatorio = true,
                 IsActive = true
             });
@@ -280,6 +364,7 @@ public class CustomMeasurementServiceTests
             {
                 ClienteId = clienteId,
                 MeasurementTypeId = typeId,
+                SelectedUnit = MeasurementUnit.Centimeters,
                 Fields = new List<DynamicFieldInputViewModel>
                 {
                     new()

@@ -71,7 +71,7 @@ public class DynamicMeasurementsControllerTests
             .ReturnsAsync(new List<MeasurementFieldDefinition>());
 
         // Act
-        var result = await _controller.Create(1, 1, null);
+        var result = await _controller.Create(1, 1, null, MeasurementUnit.Inches);
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
@@ -79,6 +79,7 @@ public class DynamicMeasurementsControllerTests
         Assert.Equal(1, model.ClienteId);
         Assert.Equal(1, model.MeasurementTypeId);
         Assert.Equal("Mario Rossi", model.ClienteNome);
+        Assert.Equal(MeasurementUnit.Inches, model.SelectedUnit);
     }
 
     [Fact]

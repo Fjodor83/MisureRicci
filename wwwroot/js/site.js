@@ -380,18 +380,108 @@
 	}, true);
 
 	// 14c. Dynamic Measure Selection (replaces inline scripts in Commissioni/Details)
-	document.addEventListener('change', function (e) {
-		var ids = ['newMisuraTypeSelect', 'addMisuraTypeSelect', 'addMisuraTypeSelectFull'];
-		if (ids.indexOf(e.target.id) !== -1) {
-			var btnId = e.target.id.replace('Select', '').replace('new', 'btnCreaCollega').replace('add', 'btnAggiungi');
-			var btn = document.getElementById(btnId);
-			if (btn) {
-				var url = new URL(btn.href, window.location.origin);
-				url.searchParams.set('typeId', e.target.value);
-				btn.href = url.pathname + url.search;
-			}
+	var measurementCreateLinkConfigs = [
+		{ typeId: 'newMisuraTypeSelect', unitId: 'newMisuraUnitSelect', buttonId: 'btnCreaCollegaMisura' },
+		{ typeId: 'addMisuraTypeSelect', unitId: 'addMisuraUnitSelect', buttonId: 'btnAggiungiMisura' },
+		{ typeId: 'addMisuraTypeSelectFull', unitId: 'addMisuraUnitSelectFull', buttonId: 'btnAggiungiMisuraFull' }
+	];
+
+	function updateMeasurementCreateLink(config) {
+		var typeSelect = document.getElementById(config.typeId);
+		var unitSelect = document.getElementById(config.unitId);
+		var btn = document.getElementById(config.buttonId);
+		if (!typeSelect || !btn) {
+			return;
 		}
+
+		var url = new URL(btn.href, window.location.origin);
+		url.searchParams.set('typeId', typeSelect.value);
+		url.searchParams.set('unit', unitSelect ? unitSelect.value : 'Centimeters');
+		btn.href = url.pathname + url.search;
+	}
+
+	document.addEventListener('change', function (e) {
+		measurementCreateLinkConfigs.forEach(function (config) {
+			if (e.target.id === config.typeId || e.target.id === config.unitId) {
+				updateMeasurementCreateLink(config);
+			}
+		});
 	});
+
+	measurementCreateLinkConfigs.forEach(updateMeasurementCreateLink);
+
+	// 14d. Measurement unit toggle inside the dynamic form
+	function parseMeasurementValue(rawValue) {
+		if (!rawValue) {
+			return null;
+		}
+
+		var normalized = String(rawValue).trim().replace(',', '.');
+		if (!normalized) {
+			return null;
+		}
+
+		var parsed = Number(normalized);
+		return Number.isFinite(parsed) ? parsed : null;
+	}
+
+	function formatMeasurementValue(value) {
+		var rounded = Math.round(value * 1000) / 1000;
+		if (Number.isInteger(rounded)) {
+			return String(rounded);
+		}
+
+		return rounded.toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
+	}
+
+	function isConvertibleMeasurementField(input) {
+		return input && input.dataset && input.dataset.convertibleLength === 'true';
+	}
+
+	function getMeasurementUnitLabel(unit) {
+		return unit === 'Inches' ? 'inch' : 'cm';
+	}
+
+	var measurementUnitSelect = document.getElementById('measurementUnitSelect');
+	if (measurementUnitSelect) {
+		measurementUnitSelect.addEventListener('change', function () {
+			var previousUnit = measurementUnitSelect.dataset.currentUnit || 'Centimeters';
+			var nextUnit = measurementUnitSelect.value || 'Centimeters';
+			if (previousUnit === nextUnit) {
+				return;
+			}
+
+			var fields = document.querySelectorAll('[data-measurement-field="true"]');
+			fields.forEach(function (field) {
+				if (!isConvertibleMeasurementField(field)) {
+					return;
+				}
+
+				var numericValue = parseMeasurementValue(field.value);
+				if (numericValue === null) {
+					return;
+				}
+
+				if (previousUnit === 'Centimeters' && nextUnit === 'Inches') {
+					field.value = formatMeasurementValue(numericValue / 2.54);
+					return;
+				}
+
+				if (previousUnit === 'Inches' && nextUnit === 'Centimeters') {
+					field.value = formatMeasurementValue(numericValue * 2.54);
+				}
+			});
+
+			var unitLabels = document.querySelectorAll('[data-measurement-unit-label="true"]');
+			unitLabels.forEach(function (label) {
+				if (label.dataset.convertibleLength === 'true') {
+					label.textContent = '(' + getMeasurementUnitLabel(nextUnit) + ')';
+				}
+			});
+
+			measurementUnitSelect.dataset.currentUnit = nextUnit;
+		});
+	}
 
 	/* ==========================================================
 	   15. MOBILE NAVIGATION HANDLERS

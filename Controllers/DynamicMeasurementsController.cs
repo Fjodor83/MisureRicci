@@ -34,7 +34,7 @@ namespace MisureRicci.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create(int clienteId, int typeId, int? returnToCommessaId)
+        public async Task<IActionResult> Create(int clienteId, int typeId, int? returnToCommessaId, MeasurementUnit unit = MeasurementUnit.Centimeters)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var currentUser = await _userManager.GetUserAsync(User);
@@ -57,6 +57,7 @@ namespace MisureRicci.Controllers
             {
                 ClienteId = clienteId,
                 MeasurementTypeId = typeId,
+                SelectedUnit = unit,
                 ClienteNome = $"{cliente.Nome} {cliente.Cognome}",
                 TipoNome = type.Nome,
                 ReturnToCommessaId = returnToCommessaId,
@@ -92,7 +93,11 @@ namespace MisureRicci.Controllers
                 var cliente0 = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser0?.NegozioId, isAdmin0);
                 var type0 = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
                 if (cliente0 != null) model.ClienteNome = $"{cliente0.Nome} {cliente0.Cognome}";
-                if (type0 != null) model.TipoNome = type0.Nome;
+                if (type0 != null)
+                {
+                    model.TipoNome = type0.Nome;
+                    model.TypeImageUrl = type0.ImageUrl;
+                }
                 return View(model);
             }
 
@@ -200,7 +205,11 @@ namespace MisureRicci.Controllers
                 var cliente0 = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser0?.NegozioId, isAdmin0);
                 var type0 = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
                 if (cliente0 != null) model.ClienteNome = $"{cliente0.Nome} {cliente0.Cognome}";
-                if (type0 != null) model.TipoNome = type0.Nome;
+                if (type0 != null)
+                {
+                    model.TipoNome = type0.Nome;
+                    model.TypeImageUrl = type0.ImageUrl;
+                }
                 return View(Crea, model);
             }
 

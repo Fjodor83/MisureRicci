@@ -160,6 +160,7 @@ namespace MisureRicci.Services
             {
                 ClienteId = model.ClienteId,
                 MeasurementTypeId = model.MeasurementTypeId,
+                MeasurementUnit = model.SelectedUnit,
                 CreatedByUserId = createdByUserId,
                 CreatedAt = DateTime.UtcNow
             };
@@ -169,7 +170,7 @@ namespace MisureRicci.Services
             _context.DynamicMeasurementRecords.Add(record);
             await _context.SaveChangesAsync();
 
-            var values = BuildDynamicMeasurementValues(model.Fields, allowedFields, record.Id);
+            var values = BuildDynamicMeasurementValues(model.Fields, allowedFields, record.Id, model.SelectedUnit);
 
             if (values.Count > 0)
             {
@@ -218,6 +219,7 @@ namespace MisureRicci.Services
                 RecordId = record.Id,
                 ClienteId = record.ClienteId,
                 MeasurementTypeId = record.MeasurementTypeId,
+                SelectedUnit = record.MeasurementUnit,
                 ClienteNome = $"{record.Cliente?.Nome} {record.Cliente?.Cognome}".Trim(),
                 TipoNome = record.MeasurementType?.Nome ?? string.Empty,
                 TypeImageUrl = record.MeasurementType?.ImageUrl,
@@ -235,7 +237,9 @@ namespace MisureRicci.Services
                     HelpText = f.HelpText,
                     Obbligatorio = f.Obbligatorio,
                     Ordine = f.Ordine,
-                    Valore = valuesByFieldId.TryGetValue(f.Id, out var value) ? value : null
+                    Valore = valuesByFieldId.TryGetValue(f.Id, out var value)
+                        ? MeasurementUnitHelper.ConvertStorageToDisplay(value, f.TipoDato, f.UnitaMisura, record.MeasurementUnit)
+                        : null
                 }).ToList()
             };
         }
@@ -258,9 +262,10 @@ namespace MisureRicci.Services
 
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
+            record.MeasurementUnit = model.SelectedUnit;
             _context.DynamicMeasurementValues.RemoveRange(record.Values);
 
-            var values = BuildDynamicMeasurementValues(model.Fields, allowedFields, record.Id);
+            var values = BuildDynamicMeasurementValues(model.Fields, allowedFields, record.Id, model.SelectedUnit);
 
             _context.DynamicMeasurementValues.AddRange(values);
             await _context.SaveChangesAsync();
@@ -328,7 +333,8 @@ namespace MisureRicci.Services
         private static List<DynamicMeasurementValue> BuildDynamicMeasurementValues(
             IEnumerable<DynamicFieldInputViewModel> submittedFields,
             IReadOnlyDictionary<int, MeasurementFieldDefinition> allowedFields,
-            int recordId)
+            int recordId,
+            MeasurementUnit selectedUnit)
         {
             return submittedFields
                 .Where(x =>
@@ -339,11 +345,16 @@ namespace MisureRicci.Services
                 .Select(group =>
                 {
                     var value = group.Last();
+                    var definition = allowedFields[value.FieldDefinitionId];
                     return new DynamicMeasurementValue
                     {
                         DynamicMeasurementRecordId = recordId,
                         MeasurementFieldDefinitionId = value.FieldDefinitionId,
-                        Valore = value.Valore!.Trim()
+                        Valore = MeasurementUnitHelper.ConvertDisplayToStorage(
+                            value.Valore,
+                            definition.TipoDato,
+                            definition.UnitaMisura,
+                            selectedUnit)
                     };
                 })
                 .ToList();
