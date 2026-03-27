@@ -128,11 +128,14 @@ public class DynamicMeasurementsControllerTests
     public async Task Delete_POST_RedirectsToClientDetails()
     {
         // Arrange
-        var cliente = new Cliente { Id = 1 };
-        _mockUserManager.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
-            .ReturnsAsync(new ApplicationUser { Id = "1" });
-        _mockClienteService.Setup(s => s.GetClienteScopedAsync(1, It.IsAny<int?>(), true))
-            .ReturnsAsync(cliente);
+        var record = new DynamicMeasurementRecord
+        {
+            Id = 10,
+            ClienteId = 1,
+            Cliente = new Cliente { Id = 1 }
+        };
+        _mockCustomMeasurementService.Setup(s => s.GetDynamicMeasurementRecordByIdAsync(10))
+            .ReturnsAsync(record);
 
         // Act
         var result = await _controller.Delete(10, 1);

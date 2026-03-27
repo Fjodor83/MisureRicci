@@ -33,7 +33,7 @@ namespace MisureRicci.Controllers
 
             if (!isAdmin && !currentNegozioId.HasValue)
             {
-                return Forbid();
+                return View("TenantAssignmentRequired");
             }
 
             return View();
@@ -56,10 +56,16 @@ namespace MisureRicci.Controllers
             await using var writer = new StreamWriter(Response.Body, new UTF8Encoding(false), leaveOpen: true);
             await writer.WriteLineAsync("CodiceCliente,Nome,Cognome,Email,Telefono,Città,Paese,DataRegistrazione");
 
-            // Global Query Filters handle tenant isolation
             var query = _context.Clienti
                 .AsNoTracking()
                 .OrderBy(c => c.Id);
+
+            if (!isAdmin)
+            {
+                query = query
+                    .Where(c => c.NegozioId == currentNegozioId!.Value)
+                    .OrderBy(c => c.Id);
+            }
 
             var rowCount = 0;
             await foreach (var c in query.AsAsyncEnumerable().WithCancellation(ct))
@@ -102,11 +108,17 @@ namespace MisureRicci.Controllers
             await using var writer = new StreamWriter(Response.Body, new UTF8Encoding(false), leaveOpen: true);
             await writer.WriteLineAsync("DataCreazione,Cliente,CodiceCliente,TipoMisura,Note");
 
-            // Global Query Filters handle tenant isolation
             var query = _context.Misure
                 .AsNoTracking()
                 .Include(m => m.Cliente)
                 .OrderByDescending(m => m.DataCreazione);
+
+            if (!isAdmin)
+            {
+                query = query
+                    .Where(m => m.Cliente != null && m.Cliente.NegozioId == currentNegozioId!.Value)
+                    .OrderByDescending(m => m.DataCreazione);
+            }
 
             var rowCount = 0;
             await foreach (var m in query.AsAsyncEnumerable().WithCancellation(ct))

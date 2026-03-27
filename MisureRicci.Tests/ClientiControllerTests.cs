@@ -98,21 +98,22 @@ public class ClientiControllerTests
     }
 
     [Fact]
-    public async Task Create_POST_RedirectsToIndex_WhenSuccessful()
+    public async Task Create_POST_RedirectsToDetails_WhenSuccessful()
     {
         // Arrange
         var model = new ClientePageViewModel { Cliente = new Cliente { Nome = "Test" } };
         _mockTenantService.Setup(s => s.IsAdmin()).Returns(false);
         _mockTenantService.Setup(s => s.GetCurrentNegozioId()).Returns(1);
         _mockClienteService.Setup(s => s.CreateClienteScopedAsync(It.IsAny<Cliente>(), It.IsAny<int?>(), It.IsAny<bool>()))
-            .ReturnsAsync(new Cliente());
+            .ReturnsAsync(new Cliente { Id = 42 });
 
         // Act
         var result = await _controller.Create(model);
 
         // Assert
         var redirectResult = Assert.IsType<RedirectToActionResult>(result);
-        Assert.Equal("Index", redirectResult.ActionName);
+        Assert.Equal("Details", redirectResult.ActionName);
+        Assert.Equal(42, redirectResult.RouteValues?["id"]);
     }
 
     [Fact]

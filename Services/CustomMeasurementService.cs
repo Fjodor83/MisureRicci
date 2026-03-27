@@ -165,32 +165,50 @@ namespace MisureRicci.Services
                 CreatedAt = DateTime.UtcNow
             };
 
-            await using var transaction = await _context.Database.BeginTransactionAsync();
+            var ownsTransaction = _context.Database.CurrentTransaction == null;
+            await using var transaction = ownsTransaction ? await _context.Database.BeginTransactionAsync() : null;
 
-            _context.DynamicMeasurementRecords.Add(record);
-            await _context.SaveChangesAsync();
-
-            var values = BuildDynamicMeasurementValues(model.Fields, allowedFields, record.Id, model.SelectedUnit);
-
-            if (values.Count > 0)
+            try
             {
-                _context.DynamicMeasurementValues.AddRange(values);
+                _context.DynamicMeasurementRecords.Add(record);
+                await _context.SaveChangesAsync();
+
+                var values = BuildDynamicMeasurementValues(model.Fields, allowedFields, record.Id, model.SelectedUnit);
+
+                if (values.Count > 0)
+                {
+                    _context.DynamicMeasurementValues.AddRange(values);
+                }
+
+                var type = await _context.DynamicMeasurementTypes.FirstAsync(x => x.Id == model.MeasurementTypeId);
+                _context.Misure.Add(new MisureCliente
+                {
+                    ClienteId = model.ClienteId,
+                    TipoMisura = type.Nome,
+                    SystemNote = "Misura dinamica registrata",
+                    RecordId = record.Id,
+                    IsDynamic = true,
+                    DataCreazione = DateTime.UtcNow
+                });
+
+                await _context.SaveChangesAsync();
+
+                if (ownsTransaction && transaction != null)
+                {
+                    await transaction.CommitAsync();
+                }
+
+                return record;
             }
-
-            var type = await _context.DynamicMeasurementTypes.FirstAsync(x => x.Id == model.MeasurementTypeId);
-            _context.Misure.Add(new MisureCliente
+            catch
             {
-                ClienteId = model.ClienteId,
-                TipoMisura = type.Nome,
-                SystemNote = "Misura dinamica registrata",
-                RecordId = record.Id,
-                IsDynamic = true,
-                DataCreazione = DateTime.UtcNow
-            });
+                if (ownsTransaction && transaction != null)
+                {
+                    await transaction.RollbackAsync();
+                }
 
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
-            return record;
+                throw;
+            }
         }
 
         public async Task<DynamicMeasurementRecord?> GetDynamicMeasurementRecordByIdAsync(int id)
@@ -255,21 +273,48 @@ namespace MisureRicci.Services
                 throw new InvalidOperationException("Misura dinamica non trovata.");
             }
 
+            if (record.ClienteId != model.ClienteId)
+            {
+                throw new InvalidOperationException("La misura dinamica non appartiene al cliente selezionato.");
+            }
+
+            if (record.MeasurementTypeId != model.MeasurementTypeId)
+            {
+                throw new InvalidOperationException("La misura dinamica non corrisponde alla tipologia selezionata.");
+            }
+
             var fields = await GetFieldsByTypeAsync(record.MeasurementTypeId, onlyActive: true);
             var allowedFields = fields.ToDictionary(x => x.Id);
             EnsureFieldPayloadIsValid(model.Fields, allowedFields);
             ValidateRequiredFields(model.Fields, fields);
 
-            await using var transaction = await _context.Database.BeginTransactionAsync();
+            var ownsTransaction = _context.Database.CurrentTransaction == null;
+            await using var transaction = ownsTransaction ? await _context.Database.BeginTransactionAsync() : null;
 
-            record.MeasurementUnit = model.SelectedUnit;
-            _context.DynamicMeasurementValues.RemoveRange(record.Values);
+            try
+            {
+                record.MeasurementUnit = model.SelectedUnit;
+                _context.DynamicMeasurementValues.RemoveRange(record.Values);
 
-            var values = BuildDynamicMeasurementValues(model.Fields, allowedFields, record.Id, model.SelectedUnit);
+                var values = BuildDynamicMeasurementValues(model.Fields, allowedFields, record.Id, model.SelectedUnit);
 
-            _context.DynamicMeasurementValues.AddRange(values);
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
+                _context.DynamicMeasurementValues.AddRange(values);
+                await _context.SaveChangesAsync();
+
+                if (ownsTransaction && transaction != null)
+                {
+                    await transaction.CommitAsync();
+                }
+            }
+            catch
+            {
+                if (ownsTransaction && transaction != null)
+                {
+                    await transaction.RollbackAsync();
+                }
+
+                throw;
+            }
         }
 
         public async Task DeleteDynamicMeasurementAsync(int recordId)
@@ -280,17 +325,44 @@ namespace MisureRicci.Services
                 return;
             }
 
-            await using var transaction = await _context.Database.BeginTransactionAsync();
-
             var registro = await _context.Misure.FirstOrDefaultAsync(x => x.RecordId == recordId && x.IsDynamic);
             if (registro != null)
             {
-                _context.Misure.Remove(registro);
+                var isLinkedToCommessa = await _context.CommissioniMisureLinks
+                    .AnyAsync(x => x.MisuraClienteId == registro.Id);
+                if (isLinkedToCommessa)
+                {
+                    throw new InvalidOperationException("La misura e' collegata a una o piu' commesse. Scollegala prima di eliminarla.");
+                }
             }
 
-            _context.DynamicMeasurementRecords.Remove(record);
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
+            var ownsTransaction = _context.Database.CurrentTransaction == null;
+            await using var transaction = ownsTransaction ? await _context.Database.BeginTransactionAsync() : null;
+
+            try
+            {
+                if (registro != null)
+                {
+                    _context.Misure.Remove(registro);
+                }
+
+                _context.DynamicMeasurementRecords.Remove(record);
+                await _context.SaveChangesAsync();
+
+                if (ownsTransaction && transaction != null)
+                {
+                    await transaction.CommitAsync();
+                }
+            }
+            catch
+            {
+                if (ownsTransaction && transaction != null)
+                {
+                    await transaction.RollbackAsync();
+                }
+
+                throw;
+            }
         }
 
         private static bool IsStructuralTemplate(DynamicFieldTemplate template)

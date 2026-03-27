@@ -11,6 +11,7 @@ namespace MisureRicci.Controllers
     [Authorize(Roles = "Admin,Manager,Sartoria,Boutique")]
     public class DynamicMeasurementsController : Controller
     {
+        private const string MeasurementError = "MeasurementError";
         private readonly ICustomMeasurementService _customMeasurementService;
         private readonly IClienteService _clienteService;
         private readonly ICommessaService _commessaService;
@@ -116,26 +117,24 @@ namespace MisureRicci.Controllers
 
             try
             {
-                var record = await _customMeasurementService.CreateDynamicMeasurementAsync(model, currentUser?.Id);
-
-                // Return-to-commessa flow: auto-link the newly created measure and redirect back.
                 if (model.ReturnToCommessaId.HasValue)
                 {
-                    var linked = await _commessaService.LinkDynamicMeasurementRecordAsync(
-                        model.ReturnToCommessaId.Value,
-                        record.Id,
+                    var result = await _commessaService.CreateAndLinkDynamicMeasurementAsync(
+                        model,
                         currentUser?.Id,
                         currentUser?.NegozioId,
                         isAdmin);
 
-                    if (!linked)
+                    if (!result.IsSuccess)
                     {
-                        return Forbid();
+                        ModelState.AddModelError(string.Empty, result.Error ?? "Impossibile creare e collegare la misura alla commessa.");
+                        return View(model);
                     }
 
                     return RedirectToAction("Details", "Commissioni", new { id = model.ReturnToCommessaId.Value });
                 }
 
+                await _customMeasurementService.CreateDynamicMeasurementAsync(model, currentUser?.Id);
                 return RedirectToAction("Details", "Clienti", new { id = model.ClienteId });
             }
             catch (InvalidOperationException ex)
@@ -215,6 +214,22 @@ namespace MisureRicci.Controllers
 
             var currentUser = await _userManager.GetUserAsync(User);
             var isAdmin = User.IsInRole(ApplicationRoles.Admin);
+            var existingRecord = await _customMeasurementService.GetDynamicMeasurementRecordByIdAsync(model.RecordId);
+            if (existingRecord == null)
+            {
+                return NotFound();
+            }
+
+            if (!await CanAccessClienteAsync(existingRecord.Cliente?.NegozioId))
+            {
+                return Forbid();
+            }
+
+            if (existingRecord.ClienteId != model.ClienteId || existingRecord.MeasurementTypeId != model.MeasurementTypeId)
+            {
+                return NotFound();
+            }
+
             var cliente = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser?.NegozioId, isAdmin);
             var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
 
@@ -250,16 +265,32 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> Delete(int id, int clienteId)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = User.IsInRole(ApplicationRoles.Admin);
-            var cliente = await _clienteService.GetClienteScopedAsync(clienteId, currentUser?.NegozioId, isAdmin);
-            if (cliente == null)
+            var record = await _customMeasurementService.GetDynamicMeasurementRecordByIdAsync(id);
+            if (record == null)
             {
                 return NotFound();
             }
 
-            await _customMeasurementService.DeleteDynamicMeasurementAsync(id);
-            return RedirectToAction("Details", "Clienti", new { id = clienteId });
+            if (!await CanAccessClienteAsync(record.Cliente?.NegozioId))
+            {
+                return Forbid();
+            }
+
+            if (record.ClienteId != clienteId)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                await _customMeasurementService.DeleteDynamicMeasurementAsync(id);
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData[MeasurementError] = ex.Message;
+            }
+
+            return RedirectToAction("Details", "Clienti", new { id = record.ClienteId });
         }
 
         private async Task<bool> CanAccessClienteAsync(int? clienteNegozioId)

@@ -118,6 +118,7 @@ public class CustomMeasurementServiceTests
         using var factory = new TestDbContextFactory();
 
         int recordId;
+        int clienteId;
         int typeId;
         int fieldId;
 
@@ -176,6 +177,7 @@ public class CustomMeasurementServiceTests
             await seedContext.SaveChangesAsync();
 
             recordId = record.Id;
+            clienteId = cliente.Id;
             typeId = type.Id;
             fieldId = field.Id;
         }
@@ -186,6 +188,7 @@ public class CustomMeasurementServiceTests
             var model = new DynamicMeasurementCreateViewModel
             {
                 RecordId = recordId,
+                ClienteId = clienteId,
                 MeasurementTypeId = typeId,
                 SelectedUnit = MeasurementUnit.Inches,
                 Fields = new List<DynamicFieldInputViewModel>

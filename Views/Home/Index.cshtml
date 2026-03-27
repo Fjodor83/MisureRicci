@@ -109,16 +109,19 @@
             </div>
         </article>
 
-        <article class="feature-card">
-            <div class="feature-card__icon"><i class="bi bi-sliders2"></i></div>
-            <div>
-                <h2 class="feature-card__title">Tipologie dinamiche</h2>
-                <p class="feature-card__text">Configurazione campi e template pensata per amministrazione e manutenzione rapida.</p>
-            </div>
-            <div class="feature-card__actions">
-                <a asp-controller="AdminMeasurementTypes" asp-action="Index" class="btn btn-outline-secondary">Configura tipologie</a>
-            </div>
-        </article>
+        @if (User.IsInRole("Admin"))
+        {
+            <article class="feature-card">
+                <div class="feature-card__icon"><i class="bi bi-sliders2"></i></div>
+                <div>
+                    <h2 class="feature-card__title">Tipologie dinamiche</h2>
+                    <p class="feature-card__text">Configurazione campi e template pensata per amministrazione e manutenzione rapida.</p>
+                </div>
+                <div class="feature-card__actions">
+                    <a asp-controller="AdminMeasurementTypes" asp-action="Index" class="btn btn-outline-secondary">Configura tipologie</a>
+                </div>
+            </article>
+        }
 
         <article class="feature-card">
             <div class="feature-card__icon"><i class="bi bi-file-earmark-arrow-down"></i></div>

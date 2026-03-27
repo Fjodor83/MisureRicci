@@ -131,12 +131,7 @@
                         <h2 class="detail-card__title">Misure collegate</h2>
                         <div class="toolbar-meta">Record attualmente agganciati alla commessa.</div>
                     </div>
-                    @{
-                        bool matchFound = Model.MisureCollegate.Any(m =>
-                            commessa.TipoCapo.Contains(m.TipoMisura, StringComparison.OrdinalIgnoreCase) ||
-                            m.TipoMisura.Contains(commessa.TipoCapo.Split(' ')[0], StringComparison.OrdinalIgnoreCase));
-                    }
-                    @if (!matchFound && Model.MisureCollegate.Any())
+                    @if (Model.HasLinkedMeasureTypeMismatch)
                     {
                         <span class="status-pill status-pill--warning">Tipo capo non corrispondente</span>
                     }
@@ -190,7 +185,7 @@
                     <div class="table-toolbar">
                         <div>
                             <h2 class="detail-card__title">Nessuna misura presente</h2>
-                            <div class="toolbar-meta">Prima di avanzare la commessa oltre Bozza serve almeno una misura dinamica collegata.</div>
+                            <div class="toolbar-meta">Prima di avanzare la commessa oltre Bozza serve almeno una misura collegata.</div>
                         </div>
                     </div>
                     @if (Model.MeasurementTypes.Any())
@@ -281,13 +276,11 @@
                             <tbody>
                                 @foreach (var misura in Model.MisureDisponibili)
                                 {
-                                    bool isRecommended = commessa.TipoCapo.Contains(misura.TipoMisura, StringComparison.OrdinalIgnoreCase) ||
-                                                         misura.TipoMisura.Contains(commessa.TipoCapo.Split(' ')[0], StringComparison.OrdinalIgnoreCase);
-                                    <tr class="@(isRecommended ? "bg-soft-gold" : "")">
+                                    <tr class="@(misura.IsRecommended ? "bg-soft-gold" : "")">
                                         <td>@misura.DataCreazione.ToString("dd/MM/yyyy HH:mm")</td>
                                         <td>
                                             <span class="table-code">@misura.TipoMisura</span>
-                                            @if (isRecommended)
+                                            @if (misura.IsRecommended)
                                             {
                                                 <span class="badge bg-gold text-navy ms-2">Consigliata</span>
                                             }
@@ -297,7 +290,7 @@
                                             <form asp-action="LinkMisura" method="post" class="d-inline">
                                                 <input type="hidden" name="id" value="@commessa.Id" />
                                                 <input type="hidden" name="misuraClienteId" value="@misura.MisuraClienteId" />
-                                                <button type="submit" class="btn btn-sm @(isRecommended ? "btn-gold" : "btn-outline-gold")">Collega</button>
+                                                <button type="submit" class="btn btn-sm @(misura.IsRecommended ? "btn-gold" : "btn-outline-gold")">Collega</button>
                                             </form>
                                         </td>
                                     </tr>

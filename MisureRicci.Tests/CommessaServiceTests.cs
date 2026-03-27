@@ -86,8 +86,9 @@ public class CommessaServiceTests
                 .Where(x => x.CommessaSartorialeId == commessa.Id)
                 .ToListAsync();
 
+            Assert.Equal(StatoCommessa.MisureRaccolte, commessa.Stato);
             Assert.Equal(2, eventi.Count);
-            Assert.Contains(eventi, x => x.TipoEvento == "Apertura" && x.NuovoStato == StatoCommessa.Bozza);
+            Assert.Contains(eventi, x => x.TipoEvento == "Apertura" && x.NuovoStato == StatoCommessa.MisureRaccolte);
             Assert.Contains(eventi, x => x.TipoEvento == "LinkMisura" && x.CreatedByUserId == "user-1");
             Assert.Single(links);
             Assert.Equal(misuraId, links[0].MisuraClienteId);

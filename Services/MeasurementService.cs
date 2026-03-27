@@ -132,6 +132,8 @@ namespace MisureRicci.Services
                 return null;
             }
 
+            await EnsureMeasurementNotLinkedAsync(entry.Id);
+
             var clienteId = entry.ClienteId;
 
             if (entry.IsDynamic)
@@ -224,10 +226,16 @@ namespace MisureRicci.Services
                 return false;
             }
 
-            _context.Remove(model);
             var registro = await _context.Misure
                 .Include(r => r.Cliente)
                 .FirstOrDefaultAsync(r => r.RecordId == id && r.TipoMisura.ToLower() == tipoMisura.ToLower());
+
+            if (registro != null)
+            {
+                await EnsureMeasurementNotLinkedAsync(registro.Id);
+            }
+
+            _context.Remove(model);
             if (registro != null)
             {
                 if (isAdmin || (negozioId.HasValue && registro.Cliente != null && registro.Cliente.NegozioId == negozioId.Value))
@@ -288,6 +296,17 @@ namespace MisureRicci.Services
         private static bool CanAccessTenant(int? negozioId, bool isAdmin)
         {
             return isAdmin || negozioId.HasValue;
+        }
+
+        private async Task EnsureMeasurementNotLinkedAsync(int misuraClienteId)
+        {
+            var isLinkedToCommessa = await _context.CommissioniMisureLinks
+                .AnyAsync(x => x.MisuraClienteId == misuraClienteId);
+
+            if (isLinkedToCommessa)
+            {
+                throw new InvalidOperationException("La misura e' collegata a una o piu' commesse. Scollegala prima di eliminarla.");
+            }
         }
     }
 }

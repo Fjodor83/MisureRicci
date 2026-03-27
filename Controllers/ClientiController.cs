@@ -31,6 +31,11 @@ namespace MisureRicci.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             bool isAdmin = _tenantService.IsAdmin();
             int? negozioId = _tenantService.GetCurrentNegozioId();
+            if (!isAdmin && !negozioId.HasValue)
+            {
+                return View("TenantAssignmentRequired");
+            }
+
             const int pageSize = 20;
             
             var result = await _clienteService.GetClientiPagedAsync(searchString, negozioId, isAdmin, page, pageSize);
@@ -99,7 +104,7 @@ namespace MisureRicci.Controllers
                     return Forbid();
                 }
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Details), new { id = created.Id });
             }
 
             return View(await BuildPageViewModelAsync(model.Cliente, isAdmin));

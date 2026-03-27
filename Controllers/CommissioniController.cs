@@ -35,7 +35,7 @@ namespace MisureRicci.Controllers
             var isAdmin = _tenantService.IsAdmin();
             var currentNegozioId = _tenantService.GetCurrentNegozioId();
 
-            if (!isAdmin && !currentNegozioId.HasValue) return Forbid();
+            if (!isAdmin && !currentNegozioId.HasValue) return View("TenantAssignmentRequired");
 
             const int pageSize = 20;
             var result = await _commessaService.GetCommissioniPagedAsync(clienteId, currentNegozioId, isAdmin, page, pageSize);

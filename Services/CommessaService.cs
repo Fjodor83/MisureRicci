@@ -12,6 +12,7 @@ namespace MisureRicci.Services
         private readonly ApplicationDbContext _context;
         private readonly IMemoryCache _cache;
         private readonly ILogger<CommessaService> _logger;
+        private readonly ICustomMeasurementService? _customMeasurementService;
 
         private static readonly Dictionary<StatoCommessa, StatoCommessa[]> AllowedTransitions = new()
         {
@@ -26,10 +27,20 @@ namespace MisureRicci.Services
         };
 
         public CommessaService(ApplicationDbContext context, IMemoryCache cache, ILogger<CommessaService> logger)
+            : this(context, cache, logger, null)
+        {
+        }
+
+        public CommessaService(
+            ApplicationDbContext context,
+            IMemoryCache cache,
+            ILogger<CommessaService> logger,
+            ICustomMeasurementService? customMeasurementService)
         {
             _context = context;
             _cache = cache;
             _logger = logger;
+            _customMeasurementService = customMeasurementService;
         }
 
         public async Task<PagedResult<CommessaSartoriale>> GetCommissioniPagedAsync(int? clienteId, int? negozioId, bool isAdmin, int page, int pageSize)
@@ -178,12 +189,20 @@ namespace MisureRicci.Services
 
             var linked = misureConStatoLink
                 .Where(x => x.IsLinked)
-                .Select(x => x.Item)
+                .Select(x =>
+                {
+                    x.Item.IsRecommended = IsMeasurementRecommendedForTipoCapo(commessa.TipoCapo, x.Item.TipoMisura);
+                    return x.Item;
+                })
                 .ToList();
 
             var free = misureConStatoLink
                 .Where(x => !x.IsLinked)
-                .Select(x => x.Item)
+                .Select(x =>
+                {
+                    x.Item.IsRecommended = IsMeasurementRecommendedForTipoCapo(commessa.TipoCapo, x.Item.TipoMisura);
+                    return x.Item;
+                })
                 .ToList();
 
             var totalMisureCliente = linked.Count + free.Count;
@@ -204,6 +223,7 @@ namespace MisureRicci.Services
                 StatiDisponibili = GetAllowedNextStates(commessa.Stato),
                 MisureCollegate = linked,
                 MisureDisponibili = free,
+                HasLinkedMeasureTypeMismatch = linked.Count > 0 && !linked.Any(x => x.IsRecommended),
                 MisuraStatus = misuraStatus,
                 MeasurementTypes = measurementTypes
             };
@@ -298,7 +318,7 @@ namespace MisureRicci.Services
                 Collezione = string.IsNullOrWhiteSpace(model.Collezione) ? null : model.Collezione.Trim(),
                 DataConsegnaPrevista = model.DataConsegnaPrevista,
                 NoteInterne = string.IsNullOrWhiteSpace(model.NoteInterne) ? null : model.NoteInterne.Trim(),
-                Stato = StatoCommessa.Bozza,
+                Stato = selectedMisuraIds.Length > 0 ? StatoCommessa.MisureRaccolte : StatoCommessa.Bozza,
                 DataApertura = now,
                 CreatedByUserId = userId
             };
@@ -350,6 +370,71 @@ namespace MisureRicci.Services
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
             return Result<CommessaSartoriale>.Ok(entity);
+        }
+
+        public async Task<Result<int>> CreateAndLinkDynamicMeasurementAsync(DynamicMeasurementCreateViewModel model, string? userId, int? negozioId, bool isAdmin)
+        {
+            if (!model.ReturnToCommessaId.HasValue)
+            {
+                return Result<int>.Fail("Commessa di destinazione non specificata.");
+            }
+
+            if (_customMeasurementService == null)
+            {
+                return Result<int>.Fail("Servizio misure dinamiche non disponibile.");
+            }
+
+            var commessa = await _context.Commissioni
+                .AsNoTracking()
+                .Select(c => new { c.Id, c.ClienteId, c.NegozioId })
+                .FirstOrDefaultAsync(c => c.Id == model.ReturnToCommessaId.Value);
+
+            if (commessa == null)
+            {
+                return Result<int>.Fail("Commessa non trovata.");
+            }
+
+            if (!CanAccessNegozio(commessa.NegozioId, negozioId, isAdmin))
+            {
+                return Result<int>.Fail("Accesso negato alla commessa.");
+            }
+
+            if (commessa.ClienteId != model.ClienteId)
+            {
+                return Result<int>.Fail("La misura deve essere creata per lo stesso cliente della commessa.");
+            }
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var record = await _customMeasurementService.CreateDynamicMeasurementAsync(model, userId);
+                var linkResult = await LinkDynamicMeasurementRecordInternalAsync(
+                    commessa.Id,
+                    record.Id,
+                    userId,
+                    negozioId,
+                    isAdmin);
+
+                if (!linkResult.IsSuccess)
+                {
+                    await transaction.RollbackAsync();
+                    return Result<int>.Fail(linkResult.Error ?? "Impossibile collegare la misura alla commessa.");
+                }
+
+                await transaction.CommitAsync();
+                return Result<int>.Ok(record.Id);
+            }
+            catch (InvalidOperationException ex)
+            {
+                await transaction.RollbackAsync();
+                return Result<int>.Fail(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Errore durante la creazione e collegamento della misura dinamica alla commessa {CommessaId}", model.ReturnToCommessaId.Value);
+                return Result<int>.Fail("Errore durante la creazione e il collegamento della misura.");
+            }
         }
 
         public async Task<Result> AdvanceStatoAsync(int id, StatoCommessa nuovoStato, string? note, string? userId, int? negozioId, bool isAdmin)
@@ -492,43 +577,75 @@ namespace MisureRicci.Services
                 .AnyAsync(x => x.CommessaSartorialeId == id && x.MisuraClienteId == misuraClienteId);
             if (exists)
             {
+                if (commessa.Stato == StatoCommessa.Bozza)
+                {
+                    var syncResult = await PromoteToMisureRaccolteIfNeededAsync(commessa, userId);
+                    if (!syncResult.IsSuccess)
+                    {
+                        return syncResult;
+                    }
+                }
+
                 return Result.Ok();
             }
 
-            _context.CommissioniMisureLinks.Add(new CommessaMisuraLink
-            {
-                CommessaSartorialeId = id,
-                MisuraClienteId = misuraClienteId,
-                LinkedAt = DateTime.UtcNow,
-                LinkedByUserId = userId
-            });
+            var ownsTransaction = _context.Database.CurrentTransaction == null;
+            await using var transaction = ownsTransaction ? await _context.Database.BeginTransactionAsync() : null;
 
-            _context.CommissioniEventi.Add(new CommessaEvento
+            try
             {
-                CommessaSartorialeId = id,
-                TipoEvento = "LinkMisura",
-                Descrizione = $"Collegata misura {misura.TipoMisura} del {misura.DataCreazione:dd/MM/yyyy HH:mm}.",
-                CreatedByUserId = userId,
-                CreatedAt = DateTime.UtcNow
-            });
+                _context.CommissioniMisureLinks.Add(new CommessaMisuraLink
+                {
+                    CommessaSartorialeId = id,
+                    MisuraClienteId = misuraClienteId,
+                    LinkedAt = DateTime.UtcNow,
+                    LinkedByUserId = userId
+                });
 
-            await _context.SaveChangesAsync();
-            return Result.Ok();
+                _context.CommissioniEventi.Add(new CommessaEvento
+                {
+                    CommessaSartorialeId = id,
+                    TipoEvento = "LinkMisura",
+                    Descrizione = $"Collegata misura {misura.TipoMisura} del {misura.DataCreazione:dd/MM/yyyy HH:mm}.",
+                    CreatedByUserId = userId,
+                    CreatedAt = DateTime.UtcNow
+                });
+
+                var statusSync = await PromoteToMisureRaccolteIfNeededAsync(commessa, userId, deferSave: true);
+                if (!statusSync.IsSuccess)
+                {
+                    if (ownsTransaction && transaction != null)
+                    {
+                        await transaction.RollbackAsync();
+                    }
+
+                    return statusSync;
+                }
+
+                await _context.SaveChangesAsync();
+
+                if (ownsTransaction && transaction != null)
+                {
+                    await transaction.CommitAsync();
+                }
+
+                return Result.Ok();
+            }
+            catch (Exception ex)
+            {
+                if (ownsTransaction && transaction != null)
+                {
+                    await transaction.RollbackAsync();
+                }
+
+                _logger.LogError(ex, "Errore durante il collegamento della misura {MisuraClienteId} alla commessa {CommessaId}", misuraClienteId, id);
+                return Result.Fail("Errore durante il collegamento della misura.");
+            }
         }
 
         public async Task<bool> LinkDynamicMeasurementRecordAsync(int id, int dynamicRecordId, string? userId, int? negozioId, bool isAdmin)
         {
-            var misuraClienteId = await _context.Misure
-                .Where(m => m.IsDynamic && m.RecordId == dynamicRecordId)
-                .Select(m => (int?)m.Id)
-                .FirstOrDefaultAsync();
-
-            if (!misuraClienteId.HasValue)
-            {
-                return false;
-            }
-
-            var result = await LinkMisuraAsync(id, misuraClienteId.Value, userId, negozioId, isAdmin);
+            var result = await LinkDynamicMeasurementRecordInternalAsync(id, dynamicRecordId, userId, negozioId, isAdmin);
             return result.IsSuccess;
         }
 
@@ -545,22 +662,21 @@ namespace MisureRicci.Services
                 return Result.Fail("Accesso negato alla commessa.");
             }
 
-            // Safeguard: cannot unlink if state requires at least one measure and this is the last one.
-            if (RichiedeMisuraCollegata(commessa.Stato))
-            {
-                var count = await _context.CommissioniMisureLinks
-                    .CountAsync(x => x.CommessaSartorialeId == id);
-                if (count <= 1)
-                {
-                    return Result.Fail($"Nello stato '{commessa.Stato}' è obbligatorio mantenere almeno una misura collegata.");
-                }
-            }
-
             var link = await _context.CommissioniMisureLinks
                 .FirstOrDefaultAsync(x => x.CommessaSartorialeId == id && x.MisuraClienteId == misuraClienteId);
             if (link == null)
             {
                 return Result.Fail("Collegamento misura non trovato.");
+            }
+
+            var linkedCount = await _context.CommissioniMisureLinks
+                .CountAsync(x => x.CommessaSartorialeId == id);
+            var isRemovingLastLinkedMeasure = linkedCount <= 1;
+            var shouldDemoteToBozza = commessa.Stato == StatoCommessa.MisureRaccolte && isRemovingLastLinkedMeasure;
+
+            if (RichiedeMisuraCollegata(commessa.Stato) && isRemovingLastLinkedMeasure && !shouldDemoteToBozza)
+            {
+                return Result.Fail($"Nello stato '{commessa.Stato}' è obbligatorio mantenere almeno una misura collegata.");
             }
 
             await using var transaction = await _context.Database.BeginTransactionAsync();
@@ -575,6 +691,19 @@ namespace MisureRicci.Services
                     Descrizione = $"Scollegata misura id {misuraClienteId}.",
                     CreatedAt = DateTime.UtcNow
                 });
+
+                if (shouldDemoteToBozza)
+                {
+                    commessa.Stato = StatoCommessa.Bozza;
+                    _context.CommissioniEventi.Add(new CommessaEvento
+                    {
+                        CommessaSartorialeId = id,
+                        TipoEvento = "CambioStato",
+                        NuovoStato = StatoCommessa.Bozza,
+                        Descrizione = "Stato riportato a Bozza dopo la rimozione dell'ultima misura collegata.",
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -599,11 +728,77 @@ namespace MisureRicci.Services
 
         private static bool RichiedeMisuraCollegata(StatoCommessa stato)
         {
-            return stato == StatoCommessa.InLavorazione
+            return stato == StatoCommessa.MisureRaccolte
+                || stato == StatoCommessa.InLavorazione
                 || stato == StatoCommessa.Prova1
                 || stato == StatoCommessa.Prova2
                 || stato == StatoCommessa.ProntaConsegna
                 || stato == StatoCommessa.Consegnata;
+        }
+
+        private async Task<Result> PromoteToMisureRaccolteIfNeededAsync(CommessaSartoriale commessa, string? userId, bool deferSave = false)
+        {
+            if (commessa.Stato != StatoCommessa.Bozza)
+            {
+                return Result.Ok();
+            }
+
+            commessa.Stato = StatoCommessa.MisureRaccolte;
+            _context.CommissioniEventi.Add(new CommessaEvento
+            {
+                CommessaSartorialeId = commessa.Id,
+                TipoEvento = "CambioStato",
+                NuovoStato = StatoCommessa.MisureRaccolte,
+                Descrizione = "Stato aggiornato automaticamente a MisureRaccolte dopo il collegamento della prima misura.",
+                CreatedByUserId = userId,
+                CreatedAt = DateTime.UtcNow
+            });
+
+            if (!deferSave)
+            {
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Errore durante l'aggiornamento automatico dello stato della commessa {CommessaId}", commessa.Id);
+                    return Result.Fail("Errore durante l'aggiornamento automatico dello stato della commessa.");
+                }
+            }
+
+            return Result.Ok();
+        }
+
+        private async Task<Result> LinkDynamicMeasurementRecordInternalAsync(int id, int dynamicRecordId, string? userId, int? negozioId, bool isAdmin)
+        {
+            var misuraClienteId = await _context.Misure
+                .Where(m => m.IsDynamic && m.RecordId == dynamicRecordId)
+                .Select(m => (int?)m.Id)
+                .FirstOrDefaultAsync();
+
+            if (!misuraClienteId.HasValue)
+            {
+                return Result.Fail("Misura dinamica non trovata nel registro.");
+            }
+
+            return await LinkMisuraAsync(id, misuraClienteId.Value, userId, negozioId, isAdmin);
+        }
+
+        private static bool IsMeasurementRecommendedForTipoCapo(string tipoCapo, string tipoMisura)
+        {
+            if (string.IsNullOrWhiteSpace(tipoCapo) || string.IsNullOrWhiteSpace(tipoMisura))
+            {
+                return false;
+            }
+
+            var firstTipoCapoWord = tipoCapo
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .FirstOrDefault();
+
+            return tipoCapo.Contains(tipoMisura, StringComparison.OrdinalIgnoreCase)
+                || (!string.IsNullOrWhiteSpace(firstTipoCapoWord)
+                    && tipoMisura.Contains(firstTipoCapoWord, StringComparison.OrdinalIgnoreCase));
         }
 
         private static bool CanAccessNegozio(int? commessaNegozioId, int? userNegozioId, bool isAdmin)

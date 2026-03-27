@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Assegnazione Negozio Richiesta";
+}
+
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Workspace setup</span>
+        <h1 class="page-title">Assegnazione boutique richiesta</h1>
+        <p class="page-subtitle">
+            Il tuo utente non ha ancora un negozio assegnato. Finche' l'assegnazione non viene completata,
+            i flussi operativi restano bloccati per evitare viste vuote o dati fuori contesto.
+        </p>
+    </div>
+    <div class="page-actions">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Torna alla dashboard</a>
+    </div>
+</section>
+
+<section class="page-surface">
+    <div class="empty-state">
+        <div class="empty-state__icon"><i class="bi bi-shop-window"></i></div>
+        <h2 class="empty-state__title">Configurazione incompleta</h2>
+        <p class="empty-state__text">
+            Chiedi a un amministratore di associare il tuo account a una boutique prima di usare clienti,
+            misure, commissioni o report.
+        </p>
+    </div>
+</section>

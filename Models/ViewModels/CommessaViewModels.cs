@@ -38,6 +38,7 @@ namespace MisureRicci.Models.ViewModels
         public List<StatoCommessa> StatiDisponibili { get; set; } = new();
         public List<CommessaMisuraItem> MisureDisponibili { get; set; } = new();
         public List<CommessaMisuraItem> MisureCollegate { get; set; } = new();
+        public bool HasLinkedMeasureTypeMismatch { get; set; }
 
         /// <summary>Snapshot dello stato misure per questa commessa.</summary>
         public CommessaMisuraStatus MisuraStatus { get; set; } = new();

@@ -1,8 +1,14 @@
+@using System.Collections.Generic
 @model MisureRicci.Models.ViewModels.DynamicMeasurementCreateViewModel
 
 @{
     ViewData["Title"] = "Nuova Misura Dinamica";
     var selectedUnitLabel = MeasurementUnitHelper.ToShortLabel(Model.SelectedUnit);
+    var backAction = Model.ReturnToCommessaId.HasValue ? "Details" : "Index";
+    var backController = Model.ReturnToCommessaId.HasValue ? "Commissioni" : "Measurements";
+    var backRouteValues = Model.ReturnToCommessaId.HasValue
+        ? new Dictionary<string, string> { ["id"] = Model.ReturnToCommessaId.Value.ToString() }
+        : new Dictionary<string, string> { ["clienteId"] = Model.ClienteId.ToString() };
     var groupedFields = Model.Fields
         .OrderBy(f => f.OrdineGruppo)
         .ThenBy(f => f.Gruppo)
@@ -20,7 +26,7 @@
     </div>
     <div class="page-actions">
         <span class="toolbar-chip">Unita' @selectedUnitLabel</span>
-        <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.ClienteId" class="btn btn-outline-secondary">Torna alle tipologie</a>
+        <a asp-controller="@backController" asp-action="@backAction" asp-all-route-data="backRouteValues" class="btn btn-outline-secondary">@(Model.ReturnToCommessaId.HasValue ? "Torna alla commessa" : "Torna alle tipologie")</a>
     </div>
 </section>
 
@@ -216,7 +222,7 @@
 
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">@(Model.RecordId == 0 ? "Salva misura" : "Aggiorna misura")</button>
-        <a asp-controller="Measurements" asp-action="Index" asp-route-clienteId="@Model.ClienteId" class="btn btn-outline-secondary">Annulla</a>
+        <a asp-controller="@backController" asp-action="@backAction" asp-all-route-data="backRouteValues" class="btn btn-outline-secondary">Annulla</a>
     </div>
 </form>
     </div>

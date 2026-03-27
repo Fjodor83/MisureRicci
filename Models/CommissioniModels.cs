@@ -121,5 +121,6 @@ namespace MisureRicci.Models
         public bool IsDynamic { get; set; }
         public DateTime DataCreazione { get; set; }
         public string? Note { get; set; }
+        public bool IsRecommended { get; set; }
     }
 }

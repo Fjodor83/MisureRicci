@@ -11,6 +11,7 @@ namespace MisureRicci.Controllers
     [Authorize(Roles = "Admin,Manager,Sartoria,Boutique")]
     public class MeasurementsController : Controller
     {
+        private const string MeasurementError = "MeasurementError";
         private readonly IMeasurementRegistryService _measurementRegistryService;
         private readonly ILegacyMeasurementService _legacyMeasurementService;
         private readonly IClienteService _clienteService;
@@ -49,7 +50,7 @@ namespace MisureRicci.Controllers
             {
                 if (userId == null) return Forbid();
                 var currentUser = await _userManager.FindByIdAsync(userId);
-                if (currentUser?.NegozioId == null) return Forbid();
+                if (currentUser?.NegozioId == null) return View("TenantAssignmentRequired");
                 negozioId = currentUser.NegozioId;
             }
 
@@ -81,7 +82,7 @@ namespace MisureRicci.Controllers
             {
                 if (userId == null) return Forbid();
                 var currentUser = await _userManager.FindByIdAsync(userId);
-                if (currentUser?.NegozioId == null) return Forbid();
+                if (currentUser?.NegozioId == null) return View("TenantAssignmentRequired");
                 negozioId = currentUser.NegozioId;
             }
 
@@ -215,10 +216,24 @@ namespace MisureRicci.Controllers
 
             if (registryId.HasValue)
             {
-                var clienteIdFromRegistry = await _measurementRegistryService.DeleteByRegistryEntryAsync(registryId.Value, negozioId, isAdmin);
-                if (clienteIdFromRegistry.HasValue)
+                var registryEntry = await _measurementRegistryService.GetRegistryEntryAsync(registryId.Value, negozioId, isAdmin);
+                if (registryEntry == null)
                 {
-                    return RedirectToAction(Dettagli, Clienti, new { id = clienteIdFromRegistry.Value });
+                    return RedirectToAction(nameof(Index), Clienti);
+                }
+
+                try
+                {
+                    var clienteIdFromRegistry = await _measurementRegistryService.DeleteByRegistryEntryAsync(registryId.Value, negozioId, isAdmin);
+                    if (clienteIdFromRegistry.HasValue)
+                    {
+                        return RedirectToAction(Dettagli, Clienti, new { id = clienteIdFromRegistry.Value });
+                    }
+                }
+                catch (InvalidOperationException ex)
+                {
+                    TempData[MeasurementError] = ex.Message;
+                    return RedirectToAction(Dettagli, Clienti, new { id = registryEntry.ClienteId });
                 }
 
                 return RedirectToAction(nameof(Index), Clienti);
@@ -228,7 +243,15 @@ namespace MisureRicci.Controllers
             if (model != null)
             {
                 int clienteId = _legacyMeasurementUiService.GetClienteId(model);
-                await _legacyMeasurementService.DeleteMeasurementAsync(id, tipoMisura, negozioId, isAdmin);
+                try
+                {
+                    await _legacyMeasurementService.DeleteMeasurementAsync(id, tipoMisura, negozioId, isAdmin);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    TempData[MeasurementError] = ex.Message;
+                }
+
                 return RedirectToAction(Dettagli, Clienti, new { id = clienteId });
             }
             return RedirectToAction(nameof(Index), Clienti);

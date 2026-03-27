@@ -21,6 +21,11 @@ namespace MisureRicci.Controllers
         {
             var currentUser = await _userManager.GetUserAsync(User);
             var isAdmin = User.IsInRole(ApplicationRoles.Admin);
+            if (!isAdmin && currentUser?.NegozioId == null)
+            {
+                return View("TenantAssignmentRequired");
+            }
+
             var model = await _dashboardService.GetKpiAsync(currentUser?.NegozioId, isAdmin);
             return View(model);
         }

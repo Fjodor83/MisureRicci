@@ -35,7 +35,7 @@
                     <th>Ruolo</th>
                     <th>Boutique</th>
                     <th>Stato</th>
-                    <th class="text-end">Azioni</th>
+                    <th class="text-end table-actions-col">Azioni</th>
                 </tr>
             </thead>
             <tbody>
@@ -55,8 +55,8 @@
                         <td><span class="status-pill status-pill--accent">@item.Ruolo.ToUpper()</span></td>
                         <td>@(item.Negozio?.Nome ?? "Global HQ")</td>
                         <td><span class="status-pill @(item.Attivo ? "status-pill--success" : "status-pill--neutral")">@(item.Attivo ? "Attivo" : "Inattivo")</span></td>
-                        <td class="text-end">
-                            <div class="page-actions justify-content-end">
+                        <td class="text-end table-actions-col">
+                            <div class="table-actions-inline">
                                 <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-gold">Profilo</a>
                                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Modifica</a>
                                 <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Elimina</a>
