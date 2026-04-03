@@ -41,6 +41,7 @@ namespace MisureRicci.Services
         private const string ProtectedRoutePrefix = "/images/measurement-types/";
         private const string LegacyRoutePrefix = "/uploads/measurement-types/";
         private const long DefaultMaxFileSizeBytes = 5 * 1024 * 1024;
+        private const string MeasurementTypes = "measurement-types";
 
         private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -204,7 +205,7 @@ namespace MisureRicci.Services
             return migratedCount;
         }
 
-        private void ValidateUpload(IFormFile file)
+        private static void ValidateUpload(IFormFile file)
         {
             if (file == null)
             {
@@ -230,21 +231,21 @@ namespace MisureRicci.Services
 
         private string GetSecureStoragePath()
         {
-            var path = Path.Combine(_environment.ContentRootPath, "SecureUploads", "measurement-types");
+            var path = Path.Combine(_environment.ContentRootPath, "SecureUploads", MeasurementTypes);
             Directory.CreateDirectory(path);
             return path;
         }
 
         private string GetQuarantinePath()
         {
-            var path = Path.Combine(_environment.ContentRootPath, "SecureUploads", "quarantine", "measurement-types");
+            var path = Path.Combine(_environment.ContentRootPath, "SecureUploads", "quarantine", MeasurementTypes);
             Directory.CreateDirectory(path);
             return path;
         }
 
         private void QuarantineOrphanedLegacyFiles(string quarantinePath)
         {
-            var legacyDirectory = Path.Combine(_environment.WebRootPath, "uploads", "measurement-types");
+            var legacyDirectory = Path.Combine(_environment.WebRootPath, "uploads", MeasurementTypes);
             if (!Directory.Exists(legacyDirectory))
             {
                 return;
@@ -263,12 +264,12 @@ namespace MisureRicci.Services
             }
         }
 
-        private string BuildProtectedUrl(string fileName)
+        private static string BuildProtectedUrl(string fileName)
         {
             return $"{ProtectedRoutePrefix}{fileName}";
         }
 
-        private string? ExtractFileNameFromUrl(string? imageUrl)
+        private static string? ExtractFileNameFromUrl(string? imageUrl)
         {
             if (string.IsNullOrWhiteSpace(imageUrl))
             {
@@ -307,7 +308,7 @@ namespace MisureRicci.Services
 
             if (isLegacy)
             {
-                physicalPath = Path.Combine(_environment.WebRootPath, "uploads", "measurement-types", fileName);
+                physicalPath = Path.Combine(_environment.WebRootPath, "uploads", MeasurementTypes, fileName);
                 return true;
             }
 

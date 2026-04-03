@@ -54,7 +54,12 @@
                 <div class="mb-4">
                     <label asp-for="Input.Email" class="form-label">Identificativo Staff</label>
                     <div class="input-group">
-                        <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="staff@mizurericci.it" />
+                        <input asp-for="Input.Email"
+                               type="email"
+                               class="form-control"
+                               autocomplete="email"
+                               aria-required="true"
+                               placeholder="staff@mizurericci.it" />
                     </div>
                     <span asp-validation-for="Input.Email" class="text-danger small mt-1 d-block"></span>
                 </div>

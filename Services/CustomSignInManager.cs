@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MisureRicci.Models;
+
 
 namespace MisureRicci.Services;
 
@@ -13,7 +13,7 @@ public class CustomSignInManager : SignInManager<ApplicationUser>
         IHttpContextAccessor contextAccessor,
         IUserClaimsPrincipalFactory<ApplicationUser> claimsFactory,
         IOptions<IdentityOptions> optionsAccessor,
-        ILogger<SignInManager<ApplicationUser>> logger,
+        ILogger<CustomSignInManager> logger,
         IAuthenticationSchemeProvider schemes,
         IUserConfirmation<ApplicationUser> confirmation)
         : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation)
@@ -45,7 +45,7 @@ public class CustomSignInManager : SignInManager<ApplicationUser>
         {
             Logger.LogWarning("Accesso non consentito per l'utente: {UserEmail} (ID: {UserId})", user.Email, user.Id);
         }
-        else if (!result.Succeeded)
+        else
         {
             Logger.LogWarning("Tentativo di login FALLITO per l'utente: {UserEmail} (ID: {UserId})", user.Email, user.Id);
         }
@@ -56,9 +56,7 @@ public class CustomSignInManager : SignInManager<ApplicationUser>
     public override async Task<bool> CanSignInAsync(ApplicationUser user)
     {
         if (!user.Attivo)
-        {
             return false;
-        }
 
         return await base.CanSignInAsync(user);
     }

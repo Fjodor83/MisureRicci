@@ -12,7 +12,7 @@ using MisureRicci.Data;
 namespace MisureRicci.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260325110742_InitialCreate")]
+    [Migration("20260403102957_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -369,6 +369,7 @@ namespace MisureRicci.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ClientCode")
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CodicePostale")
@@ -601,6 +602,9 @@ namespace MisureRicci.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("MeasurementTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MeasurementUnit")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -1112,13 +1116,13 @@ namespace MisureRicci.Migrations
                     b.HasOne("MisureRicci.Models.GiaccaMeasurement", "Giacca")
                         .WithMany()
                         .HasForeignKey("GiaccaId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("MisureRicci.Models.PantaloneMeasurement", "Pantalone")
                         .WithMany()
                         .HasForeignKey("PantaloneId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Cliente");
@@ -1280,7 +1284,7 @@ namespace MisureRicci.Migrations
                     b.HasOne("MisureRicci.Models.MeasurementFieldDefinition", "MeasurementFieldDefinition")
                         .WithMany("Values")
                         .HasForeignKey("MeasurementFieldDefinitionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("DynamicMeasurementRecord");

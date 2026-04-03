@@ -4,7 +4,7 @@ using MisureRicci.Models;
 
 namespace MisureRicci.Services
 {
-    public class MeasurementService : IMeasurementService, IMeasurementRegistryService, ILegacyMeasurementService
+    public class MeasurementService : IMeasurementService
     {
         private readonly ApplicationDbContext _context;
         private static readonly IReadOnlyDictionary<TipoMisuraLegacy, Func<MeasurementService, int, Task<object?>>> MeasurementLoaders
@@ -222,33 +222,31 @@ namespace MisureRicci.Services
         {
             var model = await GetMeasurementScopedAsync(id, tipoMisura, negozioId, isAdmin);
             if (model == null)
-            {
                 return false;
-            }
 
             var registro = await _context.Misure
                 .Include(r => r.Cliente)
                 .FirstOrDefaultAsync(r => r.RecordId == id && r.TipoMisura.ToLower() == tipoMisura.ToLower());
 
             if (registro != null)
-            {
                 await EnsureMeasurementNotLinkedAsync(registro.Id);
-            }
 
             _context.Remove(model);
-            if (registro != null)
+
+            if (registro != null &&
+                (isAdmin || (negozioId.HasValue &&
+                             registro.Cliente != null &&
+                             registro.Cliente.NegozioId == negozioId.Value)))
             {
-                if (isAdmin || (negozioId.HasValue && registro.Cliente != null && registro.Cliente.NegozioId == negozioId.Value))
-                {
-                    _context.Misure.Remove(registro);
-                }
+                _context.Misure.Remove(registro);
             }
 
             await _context.SaveChangesAsync();
             return true;
         }
 
-        private IQueryable<MisureCliente> ApplyRegistryFilter(IQueryable<MisureCliente> query, string? filter, int? negozioId, bool isAdmin)
+
+        private static IQueryable<MisureCliente> ApplyRegistryFilter(IQueryable<MisureCliente> query, string? filter, int? negozioId, bool isAdmin)
         {
             if (!string.IsNullOrWhiteSpace(filter))
             {

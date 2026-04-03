@@ -20,13 +20,11 @@ namespace MisureRicci.Services
             var cliente = await _context.Clienti.FindAsync(clienteId);
             if (cliente == null) return Array.Empty<byte>();
 
-            if (!isAdmin)
+            if (!isAdmin && (!negozioId.HasValue || cliente.NegozioId != negozioId.Value))
             {
-                if (!negozioId.HasValue || cliente.NegozioId != negozioId.Value)
-                {
-                    throw new UnauthorizedAccessException("Tenant isolation violated.");
-                }
+                throw new UnauthorizedAccessException("Tenant isolation violated.");
             }
+
 
             var misure = await _context.Misure
                 .Where(m => m.ClienteId == clienteId)

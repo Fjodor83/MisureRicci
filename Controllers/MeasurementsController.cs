@@ -286,13 +286,10 @@ namespace MisureRicci.Controllers
             bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
 
             int? negozioId = null;
-            if (!isAdmin)
+            if (!isAdmin && userId != null)
             {
-                if (userId != null)
-                {
-                    var currentUser = await _userManager.FindByIdAsync(userId);
-                    negozioId = currentUser?.NegozioId;
-                }
+                var currentUser = await _userManager.FindByIdAsync(userId);
+                negozioId = currentUser?.NegozioId;
             }
 
             if (registryId.HasValue)

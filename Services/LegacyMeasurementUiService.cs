@@ -1,13 +1,16 @@
+using MisureRicci.Models;
+using MisureRicci.Models.ViewModels;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Reflection;
-using MisureRicci.Models;
-using MisureRicci.Models.ViewModels;
 
 namespace MisureRicci.Services
 {
     public class LegacyMeasurementUiService : ILegacyMeasurementUiService
     {
+        private const string GiaccaProperty = "Giacca";
+        private const string PantaloneProperty = "Pantalone";
+
         public int GetClienteId(object model)
         {
             return (int)(model.GetType().GetProperty("ClienteId")?.GetValue(model)
@@ -22,9 +25,7 @@ namespace MisureRicci.Services
             foreach (var property in GetEditableMeasurementProperties(model.GetType()))
             {
                 if (!valuesByName.TryGetValue(property.Name, out var rawValue))
-                {
                     continue;
-                }
 
                 if (!TryConvertFormValue(property.PropertyType, rawValue, out var convertedValue))
                 {
@@ -49,9 +50,7 @@ namespace MisureRicci.Services
                 foreach (var field in fields)
                 {
                     if (postedValues.TryGetValue(field.Name, out var postedValue))
-                    {
                         field.Value = postedValue;
-                    }
                 }
             }
 
@@ -74,6 +73,7 @@ namespace MisureRicci.Services
         {
             var measurementType = model.GetType();
             var cliente = measurementType.GetProperty("Cliente")?.GetValue(model) as Cliente;
+
             var details = new LegacyMeasurementDetailsViewModel
             {
                 Id = GetMeasurementId(model),
@@ -87,14 +87,14 @@ namespace MisureRicci.Services
 
             if (string.Equals(tipoMisura, "abito", StringComparison.OrdinalIgnoreCase))
             {
-                var giacca = measurementType.GetProperty("Giacca")?.GetValue(model);
-                var pantalone = measurementType.GetProperty("Pantalone")?.GetValue(model);
+                var giacca = measurementType.GetProperty(GiaccaProperty)?.GetValue(model);
+                var pantalone = measurementType.GetProperty(PantaloneProperty)?.GetValue(model);
 
                 if (giacca != null)
                 {
                     details.Sections.Add(new LegacyMeasurementSectionViewModel
                     {
-                        Title = "Giacca",
+                        Title = GiaccaProperty,
                         Fields = BuildDisplayFields(giacca).ToList()
                     });
                 }
@@ -103,7 +103,7 @@ namespace MisureRicci.Services
                 {
                     details.Sections.Add(new LegacyMeasurementSectionViewModel
                     {
-                        Title = "Pantalone",
+                        Title = PantaloneProperty,
                         Fields = BuildDisplayFields(pantalone).ToList()
                     });
                 }
@@ -147,7 +147,15 @@ namespace MisureRicci.Services
         {
             return model.GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => p.Name != "Id" && p.Name != "ClienteId" && p.Name != "Cliente" && p.Name != "CreatedAt" && p.Name != "OrderId" && p.Name != "Notes" && p.Name != "Giacca" && p.Name != "Pantalone")
+                .Where(p =>
+                    p.Name != "Id" &&
+                    p.Name != "ClienteId" &&
+                    p.Name != "Cliente" &&
+                    p.Name != "CreatedAt" &&
+                    p.Name != "OrderId" &&
+                    p.Name != "Notes" &&
+                    p.Name != GiaccaProperty &&
+                    p.Name != PantaloneProperty)
                 .Select(property => new LegacyMeasurementFieldViewModel
                 {
                     Name = property.Name,
@@ -172,13 +180,14 @@ namespace MisureRicci.Services
             return type
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(p => p.CanWrite)
-                .Where(p => p.Name != "Id"
-                    && p.Name != "ClienteId"
-                    && p.Name != "Cliente"
-                    && p.Name != "CreatedAt"
-                    && p.Name != "OrderId"
-                    && p.Name != "Giacca"
-                    && p.Name != "Pantalone");
+                .Where(p =>
+                    p.Name != "Id" &&
+                    p.Name != "ClienteId" &&
+                    p.Name != "Cliente" &&
+                    p.Name != "CreatedAt" &&
+                    p.Name != "OrderId" &&
+                    p.Name != GiaccaProperty &&
+                    p.Name != PantaloneProperty);
         }
 
         private static bool TryConvertFormValue(Type propertyType, string? rawValue, out object? convertedValue)
@@ -193,7 +202,9 @@ namespace MisureRicci.Services
 
             if (string.IsNullOrWhiteSpace(rawValue))
             {
-                convertedValue = Nullable.GetUnderlyingType(propertyType) != null ? null : Activator.CreateInstance(targetType);
+                convertedValue = Nullable.GetUnderlyingType(propertyType) != null
+                    ? null
+                    : Activator.CreateInstance(targetType);
                 return true;
             }
 

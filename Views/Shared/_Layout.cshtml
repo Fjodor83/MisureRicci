@@ -61,7 +61,7 @@
             </div>
 
             <div class="sidebar-section-label">Workspace</div>
-            <nav class="sidebar-nav">
+            <nav class="sidebar-nav" aria-label="Menu laterale">
                 <a class="sidebar-link" asp-area="" asp-controller="Home" asp-action="Index">
                     <span class="sidebar-link-icon"><i class="bi bi-grid-1x2-fill"></i></span>
                     <span>Dashboard</span>
@@ -78,19 +78,13 @@
                     <span class="sidebar-link-icon"><i class="bi bi-journal-check"></i></span>
                     <span>Commissioni</span>
                 </a>
-                @if (User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Sartoria") || User.IsInRole("Boutique"))
-                {
-                    <a class="sidebar-link" asp-area="" asp-controller="Report" asp-action="Index">
-                        <span class="sidebar-link-icon"><i class="bi bi-bar-chart-line-fill"></i></span>
-                        <span>Report</span>
-                    </a>
-                }
             </nav>
+
 
             @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
             {
                 <div class="sidebar-section-label">Configurazione</div>
-                <nav class="sidebar-nav">
+                <nav class="sidebar-nav" aria-label="Menu laterale">
                     @if (User.IsInRole("Admin"))
                     {
                         <a class="sidebar-link" asp-area="" asp-controller="Negozi" asp-action="Index">
@@ -229,7 +223,7 @@
         </div>
     </div>
 
-    <nav class="mobile-bottom-nav d-md-none">
+    <nav class="mobile-bottom-nav d-md-none" aria-label="Navigazione mobile">
         <div class="mobile-nav-item @(controller == "Home" ? "active" : "")">
             <a asp-controller="Home" asp-action="Index">
                 <i class="bi bi-grid-1x2-fill"></i>

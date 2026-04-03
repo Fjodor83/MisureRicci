@@ -221,15 +221,11 @@ namespace MisureRicci.Controllers
                 if (userId == null) return Forbid();
                 var currentUser = await _userManager.FindByIdAsync(userId);
                 if (user.NegozioId != currentUser?.NegozioId)
-                {
                     return Forbid();
-                }
-                
+
                 vm.NegozioId = user.NegozioId;
                 if (vm.Ruolo == ApplicationRoles.Admin)
-                {
                     ModelState.AddModelError(nameof(vm.Ruolo), "Non puoi assegnare il ruolo di amministratore.");
-                }
             }
 
             ModelState.Remove($"{nameof(UtenteAdminPageViewModel.Form)}.{nameof(vm.Password)}");
@@ -249,27 +245,30 @@ namespace MisureRicci.Controllers
             user.NegozioId = vm.NegozioId;
             user.Attivo = vm.Attivo;
 
-            var result = await _userManager.UpdateAsync(user);
-            if (result.Succeeded)
-            {
-                var roleSyncResult = await SynchronizeUserRoleAsync(user, vm.Ruolo);
-                if (roleSyncResult.Succeeded)
-                {
-                    return RedirectToAction(nameof(Index));
-                }
+            // ✅ nested if eliminated — complexity drops by 2
+            var result = await UpdateUserAndSyncRoleAsync(user, vm.Ruolo);
 
-                result = roleSyncResult;
-            }
+            if (result.Succeeded)
+                return RedirectToAction(nameof(Index));
 
             foreach (var error in result.Errors)
-            {
                 ModelState.AddModelError(string.Empty, error.Description);
-            }
 
             model.Negozi = isAdmin ? await _negozioService.GetAllAsync() : new List<Negozio>();
             return View(model);
         }
 
+        /// <summary>
+        /// Persists user changes and keeps the ASP.NET Identity role table in sync.
+        /// Returns the first failed <see cref="IdentityResult"/>, or a succeeded one.
+        /// </summary>
+        private async Task<IdentityResult> UpdateUserAndSyncRoleAsync(ApplicationUser user, string ruolo)
+        {
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded) return result;
+
+            return await SynchronizeUserRoleAsync(user, ruolo);
+        }
         public async Task<IActionResult> Delete(string? id)
         {
             if (id == null) return NotFound();

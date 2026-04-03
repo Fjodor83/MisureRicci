@@ -4,20 +4,19 @@ using MisureRicci.Models.Options;
 using QuestPDF.Infrastructure;
 using Serilog;
 using Serilog.Events;
-using Serilog.Formatting.Json;
+
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-    .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning)
     .Enrich.FromLogContext()
-    .WriteTo.Console(new JsonFormatter())
+    .WriteTo.Console()
     .WriteTo.File(
-        new JsonFormatter(),
         "logs/app-.log",
         rollingInterval: RollingInterval.Day,
         retainedFileCountLimit: 30)
     .CreateLogger();
+
 
 try
 {

@@ -45,6 +45,9 @@ namespace MisureRicci.Data
             builder.ApplyConfiguration(new CommessaMisuraLinkConfiguration());
             builder.ApplyConfiguration(new DynamicMeasurementConfiguration());
             builder.ApplyConfiguration(new DynamicFieldConfiguration());
+            builder.ApplyConfiguration(new DynamicMeasurementRecordConfiguration());
+            builder.ApplyConfiguration(new DynamicMeasurementValueConfiguration());
+            builder.ApplyConfiguration(new AbitoCompletoMeasurementConfiguration());
 
             builder.Entity<CommessaSartoriale>().ToTable("CommissioniSartoriali");
             builder.Entity<MisureCliente>().ToTable("RegistroMisure");

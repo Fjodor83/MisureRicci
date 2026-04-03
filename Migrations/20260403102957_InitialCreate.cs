@@ -311,7 +311,8 @@ namespace MisureRicci.Migrations
                     ClienteId = table.Column<int>(type: "int", nullable: false),
                     MeasurementTypeId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedByUserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true)
+                    CreatedByUserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
+                    MeasurementUnit = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -641,7 +642,7 @@ namespace MisureRicci.Migrations
                         column: x => x.MeasurementFieldDefinitionId,
                         principalTable: "DynamicFieldDefinitions",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_DynamicMeasurementValues_DynamicMeasurementRecords_DynamicMeasurementRecordId",
                         column: x => x.DynamicMeasurementRecordId,
@@ -677,13 +678,13 @@ namespace MisureRicci.Migrations
                         column: x => x.GiaccaId,
                         principalTable: "MisureGiacca",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_MisureAbitoCompleto_MisurePantalone_PantaloneId",
                         column: x => x.PantaloneId,
                         principalTable: "MisurePantalone",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
