@@ -43,6 +43,10 @@ try
         .AddProjectServices()
         .AddProjectRateLimiters();
 
+    // Railway assegna la porta tramite la variabile d'ambiente PORT
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
     builder.Services.AddOptions<BootstrapAdminOptions>()
         .BindConfiguration(BootstrapAdminOptions.SectionName)
         .ValidateOnStart();
@@ -71,7 +75,11 @@ try
 
     app.UseSecurityHeaders();
 
-    app.UseHttpsRedirection();
+    // Railway gestisce TLS tramite reverse proxy; il redirect HTTPS va solo in locale
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseHttpsRedirection();
+    }
     app.UseStaticFiles();
 
     app.UseRouting();
