@@ -12,7 +12,7 @@ using MisureRicci.Data;
 namespace MisureRicci.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260403102957_InitialCreate")]
+    [Migration("20260403133740_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

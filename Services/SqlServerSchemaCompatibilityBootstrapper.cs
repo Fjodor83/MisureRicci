@@ -115,6 +115,30 @@ BEGIN
     END
 END
 
+-- 3b. Ensure Clienti exists (required by DynamicMeasurementRecords FK)
+IF OBJECT_ID(N'[dbo].[Clienti]', N'U') IS NULL
+BEGIN
+    CREATE TABLE [Clienti] (
+        [Id] int NOT NULL IDENTITY,
+        [ClientCode] nvarchar(max) NULL,
+        [Nome] nvarchar(max) NOT NULL,
+        [Cognome] nvarchar(max) NOT NULL,
+        [Email] nvarchar(max) NOT NULL,
+        [Telefono] nvarchar(max) NULL,
+        [Indirizzo] nvarchar(max) NULL,
+        [Citta] nvarchar(max) NULL,
+        [StatoProvincia] nvarchar(max) NULL,
+        [CodicePostale] nvarchar(max) NULL,
+        [Paese] nvarchar(max) NOT NULL,
+        [Note] nvarchar(max) NULL,
+        [DataRegistrazione] datetime2 NOT NULL DEFAULT GETUTCDATE(),
+        [NegozioId] int NULL,
+        CONSTRAINT [PK_Clienti] PRIMARY KEY ([Id]),
+        CONSTRAINT [FK_Clienti_Negozi_NegozioId] FOREIGN KEY ([NegozioId]) REFERENCES [Negozi] ([Id])
+    );
+    CREATE INDEX [IX_Clienti_NegozioId] ON [Clienti] ([NegozioId]);
+END
+
 IF OBJECT_ID(N'[dbo].[DynamicMeasurementRecords]', N'U') IS NULL
 BEGIN
         CREATE TABLE [DynamicMeasurementRecords] (
@@ -139,7 +163,7 @@ BEGIN
         [MeasurementFieldDefinitionId] int NOT NULL,
         [Valore] nvarchar(1000) NULL,
         CONSTRAINT [PK_DynamicMeasurementValues] PRIMARY KEY ([Id]),
-        CONSTRAINT [FK_DynamicMeasurementValues_DynamicFieldDefinitions_MeasurementFieldDefinitionId] FOREIGN KEY ([MeasurementFieldDefinitionId]) REFERENCES [DynamicFieldDefinitions] ([Id]) ON DELETE CASCADE,
+        CONSTRAINT [FK_DynamicMeasurementValues_DynamicFieldDefinitions_MeasurementFieldDefinitionId] FOREIGN KEY ([MeasurementFieldDefinitionId]) REFERENCES [DynamicFieldDefinitions] ([Id]) ON DELETE NO ACTION,
         CONSTRAINT [FK_DynamicMeasurementValues_DynamicMeasurementRecords_DynamicMeasurementRecordId] FOREIGN KEY ([DynamicMeasurementRecordId]) REFERENCES [DynamicMeasurementRecords] ([Id]) ON DELETE CASCADE
     );
 END
