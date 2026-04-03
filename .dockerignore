@@ -1,0 +1,38 @@
+## Visual Studio / IDE
+.vs/
+*.user
+*.userosscache
+*.suo
+
+## Build output
+[Bb]in/
+[Oo]bj/
+[Tt]est[Rr]esults/
+
+## Logs
+logs/
+*.log
+
+## Git
+.git/
+.gitignore
+
+## Secrets e sviluppo locale
+appsettings.Development.json
+**/user-secrets.json
+
+## Coverage / Analisi
+coverage.xml
+.sonarqube/
+
+## Node (se presente)
+node_modules/
+
+## Temp / OS
+.tmp_dotnet_home/
+.nuget/
+Thumbs.db
+.DS_Store
+
+## Upload directory locale
+SecureUploads/
