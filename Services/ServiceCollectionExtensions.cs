@@ -2,18 +2,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MisureRicci.Data;
 using MisureRicci.Models;
-using MisureRicci.Services;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace MisureRicci.Services
 {
     public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddProjectDatabase(this IServiceCollection services, string connectionString)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString));
+                options.UseNpgsql(connectionString));
             return services;
         }
 
@@ -54,7 +53,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddHttpContextAccessor();
             services.AddScoped<ITenantService, TenantService>();
-            
+
             services.AddScoped<IClienteService, ClienteService>();
             services.AddScoped<IMeasurementService, MeasurementService>();
             services.AddScoped<IMeasurementRegistryService, MeasurementService>();
@@ -91,7 +90,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
     }
 
-    public interface IProjectServiceBuilder 
+    public interface IProjectServiceBuilder
     {
         IServiceCollection Services { get; }
     }
@@ -99,7 +98,7 @@ namespace Microsoft.Extensions.DependencyInjection
     internal class ProjectServiceBuilder : IProjectServiceBuilder
     {
         public IServiceCollection Services { get; }
-        public ProjectServiceBuilder(IServiceCollection services) 
+        public ProjectServiceBuilder(IServiceCollection services)
         {
             Services = services;
         }

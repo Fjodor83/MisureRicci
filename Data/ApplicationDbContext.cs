@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MisureRicci.Models;
-using MisureRicci.Services;
 using MisureRicci.Data.Configurations;
 
 namespace MisureRicci.Data
@@ -25,7 +24,7 @@ namespace MisureRicci.Data
         public DbSet<DynamicMeasurementRecord> DynamicMeasurementRecords { get; set; } = default!;
         public DbSet<DynamicMeasurementValue> DynamicMeasurementValues { get; set; } = default!;
 
-        // Legati a tabelle fisiche di misura legacy
+        // Tabelle legacy
         public DbSet<GiaccaMeasurement> MisureGiacca { get; set; } = default!;
         public DbSet<PantaloneMeasurement> MisurePantalone { get; set; } = default!;
         public DbSet<GiletMeasurement> MisureGilet { get; set; } = default!;
@@ -41,18 +40,18 @@ namespace MisureRicci.Data
         {
             base.OnModelCreating(builder);
 
-            // Apply configurations from separate classes
             builder.ApplyConfiguration(new CommessaMisuraLinkConfiguration());
             builder.ApplyConfiguration(new DynamicMeasurementConfiguration());
             builder.ApplyConfiguration(new DynamicFieldConfiguration());
             builder.ApplyConfiguration(new DynamicMeasurementRecordConfiguration());
             builder.ApplyConfiguration(new DynamicMeasurementValueConfiguration());
             builder.ApplyConfiguration(new AbitoCompletoMeasurementConfiguration());
+            builder.ApplyConfiguration(new ClienteConfiguration());
 
             builder.Entity<CommessaSartoriale>().ToTable("CommissioniSartoriali");
             builder.Entity<MisureCliente>().ToTable("RegistroMisure");
 
-            // Mapping legacy tables
+            // Mapping tabelle legacy
             builder.Entity<GiaccaMeasurement>().ToTable("MisureGiacca");
             builder.Entity<PantaloneMeasurement>().ToTable("MisurePantalone");
             builder.Entity<GiletMeasurement>().ToTable("MisureGilet");
@@ -64,14 +63,9 @@ namespace MisureRicci.Data
             builder.Entity<CravattaMeasurement>().ToTable("MisureCravatta");
             builder.Entity<CinturaMeasurement>().ToTable("MisureCintura");
 
-            // Computed Column handling for ClientCode
-            builder.Entity<Cliente>()
-                .Property(c => c.ClientCode)
-                .ValueGeneratedOnAddOrUpdate()
-                .Metadata.SetAfterSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Ignore);
-
-            // Note: Multi-tenancy filters have been removed from DbContext to avoid stale state capture 
-            // and circular dependency issues. Scoping is now enforced exclusively in the service layer.
+            // Nota: ClientCode era una colonna calcolata in SQL Server.
+            // Su PostgreSQL viene gestito come normale colonna stringa;
+            // la generazione del codice avviene in WebApplicationExtensions.
         }
     }
 }

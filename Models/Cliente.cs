@@ -7,7 +7,13 @@ namespace MisureRicci.Models
         [Key]
         public int Id { get; set; }
 
+        /// <summary>
+        /// Codice cliente nel formato SR-YYYY-NNNNN.
+        /// Generato da ClienteService.CreateClienteScopedAsync dopo il salvataggio.
+        /// (In precedenza era una colonna calcolata SQL Server PERSISTED)
+        /// </summary>
         [Display(Name = "Codice Cliente")]
+        [MaxLength(20)]
         public string? ClientCode { get; set; }
 
         [Required]

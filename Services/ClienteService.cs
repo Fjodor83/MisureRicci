@@ -13,7 +13,8 @@ namespace MisureRicci.Services
             _context = context;
         }
 
-        public async Task<(IEnumerable<Cliente> Items, int TotalCount)> GetClientiPagedAsync(string? searchString, int? negozioId, bool isAdmin, int page, int pageSize)
+        public async Task<(IEnumerable<Cliente> Items, int TotalCount)> GetClientiPagedAsync(
+            string? searchString, int? negozioId, bool isAdmin, int page, int pageSize)
         {
             var query = ApplyClienteScope(_context.Clienti.AsNoTracking(), negozioId, isAdmin);
 
@@ -36,11 +37,10 @@ namespace MisureRicci.Services
             return (clienti, totalCount);
         }
 
-        public async Task<List<Cliente>> SearchClientiAsync(string? search, int? negozioId, bool isAdmin, int limit = 50)
+        public async Task<List<Cliente>> SearchClientiAsync(
+            string? search, int? negozioId, bool isAdmin, int limit = 50)
         {
-            var query = _context.Clienti
-                .AsNoTracking()
-                .AsQueryable();
+            var query = _context.Clienti.AsNoTracking().AsQueryable();
 
             if (!isAdmin)
             {
@@ -51,8 +51,6 @@ namespace MisureRicci.Services
             if (!string.IsNullOrWhiteSpace(search))
             {
                 search = search.Trim();
-                // Performance Note: Using Contains translates to LIKE %...% which might be slow on large datasets.
-                // For a 20+ years senior architect report, FTS or better indexing is suggested.
                 query = query.Where(c =>
                     EF.Functions.Like(c.Nome, $"%{search}%") ||
                     EF.Functions.Like(c.Cognome, $"%{search}%") ||
@@ -68,9 +66,7 @@ namespace MisureRicci.Services
 
         public async Task<Cliente?> GetClienteByIdAsync(int id)
         {
-            return await _context.Clienti
-                .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.Id == id);
+            return await _context.Clienti.AsNoTracking().FirstOrDefaultAsync(m => m.Id == id);
         }
 
         public async Task<List<MisureCliente>> GetStoricoMisureAsync(int clienteId)
@@ -88,12 +84,11 @@ namespace MisureRicci.Services
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public async Task<List<MisureCliente>> GetStoricoMisureScopedAsync(int clienteId, int? negozioId, bool isAdmin)
+        public async Task<List<MisureCliente>> GetStoricoMisureScopedAsync(
+            int clienteId, int? negozioId, bool isAdmin)
         {
             return await ApplyStoricoScope(
-                    _context.Misure
-                        .AsNoTracking()
-                        .Include(m => m.Cliente),
+                    _context.Misure.AsNoTracking().Include(m => m.Cliente),
                     negozioId,
                     isAdmin)
                 .Where(m => m.ClienteId == clienteId)
@@ -103,19 +98,13 @@ namespace MisureRicci.Services
 
         public async Task<Cliente?> CreateClienteScopedAsync(Cliente cliente, int? negozioId, bool isAdmin)
         {
-            if (!CanAccessTenant(negozioId, isAdmin))
-            {
-                return null;
-            }
+            if (!CanAccessTenant(negozioId, isAdmin)) return null;
 
             NormalizeCliente(cliente);
 
             if (isAdmin)
             {
-                if (!cliente.NegozioId.HasValue)
-                {
-                    return null;
-                }
+                if (!cliente.NegozioId.HasValue) return null;
             }
             else
             {
@@ -124,23 +113,22 @@ namespace MisureRicci.Services
 
             _context.Clienti.Add(cliente);
             await _context.SaveChangesAsync();
+
+            // Genera ClientCode dopo aver ottenuto l'Id (simulazione colonna calcolata)
+            cliente.ClientCode = GenerateClientCode(cliente.Id, cliente.DataRegistrazione);
+            await _context.SaveChangesAsync();
+
             return cliente;
         }
 
         public async Task<bool> UpdateClienteScopedAsync(Cliente cliente, int? negozioId, bool isAdmin)
         {
-            if (!CanAccessTenant(negozioId, isAdmin))
-            {
-                return false;
-            }
+            if (!CanAccessTenant(negozioId, isAdmin)) return false;
 
             var existing = await ApplyClienteScope(_context.Clienti, negozioId, isAdmin)
                 .FirstOrDefaultAsync(c => c.Id == cliente.Id);
 
-            if (existing == null)
-            {
-                return false;
-            }
+            if (existing == null) return false;
 
             NormalizeCliente(cliente);
 
@@ -157,11 +145,7 @@ namespace MisureRicci.Services
 
             if (isAdmin)
             {
-                if (!cliente.NegozioId.HasValue)
-                {
-                    return false;
-                }
-
+                if (!cliente.NegozioId.HasValue) return false;
                 existing.NegozioId = cliente.NegozioId;
             }
 
@@ -171,18 +155,12 @@ namespace MisureRicci.Services
 
         public async Task<bool> DeleteClienteScopedAsync(int id, int? negozioId, bool isAdmin)
         {
-            if (!CanAccessTenant(negozioId, isAdmin))
-            {
-                return false;
-            }
+            if (!CanAccessTenant(negozioId, isAdmin)) return false;
 
             var cliente = await ApplyClienteScope(_context.Clienti, negozioId, isAdmin)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
-            if (cliente == null)
-            {
-                return false;
-            }
+            if (cliente == null) return false;
 
             _context.Clienti.Remove(cliente);
             await _context.SaveChangesAsync();
@@ -194,17 +172,20 @@ namespace MisureRicci.Services
             NormalizeCliente(cliente);
             _context.Clienti.Add(cliente);
             await _context.SaveChangesAsync();
+
+            cliente.ClientCode = GenerateClientCode(cliente.Id, cliente.DataRegistrazione);
+            await _context.SaveChangesAsync();
             return cliente;
         }
 
         public async Task UpdateClienteAsync(Cliente cliente)
         {
             NormalizeCliente(cliente);
-            
             var existing = await _context.Clienti.FindAsync(cliente.Id);
             if (existing != null)
             {
                 _context.Entry(existing).CurrentValues.SetValues(cliente);
+                // Preserva ClientCode generato
                 _context.Entry(existing).Property(x => x.ClientCode).IsModified = false;
                 await _context.SaveChangesAsync();
             }
@@ -220,43 +201,35 @@ namespace MisureRicci.Services
             }
         }
 
-        public bool ClienteExists(int id)
+        public bool ClienteExists(int id) => _context.Clienti.Any(e => e.Id == id);
+
+        // ── Helpers ──────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Genera ClientCode nel formato SR-YYYY-NNNNN,
+        /// replicando la logica della colonna calcolata SQL Server.
+        /// </summary>
+        private static string GenerateClientCode(int id, DateTime dataRegistrazione)
         {
-            return _context.Clienti.Any(e => e.Id == id);
+            return $"SR-{dataRegistrazione.Year}-{id:D5}";
         }
 
         private static bool CanAccessTenant(int? negozioId, bool isAdmin)
+            => isAdmin || negozioId.HasValue;
+
+        private static IQueryable<Cliente> ApplyClienteScope(
+            IQueryable<Cliente> query, int? negozioId, bool isAdmin)
         {
-            return isAdmin || negozioId.HasValue;
-        }
-
-        private static IQueryable<Cliente> ApplyClienteScope(IQueryable<Cliente> query, int? negozioId, bool isAdmin)
-        {
-            if (isAdmin)
-            {
-                return query;
-            }
-
-            if (!negozioId.HasValue)
-            {
-                return query.Where(_ => false);
-            }
-
+            if (isAdmin) return query;
+            if (!negozioId.HasValue) return query.Where(_ => false);
             return query.Where(c => c.NegozioId == negozioId.Value);
         }
 
-        private static IQueryable<MisureCliente> ApplyStoricoScope(IQueryable<MisureCliente> query, int? negozioId, bool isAdmin)
+        private static IQueryable<MisureCliente> ApplyStoricoScope(
+            IQueryable<MisureCliente> query, int? negozioId, bool isAdmin)
         {
-            if (isAdmin)
-            {
-                return query;
-            }
-
-            if (!negozioId.HasValue)
-            {
-                return query.Where(_ => false);
-            }
-
+            if (isAdmin) return query;
+            if (!negozioId.HasValue) return query.Where(_ => false);
             return query.Where(m => m.Cliente != null && m.Cliente.NegozioId == negozioId.Value);
         }
 
@@ -275,8 +248,6 @@ namespace MisureRicci.Services
         }
 
         private static string? NormalizeNullable(string? value)
-        {
-            return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
-        }
+            => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
 }

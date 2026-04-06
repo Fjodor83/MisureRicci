@@ -51,9 +51,6 @@ namespace MisureRicci.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<DynamicMeasurementValue> builder)
         {
-            // Breaking the cycle from MeasurementType
-            // Path 1: MeasurementType -> Record -> Value (Cascade)
-            // Path 2: MeasurementType -> FieldDefinition -> Value (Restrict - FIXED)
             builder.HasOne(v => v.MeasurementFieldDefinition)
                 .WithMany(f => f.Values)
                 .HasForeignKey(v => v.MeasurementFieldDefinitionId)
@@ -79,6 +76,22 @@ namespace MisureRicci.Data.Configurations
                 .WithMany()
                 .HasForeignKey("PantaloneId")
                 .OnDelete(DeleteBehavior.Restrict);
+        }
+    }
+
+    /// <summary>
+    /// ClientCode: su PostgreSQL è una colonna normale (non computed).
+    /// Il valore viene generato da WebApplicationExtensions durante la creazione del cliente.
+    /// </summary>
+    public class ClienteConfiguration : IEntityTypeConfiguration<Cliente>
+    {
+        public void Configure(EntityTypeBuilder<Cliente> builder)
+        {
+            // ClientCode non è più una colonna calcolata SQL Server.
+            // Viene impostato esplicitamente dal servizio prima del salvataggio.
+            builder.Property(c => c.ClientCode)
+                .HasMaxLength(20)
+                .IsRequired(false);
         }
     }
 }

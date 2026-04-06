@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
+using Npgsql;
 
 namespace MisureRicci.Controllers
 {
@@ -18,7 +18,7 @@ namespace MisureRicci.Controllers
         private readonly ICustomMeasurementService _customMeasurementService;
         private readonly IMeasurementTypeImageStorageService _measurementTypeImageStorageService;
         private readonly ILogger<AdminMeasurementTypesController> _logger;
-        
+
         public AdminMeasurementTypesController(
             ICustomMeasurementService customMeasurementService,
             IMeasurementTypeImageStorageService measurementTypeImageStorageService,
@@ -46,11 +46,7 @@ namespace MisureRicci.Controllers
         [RequestFormLimits(MultipartBodyLengthLimit = MaxImageUploadRequestSize)]
         public async Task<IActionResult> CreateType(MeasurementType model)
         {
-
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
+            if (!ModelState.IsValid) return View(model);
 
             string? storedImageUrl = null;
 
@@ -58,7 +54,8 @@ namespace MisureRicci.Controllers
             {
                 if (model.ImageUpload != null && model.ImageUpload.Length > 0)
                 {
-                    storedImageUrl = await _measurementTypeImageStorageService.SaveImageAsync(model.ImageUpload, HttpContext.RequestAborted);
+                    storedImageUrl = await _measurementTypeImageStorageService
+                        .SaveImageAsync(model.ImageUpload, HttpContext.RequestAborted);
                     model.ImageUrl = storedImageUrl;
                 }
 
@@ -73,9 +70,8 @@ namespace MisureRicci.Controllers
             catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
             {
                 if (storedImageUrl != null)
-                {
-                    await _measurementTypeImageStorageService.DeleteImageAsync(storedImageUrl, HttpContext.RequestAborted);
-                }
+                    await _measurementTypeImageStorageService
+                        .DeleteImageAsync(storedImageUrl, HttpContext.RequestAborted);
 
                 ModelState.AddModelError(nameof(model.Nome), EsisteGiaUnaTipologiaConQuestoNome);
                 return View(model);
@@ -83,11 +79,10 @@ namespace MisureRicci.Controllers
             catch (Exception ex)
             {
                 if (storedImageUrl != null)
-                {
-                    await _measurementTypeImageStorageService.DeleteImageAsync(storedImageUrl, HttpContext.RequestAborted);
-                }
+                    await _measurementTypeImageStorageService
+                        .DeleteImageAsync(storedImageUrl, HttpContext.RequestAborted);
 
-                _logger.LogError(ex, "Errore durante la creazione della tipologia misura {Nome}", model.Nome);
+                _logger.LogError(ex, "Errore creazione tipologia misura {Nome}", model.Nome);
                 ModelState.AddModelError(string.Empty, SiEVerificatoUnErroreInternoRiprovare);
                 return View(model);
             }
@@ -96,17 +91,9 @@ namespace MisureRicci.Controllers
         [HttpGet]
         public async Task<IActionResult> EditType(int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var item = await _customMeasurementService.GetMeasurementTypeByIdAsync(id);
-            if (item == null)
-            {
-                return NotFound();
-            }
-
+            if (item == null) return NotFound();
             return View(item);
         }
 
@@ -116,10 +103,7 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> EditType(int id, MeasurementType model)
         {
             var existing = await _customMeasurementService.GetMeasurementTypeByIdAsync(id);
-            if (existing == null || id != model.Id)
-            {
-                return NotFound();
-            }
+            if (existing == null || id != model.Id) return NotFound();
 
             if (!ModelState.IsValid)
             {
@@ -133,9 +117,8 @@ namespace MisureRicci.Controllers
             try
             {
                 if (model.ImageUpload != null && model.ImageUpload.Length > 0)
-                {
-                    newImageUrl = await _measurementTypeImageStorageService.SaveImageAsync(model.ImageUpload, HttpContext.RequestAborted);
-                }
+                    newImageUrl = await _measurementTypeImageStorageService
+                        .SaveImageAsync(model.ImageUpload, HttpContext.RequestAborted);
 
                 existing.Nome = model.Nome;
                 existing.Descrizione = model.Descrizione;
@@ -145,18 +128,16 @@ namespace MisureRicci.Controllers
                 await _customMeasurementService.UpdateMeasurementTypeAsync(existing);
 
                 if (newImageUrl != null && !string.IsNullOrWhiteSpace(previousImageUrl))
-                {
-                    await _measurementTypeImageStorageService.DeleteImageAsync(previousImageUrl, HttpContext.RequestAborted);
-                }
+                    await _measurementTypeImageStorageService
+                        .DeleteImageAsync(previousImageUrl, HttpContext.RequestAborted);
 
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 if (newImageUrl != null)
-                {
-                    await _measurementTypeImageStorageService.DeleteImageAsync(newImageUrl, HttpContext.RequestAborted);
-                }
+                    await _measurementTypeImageStorageService
+                        .DeleteImageAsync(newImageUrl, HttpContext.RequestAborted);
 
                 RestoreMetadata(model, existing, previousImageUrl);
                 HandleEditException(ex, model);
@@ -168,18 +149,14 @@ namespace MisureRicci.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteType(int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var existing = await _customMeasurementService.GetMeasurementTypeByIdAsync(id);
             await _customMeasurementService.DeleteMeasurementTypeAsync(id);
 
             if (existing != null && !existing.IsSystem && !string.IsNullOrWhiteSpace(existing.ImageUrl))
-            {
-                await _measurementTypeImageStorageService.DeleteImageAsync(existing.ImageUrl, HttpContext.RequestAborted);
-            }
+                await _measurementTypeImageStorageService
+                    .DeleteImageAsync(existing.ImageUrl, HttpContext.RequestAborted);
 
             return RedirectToAction(nameof(Index));
         }
@@ -187,49 +164,26 @@ namespace MisureRicci.Controllers
         [HttpGet]
         public async Task<IActionResult> Fields(int typeId)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(typeId);
-            if (type == null)
-            {
-                return NotFound();
-            }
+            if (type == null) return NotFound();
 
             var fields = await _customMeasurementService.GetFieldsByTypeAsync(typeId, onlyActive: false);
-            var vm = new MeasurementTypeManageViewModel
-            {
-                Type = type,
-                Fields = fields
-            };
-
+            var vm = new MeasurementTypeManageViewModel { Type = type, Fields = fields };
             return View(vm);
         }
 
         [HttpGet]
         public async Task<IActionResult> CreateField(int typeId)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(typeId);
-            if (type == null)
-            {
-                return NotFound();
-            }
+            if (type == null) return NotFound();
 
             return View(new MeasurementFieldPageViewModel
             {
                 TypeName = type.Nome,
-                Field = new MeasurementFieldDefinition
-                {
-                    MeasurementTypeId = typeId,
-                    IsActive = true
-                }
+                Field = new MeasurementFieldDefinition { MeasurementTypeId = typeId, IsActive = true }
             });
         }
 
@@ -239,13 +193,13 @@ namespace MisureRicci.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(pageModel.Field.MeasurementTypeId);
+                var type = await _customMeasurementService
+                    .GetMeasurementTypeByIdAsync(pageModel.Field.MeasurementTypeId);
                 pageModel.TypeName = type?.Nome ?? string.Empty;
                 return View(pageModel);
             }
 
             var model = pageModel.Field;
-
             try
             {
                 await _customMeasurementService.CreateFieldAsync(model);
@@ -253,16 +207,19 @@ namespace MisureRicci.Controllers
             }
             catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
             {
-                ModelState.AddModelError(nameof(model.NomeCampo), "EsisteGiaUnCampoConQuestoNomePerLaTipologiaSelezionata");
-                var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
+                ModelState.AddModelError(nameof(model.NomeCampo),
+                    "Esiste gia un campo con questo nome per la tipologia selezionata.");
+                var type = await _customMeasurementService
+                    .GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
                 pageModel.TypeName = type?.Nome ?? string.Empty;
                 return View(pageModel);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Errore durante la creazione del campo {NomeCampo} per tipo {TypeId}", model.NomeCampo, model.MeasurementTypeId);
+                _logger.LogError(ex, "Errore creazione campo {NomeCampo}", model.NomeCampo);
                 ModelState.AddModelError(string.Empty, SiEVerificatoUnErroreInternoRiprovare);
-                var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
+                var type = await _customMeasurementService
+                    .GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
                 pageModel.TypeName = type?.Nome ?? string.Empty;
                 return View(pageModel);
             }
@@ -271,18 +228,12 @@ namespace MisureRicci.Controllers
         [HttpGet]
         public async Task<IActionResult> EditField(int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var field = await _customMeasurementService.GetFieldByIdAsync(id);
-            if (field == null)
-            {
-                return NotFound();
-            }
+            if (field == null) return NotFound();
 
-            var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(field.MeasurementTypeId);
+            var type = await _customMeasurementService
+                .GetMeasurementTypeByIdAsync(field.MeasurementTypeId);
             return View(new MeasurementFieldPageViewModel
             {
                 TypeName = type?.Nome ?? string.Empty,
@@ -296,17 +247,14 @@ namespace MisureRicci.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(pageModel.Field.MeasurementTypeId);
+                var type = await _customMeasurementService
+                    .GetMeasurementTypeByIdAsync(pageModel.Field.MeasurementTypeId);
                 pageModel.TypeName = type?.Nome ?? string.Empty;
                 return View(pageModel);
             }
 
             var model = pageModel.Field;
-
-            if (id != model.Id)
-            {
-                return NotFound();
-            }
+            if (id != model.Id) return NotFound();
 
             try
             {
@@ -315,26 +263,45 @@ namespace MisureRicci.Controllers
             }
             catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
             {
-                ModelState.AddModelError(nameof(model.NomeCampo), "EsisteGiaUnCampoConQuestoNomePerLaTipologiaSelezionata");
-                var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
+                ModelState.AddModelError(nameof(model.NomeCampo),
+                    "Esiste gia un campo con questo nome per la tipologia selezionata.");
+                var type = await _customMeasurementService
+                    .GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
                 pageModel.TypeName = type?.Nome ?? string.Empty;
                 return View(pageModel);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Errore durante la modifica del campo {Id}", model.Id);
+                _logger.LogError(ex, "Errore modifica campo {Id}", model.Id);
                 ModelState.AddModelError(string.Empty, SiEVerificatoUnErroreInternoRiprovare);
-                var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
+                var type = await _customMeasurementService
+                    .GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
                 pageModel.TypeName = type?.Nome ?? string.Empty;
                 return View(pageModel);
             }
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteField(int id, int typeId)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            await _customMeasurementService.DeleteFieldAsync(id);
+            return RedirectToAction(nameof(Fields), new { typeId });
+        }
+
+        // ── Helpers ──────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Rileva violazione di unicità su PostgreSQL (errore 23505)
+        /// o tramite messaggio come fallback per SQLite/altri.
+        /// </summary>
         private static bool IsUniqueConstraintViolation(DbUpdateException ex)
         {
-            if (ex.InnerException is SqlException sqlEx)
+            if (ex.InnerException is PostgresException pgEx)
             {
-                return sqlEx.Number is 2601 or 2627;
+                // 23505 = unique_violation in PostgreSQL
+                return pgEx.SqlState == "23505";
             }
 
             var message = ex.InnerException?.Message ?? ex.Message;
@@ -342,7 +309,8 @@ namespace MisureRicci.Controllers
                 || message.Contains("duplicate", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static void RestoreMetadata(MeasurementType model, MeasurementType existing, string? imageUrlOverride = null)
+        private static void RestoreMetadata(
+            MeasurementType model, MeasurementType existing, string? imageUrlOverride = null)
         {
             model.ImageUrl = imageUrlOverride ?? existing.ImageUrl;
             model.CreatedAt = existing.CreatedAt;
@@ -361,22 +329,9 @@ namespace MisureRicci.Controllers
             }
             else
             {
-                _logger.LogError(ex, "Errore durante la modifica della tipologia misura {Id}", model.Id);
+                _logger.LogError(ex, "Errore modifica tipologia misura {Id}", model.Id);
                 ModelState.AddModelError(string.Empty, SiEVerificatoUnErroreInternoRiprovare);
             }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteField(int id, int typeId)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            await _customMeasurementService.DeleteFieldAsync(id);
-            return RedirectToAction(nameof(Fields), new { typeId });
         }
     }
 }

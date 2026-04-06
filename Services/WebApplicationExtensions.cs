@@ -3,11 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using MisureRicci.Data;
 using MisureRicci.Models;
 using MisureRicci.Models.Options;
-using MisureRicci.Services;
 using Microsoft.Extensions.Options;
 using Serilog;
 
-namespace Microsoft.AspNetCore.Builder
+namespace MisureRicci.Services
 {
     public static class WebApplicationExtensions
     {
@@ -18,24 +17,18 @@ namespace Microsoft.AspNetCore.Builder
             try
             {
                 var dbContext = services.GetRequiredService<ApplicationDbContext>();
-                
-                // 1. Ensure schema compatibility (handles renames/column additions for legacy DBs)
-                await SqlServerSchemaCompatibilityBootstrapper.EnsureCompatibleAsync(dbContext);
 
-                // 2. Ensure all migrations are applied
+                // Applica automaticamente tutte le migration pendenti (PostgreSQL)
                 await dbContext.Database.MigrateAsync();
 
                 var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-
                 foreach (var roleName in ApplicationRoles.All)
                 {
                     if (!await roleManager.RoleExistsAsync(roleName))
-                    {
                         await roleManager.CreateAsync(new IdentityRole(roleName));
-                    }
                 }
 
-                // 3. Seed Admin User
+                // Bootstrap admin da configurazione / variabili d'ambiente
                 var adminOptions = services.GetRequiredService<IOptions<BootstrapAdminOptions>>().Value;
                 if (adminOptions.Enabled && !string.IsNullOrWhiteSpace(adminOptions.Email))
                 {
@@ -72,9 +65,7 @@ namespace Microsoft.AspNetCore.Builder
                 var imageStorage = services.GetRequiredService<IMeasurementTypeImageStorageService>();
                 var migrated = await imageStorage.MigrateLegacyImagesAsync(dbContext);
                 if (migrated > 0)
-                {
                     Log.Information("Migrated {Count} legacy images to protected storage.", migrated);
-                }
             }
             catch (Exception ex)
             {
@@ -88,10 +79,7 @@ namespace Microsoft.AspNetCore.Builder
         {
             return app.Use(async (context, next) =>
             {
-                // Generate a cryptographically secure nonce for each request
                 var nonce = GenerateNonce();
-
-                // Make the nonce available to Razor Pages / Views
                 context.Items["CSP-Nonce"] = nonce;
 
                 context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
@@ -120,10 +108,8 @@ namespace Microsoft.AspNetCore.Builder
         private static string GenerateNonce()
         {
             var bytes = new byte[32];
-            using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(bytes);
-            }
+            using var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
+            rng.GetBytes(bytes);
             return Convert.ToBase64String(bytes);
         }
     }
