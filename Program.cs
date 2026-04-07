@@ -59,7 +59,7 @@ try
 
     // Health checks
     builder.Services.AddHealthChecks()
-        .AddCheck<PostgresHealthCheck>("postgres", tags: new[] { "ready" });
+        .AddNpgSql(connectionString, name: "postgres", tags: new[] { "ready" });
 
     builder.Services.AddAuthorization(options =>
     {

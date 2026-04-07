@@ -58,6 +58,22 @@ namespace MisureRicci.Services
                             Log.Error("Failed to create admin user {Email}: {Errors}", adminOptions.Email, errors);
                         }
                     }
+                    else
+                    {
+                        // Se l'utente esiste già, assicuriamoci che abbia la password corretta (quella in Railway)
+                        // e che sia Admin. Utile se il primo deploy è fallito a metà.
+                        var token = await userManager.GeneratePasswordResetTokenAsync(adminUser);
+                        var result = await userManager.ResetPasswordAsync(adminUser, token, adminOptions.Password!);
+                        
+                        if (result.Succeeded)
+                        {
+                            if (!await userManager.IsInRoleAsync(adminUser, ApplicationRoles.Admin))
+                            {
+                                await userManager.AddToRoleAsync(adminUser, ApplicationRoles.Admin);
+                            }
+                            Log.Information("Admin user {Email} password and role updated via bootstrap.", adminOptions.Email);
+                        }
+                    }
                 }
 
                 await MeasurementTypeSeeder.SeedDefaultsAsync(dbContext);
