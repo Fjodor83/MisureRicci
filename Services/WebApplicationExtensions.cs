@@ -69,9 +69,10 @@ namespace MisureRicci.Services
             }
             catch (Exception ex)
             {
-                const string message = "An error occurred during database initialization.";
-                Log.Error(ex, message);
-                throw new InvalidOperationException(message, ex);
+                // Non rilanciare: il server deve avviarsi anche se l'init del DB fallisce,
+                // altrimenti Railway non può mai completare l'healthcheck e il deploy fallisce sempre.
+                // L'app riproverà le migrazioni al prossimo restart o può essere fixata senza downtime.
+                Log.Error(ex, "An error occurred during database initialization. The app will continue to start.");
             }
         }
 

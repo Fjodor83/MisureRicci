@@ -42,3 +42,8 @@ bld/
 ## Project-specific gitignore
 build_err_2.txt
 db_update_err.txt
+
+## Secrets - MAI committare questi file
+appsettings.Secrets.json
+secrets.json
+.env
