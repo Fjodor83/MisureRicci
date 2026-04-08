@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using MisureRicci.Data;
 using MisureRicci.Models;
 using MisureRicci.Models.Options;
@@ -12,29 +13,60 @@ namespace MisureRicci.Services
     {
         public static async Task InitializeDatabaseAsync(this WebApplication app)
         {
-            // TODO: Bisogna rivedere questo metodo in modo che funzioni anche in produzione,
-            // dove le migrazioni automatiche non sono sempre una buona idea.
-            // Per ora, se siamo in produzione, assumiamo che il DB sia già pronto
-            // e skippiamo tutto.
-            return;
+            var startupDbInitEnabled = app.Configuration.GetValue<bool?>("StartupDatabaseInit:Enabled") ?? true;
+            if (!startupDbInitEnabled)
+            {
+                Log.Information("InitializeDatabaseAsync saltato: StartupDatabaseInit:Enabled=false.");
+                return;
+            }
 
             using var scope = app.Services.CreateScope();
             var services = scope.ServiceProvider;
+            var env = app.Environment;
+
+            // Fase 1: Verifica connessione DB (non applica migration automatiche)
+            // Nota: il progetto usa approccio DB-First; evitiamo MigrateAsync in avvio
+            // per non tentare creazioni/alterazioni schema in locale o in produzione.
             try
             {
                 var dbContext = services.GetRequiredService<ApplicationDbContext>();
+                var canConnect = await dbContext.Database.CanConnectAsync();
+                if (canConnect)
+                {
+                    Log.Information("Connessione database verificata con successo.");
+                }
+                else
+                {
+                    Log.Warning("Connessione database non disponibile durante startup. Continuazione avvio.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Verifica connessione database fallita. Continuazione avvio.");
+            }
 
-                // Applica automaticamente tutte le migration pendenti (SQL Server)
-                await dbContext.Database.MigrateAsync();
-
+            // Fase 2: Seed ruoli applicazione (sempre)
+            try
+            {
                 var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
                 foreach (var roleName in ApplicationRoles.All)
                 {
                     if (!await roleManager.RoleExistsAsync(roleName))
+                    {
                         await roleManager.CreateAsync(new IdentityRole(roleName));
+                        Log.Information("Ruolo '{RoleName}' creato.", roleName);
+                    }
                 }
+                Log.Information("Seed ruoli completato.");
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Seed ruoli fallito. Continuazione avvio.");
+            }
 
-                // Bootstrap admin da configurazione / variabili d'ambiente
+            // Fase 3: Bootstrap admin da configurazione (sempre, se abilitato)
+            try
+            {
                 var adminOptions = services.GetRequiredService<IOptions<BootstrapAdminOptions>>().Value;
                 if (adminOptions.Enabled && !string.IsNullOrWhiteSpace(adminOptions.Email))
                 {
@@ -56,46 +88,76 @@ namespace MisureRicci.Services
                         if (result.Succeeded)
                         {
                             await userManager.AddToRoleAsync(adminUser, ApplicationRoles.Admin);
-                            Log.Information("Admin user {Email} created via bootstrap.", adminOptions.Email);
+                            Log.Information("Admin user {Email} creato tramite bootstrap.", adminOptions.Email);
                         }
                         else
                         {
                             var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                            Log.Error("Failed to create admin user {Email}: {Errors}", adminOptions.Email, errors);
+                            Log.Warning("Creazione admin {Email} fallita: {Errors}", adminOptions.Email, errors);
                         }
                     }
                     else
                     {
-                        // Se l'utente esiste già, assicuriamoci che abbia la password corretta (quella in Railway)
-                        // e che sia Admin. Utile se il primo deploy è fallito a metà.
                         var token = await userManager.GeneratePasswordResetTokenAsync(adminUser);
                         var result = await userManager.ResetPasswordAsync(adminUser, token, adminOptions.Password!);
-                        
+
                         if (result.Succeeded)
                         {
                             if (!await userManager.IsInRoleAsync(adminUser, ApplicationRoles.Admin))
                             {
                                 await userManager.AddToRoleAsync(adminUser, ApplicationRoles.Admin);
                             }
-                            Log.Information("Admin user {Email} password and role updated via bootstrap.", adminOptions.Email);
+                            Log.Information("Admin user {Email} password e ruolo aggiornati tramite bootstrap.", adminOptions.Email);
                         }
                     }
                 }
-
-                await MeasurementTypeSeeder.SeedDefaultsAsync(dbContext);
-
-                var imageStorage = services.GetRequiredService<IMeasurementTypeImageStorageService>();
-                var migrated = await imageStorage.MigrateLegacyImagesAsync(dbContext);
-                if (migrated > 0)
-                    Log.Information("Migrated {Count} legacy images to protected storage.", migrated);
+                else
+                {
+                    Log.Information("Bootstrap admin disabilitato o email non configurata.");
+                }
             }
             catch (Exception ex)
             {
-                // Non rilanciare: il server deve avviarsi anche se l'init del DB fallisce,
-                // altrimenti Railway non può mai completare l'healthcheck e il deploy fallisce sempre.
-                // L'app riproverà le migrazioni al prossimo restart o può essere fixata senza downtime.
-                Log.Error(ex, "An error occurred during database initialization. The app will continue to start.");
+                Log.Warning(ex, "Bootstrap admin fallito. Continuazione avvio.");
             }
+
+            // Fase 4: Seed tipi misura predefiniti (sempre)
+            try
+            {
+                var dbContext = services.GetRequiredService<ApplicationDbContext>();
+                await MeasurementTypeSeeder.SeedDefaultsAsync(dbContext);
+                Log.Information("Seed tipi misura completato.");
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Seed tipi misura fallito. Continuazione avvio.");
+            }
+
+            // Fase 5: Migrazione immagini legacy (non in test)
+            try
+            {
+                var isTestEnv = env.EnvironmentName.Equals("Testing", StringComparison.OrdinalIgnoreCase);
+                if (!isTestEnv)
+                {
+                    var dbContext = services.GetRequiredService<ApplicationDbContext>();
+                    var imageStorage = services.GetRequiredService<IMeasurementTypeImageStorageService>();
+                    var migrated = await imageStorage.MigrateLegacyImagesAsync(dbContext);
+                    if (migrated > 0)
+                    {
+                        Log.Information("Migrate {Count} immagini legacy in storage protetto.", migrated);
+                    }
+                    else
+                    {
+                        Log.Information("Nessuna immagine legacy da migrare.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Migrazione immagini legacy fallita. Continuazione avvio.");
+            }
+
+            Log.Information("Inizializzazione database completata.");
         }
 
         public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder app)

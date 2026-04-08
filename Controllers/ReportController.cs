@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using MisureRicci.Data;
 using MisureRicci.Models;
@@ -40,6 +41,7 @@ namespace MisureRicci.Controllers
         }
 
         [HttpGet("ExportClienti")]
+        [EnableRateLimiting("export")]
         public async Task<IActionResult> ExportClientiCsv(CancellationToken ct)
         {
             var isAdmin = _tenantService.IsAdmin();
@@ -92,6 +94,7 @@ namespace MisureRicci.Controllers
         }
 
         [HttpGet("ExportMisure")]
+        [EnableRateLimiting("export")]
         public async Task<IActionResult> ExportMisureCsv(CancellationToken ct)
         {
             var isAdmin = _tenantService.IsAdmin();

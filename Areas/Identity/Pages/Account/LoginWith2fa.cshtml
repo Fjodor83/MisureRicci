@@ -1,0 +1,94 @@
+@page
+@model MisureRicci.Areas.Identity.Pages.Account.LoginWith2faModel
+
+@{
+    ViewData["Title"] = "Autenticazione a due fattori";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Misure Ricci</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Sora:wght@300;400;600&display=swap" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+    <script>
+        (function () {
+            const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            if (theme === 'dark') {
+                document.documentElement.classList.add('theme-dark');
+            }
+        })();
+    </script>
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <header class="login-brand-panel">
+            <div class="login-brand-mark">MR</div>
+            <h1 class="login-brand-text">Misure Ricci</h1>
+            <div class="login-brand-sub">Tailoring Business Workspace</div>
+        </header>
+
+        <div class="login-card card">
+            <div class="login-header">
+                <h2 class="login-title">
+                    <i class="bi bi-shield-check me-2"></i>Verifica in Due Passaggi
+                </h2>
+                <p class="login-subtitle">
+                    Inserisci il codice a 6 cifre generato dalla tua app di autenticazione.
+                </p>
+            </div>
+
+            <form id="login-2fa-form" method="post" class="login-form">
+                <div asp-validation-summary="ModelOnly" class="validation-summary-errors mb-4"></div>
+
+                <div class="mb-4">
+                    <label asp-for="Input.TwoFactorCode" class="form-label">Codice di Autenticazione</label>
+                    <input asp-for="Input.TwoFactorCode"
+                           type="text"
+                           inputmode="numeric"
+                           pattern="[0-9 ]*"
+                           maxlength="7"
+                           autocomplete="one-time-code"
+                           class="form-control"
+                           placeholder="000 000" />
+                    <span asp-validation-for="Input.TwoFactorCode" class="text-danger small mt-1 d-block"></span>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input class="form-check-input" asp-for="Input.RememberMachine" />
+                    <label class="form-check-label" asp-for="Input.RememberMachine" style="font-size: 0.85rem; color: var(--text-muted);">
+                        Ricorda questo dispositivo
+                    </label>
+                </div>
+
+                <input type="hidden" asp-for="RememberMe" />
+
+                <button type="submit" class="btn btn-gold btn-login">
+                    Verifica <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+            </form>
+
+            <div class="text-center mt-3">
+                <a asp-page="./Login" style="color: var(--gold); font-size: 0.85rem;">
+                    <i class="bi bi-arrow-left me-1"></i>Torna al Login
+                </a>
+            </div>
+        </div>
+
+        <footer class="login-footer">
+            &copy; 2026 Misure Ricci Design System &middot; Eccellenza Italiana
+        </footer>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

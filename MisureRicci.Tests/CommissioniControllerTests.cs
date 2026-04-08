@@ -24,7 +24,12 @@ public class CommissioniControllerTests
         _mockClienteService = new Mock<IClienteService>();
         _mockTenantService = new Mock<ITenantService>();
 
-        _controller = new CommissioniController(_mockCommessaService.Object, _mockClienteService.Object, _mockTenantService.Object);
+        _controller = new CommissioniController(
+            _mockCommessaService.Object,
+            _mockClienteService.Object,
+            _mockTenantService.Object,
+            new Mock<ICustomMeasurementService>().Object,
+            new Mock<IFabricService>().Object);
         
         // Setup default user via tenant service
         _mockTenantService.Setup(s => s.GetUserId()).Returns("user1");

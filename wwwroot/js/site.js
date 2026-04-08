@@ -37,13 +37,13 @@
 	function openSidebar() {
 		if (sidebar) sidebar.classList.add('open');
 		if (overlay) overlay.classList.add('active');
-		document.body.style.overflow = 'hidden';
+		document.body.classList.add('body-scroll-lock');
 	}
 
 	function closeSidebar() {
 		if (sidebar) sidebar.classList.remove('open');
 		if (overlay) overlay.classList.remove('active');
-		document.body.style.overflow = '';
+		document.body.classList.remove('body-scroll-lock');
 	}
 
 	function toggleSidebar() {
@@ -51,11 +51,11 @@
 			if (sidebar && sidebar.classList.contains('open')) {
 				sidebar.classList.remove('open');
 				if (overlay) overlay.classList.remove('active');
-				document.body.style.overflow = '';
+				document.body.classList.remove('body-scroll-lock');
 			} else {
 				if (sidebar) sidebar.classList.add('open');
 				if (overlay) overlay.classList.add('active');
-				document.body.style.overflow = 'hidden';
+				document.body.classList.add('body-scroll-lock');
 			}
 		} else {
 			var appLayout = document.querySelector('.app-layout');
@@ -168,23 +168,10 @@
 		var existing = btn.querySelector('.sr-ripple');
 		if (existing) existing.remove();
 		var rect = btn.getBoundingClientRect();
-		var size = Math.max(rect.width, rect.height) * 2.2;
 		var ripple = document.createElement('span');
 		ripple.className = 'sr-ripple';
-		ripple.style.cssText = [
-			'position:absolute',
-			'border-radius:50%',
-			'pointer-events:none',
-			'transform:scale(0)',
-			'animation:sr-ripple-anim 0.58s linear',
-			'background:rgba(255,255,255,0.18)',
-			'width:' + size + 'px',
-			'height:' + size + 'px',
-			'left:' + (e.clientX - rect.left - size / 2) + 'px',
-			'top:' + (e.clientY - rect.top - size / 2) + 'px',
-			'z-index:0'
-		].join(';');
 		btn.appendChild(ripple);
+		void rect.width;
 		ripple.addEventListener('animationend', function () { ripple.remove(); });
 	});
 
@@ -204,10 +191,17 @@
 		show: function (message, type) {
 			type = type || 'info';
 			var icons = { success: 'bi-check-circle-fill', danger: 'bi-exclamation-triangle-fill', info: 'bi-info-circle-fill', warning: 'bi-exclamation-circle-fill' };
-			var colors = { success: '#1B9A70', danger: '#C94E28', info: '#2F6EC4', warning: '#C4921E' };
 			var toast = document.createElement('div');
 			toast.className = 'sr-toast sr-toast--' + type;
-			toast.innerHTML = '<i class="bi ' + (icons[type] || icons.info) + '" style="color:' + (colors[type] || colors.info) + ';font-size:1rem;flex-shrink:0;"></i><span>' + message + '</span>';
+
+			var icon = document.createElement('i');
+			icon.className = 'bi ' + (icons[type] || icons.info) + ' sr-toast__icon sr-toast__icon--' + type;
+
+			var text = document.createElement('span');
+			text.textContent = message;
+
+			toast.appendChild(icon);
+			toast.appendChild(text);
 			this._getContainer().appendChild(toast);
 			var self = this;
 			setTimeout(function () {
@@ -230,8 +224,7 @@
 			});
 		}, { threshold: 0.06 });
 
-		document.querySelectorAll('.row > [class*="col-"]').forEach(function (el, i) {
-			el.style.setProperty('--stagger-i', String(i));
+		document.querySelectorAll('.row > [class*="col-"]').forEach(function (el) {
 			el.classList.add('stagger-item');
 			staggerObserver.observe(el);
 		});
@@ -488,12 +481,10 @@
 	========================================================== */
 	var mobileQuickActionBtn = document.getElementById('mobileQuickActionBtn');
 	if (mobileQuickActionBtn) {
-		mobileQuickActionBtn.addEventListener('click', function() {
-			// Azione rapida: reindirizza alla creazione cliente o mostra un toast
-			window.SRToast.show('Funzione rapida: Apertura Registro Clienti...', 'info');
-			setTimeout(function() {
-				window.location.href = '/Clienti/Index';
-			}, 500);
+		mobileQuickActionBtn.addEventListener('click', function () {
+			if (mobileQuickActionBtn.dataset.busy === '1') return;
+			mobileQuickActionBtn.dataset.busy = '1';
+			window.location.href = '/Clienti/Index';
 		});
 	}
 

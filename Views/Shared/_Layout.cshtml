@@ -143,6 +143,11 @@
                             </div>
                             <span class="status-pill status-pill--accent">@roleLabel</span>
                         </div>
+                                <a href="/Identity/Account/Manage/ChangePassword"
+                                    class="btn btn-outline-gold btn-sm"
+                           title="Cambia password">
+                            <i class="bi bi-key-fill"></i>
+                        </a>
                         <form asp-area="Identity"
                               asp-page="/Account/Logout"
                               asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"

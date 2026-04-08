@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using MisureRicci.Services;
 
 namespace MisureRicci.Controllers.Api
@@ -7,6 +8,7 @@ namespace MisureRicci.Controllers.Api
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
+    [EnableRateLimiting("api")]
     public class ClientiApiController : ControllerBase
     {
         private readonly IClienteService _clienteService;

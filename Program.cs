@@ -49,7 +49,7 @@ try
     builder.Services
         .AddProjectDatabase(connectionString)
         .AddProjectIdentity()
-        .AddProjectServices()
+        .AddProjectServices(builder.Configuration)
         .AddProjectRateLimiters();
 
     // Configurazione porta (Railway usa PORT, locale usa default)
@@ -74,15 +74,23 @@ try
 
     var app = builder.Build();
 
-    using (var scope = app.Services.CreateScope())
+    var startupDbInitEnabled = builder.Configuration.GetValue<bool?>("StartupDatabaseInit:Enabled") ?? true;
+
+    if (startupDbInitEnabled)
     {
+        using var scope = app.Services.CreateScope();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 
-        await UserSeeder.SeedAdminUserAsync(userManager, roleManager);
+        await UserSeeder.SeedAdminUserAsync(userManager, roleManager, configuration);
+
+        await app.InitializeDatabaseAsync();
     }
-
-    await app.InitializeDatabaseAsync();
+    else
+    {
+        Log.Information("Startup database initialization disabilitata da configurazione (StartupDatabaseInit:Enabled=false).");
+    }
 
     // ❌ Niente HSTS su Railway
     // ❌ Niente HTTPS redirect su Railway

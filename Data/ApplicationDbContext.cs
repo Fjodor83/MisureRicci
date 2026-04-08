@@ -58,7 +58,7 @@ namespace MisureRicci.Data
             builder.Entity<PantaloneMeasurement>().ToTable("MisurePantalone");
             builder.Entity<GiletMeasurement>().ToTable("MisureGilet");
             builder.Entity<CamiciaMeasurement>().ToTable("MisureCamicia");
-            builder.Entity<AbitoCompletoMeasurement>().ToTable("MisureAbitoCompleto");
+            // AbitoCompletoMeasurement → tabella mappata in AbitoCompletoMeasurementConfiguration
             builder.Entity<MaglieMeasurement>().ToTable("MisureMaglie");
             builder.Entity<OutdoorMeasurement>().ToTable("MisureOutdoor");
             builder.Entity<ScarpeMeasurement>().ToTable("MisureScarpe");
