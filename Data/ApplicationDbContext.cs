@@ -65,8 +65,7 @@ namespace MisureRicci.Data
             builder.Entity<CravattaMeasurement>().ToTable("MisureCravatta");
             builder.Entity<CinturaMeasurement>().ToTable("MisureCintura");
 
-            // Nota: ClientCode era una colonna calcolata in SQL Server.
-            // Su PostgreSQL viene gestito come normale colonna stringa;
+            // Nota: ClientCode era una colonna calcolata in SQL Server;
             // la generazione del codice avviene in WebApplicationExtensions.
         }
     }

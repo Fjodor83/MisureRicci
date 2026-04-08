@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
-using Npgsql;
 
 namespace MisureRicci.Controllers
 {
@@ -295,17 +294,10 @@ namespace MisureRicci.Controllers
         // ── Helpers ──────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Rileva violazione di unicità su PostgreSQL (errore 23505)
-        /// o tramite messaggio come fallback per SQLite/altri.
+        /// Rileva violazione di unicità tramite messaggio dell'eccezione.
         /// </summary>
         private static bool IsUniqueConstraintViolation(DbUpdateException ex)
         {
-            if (ex.InnerException is PostgresException pgEx)
-            {
-                // 23505 = unique_violation in PostgreSQL
-                return pgEx.SqlState == "23505";
-            }
-
             var message = ex.InnerException?.Message ?? ex.Message;
             return message.Contains("unique", StringComparison.OrdinalIgnoreCase)
                 || message.Contains("duplicate", StringComparison.OrdinalIgnoreCase);

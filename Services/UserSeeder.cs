@@ -10,7 +10,7 @@ namespace MisureRicci.Services
         /// <summary>
         /// Crea l'utente admin di default se non esiste.
         /// La password viene letta da <c>BootstrapAdmin:Password</c> nella configurazione.
-        /// In produzione (Railway) usare la variabile d'ambiente <c>BootstrapAdmin__Password</c>
+        /// In produzione usare la variabile d'ambiente <c>BootstrapAdmin__Password</c>
         /// (double-underscore per la gerarchia di configurazione .NET).
         /// Se la configurazione è assente, genera una password casuale non loggata.
         /// </summary>
