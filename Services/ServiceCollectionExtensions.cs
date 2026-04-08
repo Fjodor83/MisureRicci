@@ -64,6 +64,7 @@ namespace MisureRicci.Services
             services.AddScoped<IPdfService, PdfService>();
             services.AddScoped<ICustomMeasurementService, CustomMeasurementService>();
             services.AddScoped<IMeasurementTypeImageStorageService, MeasurementTypeImageStorageService>();
+            services.AddScoped<IFabricService, FabricService>();
             services.AddScoped<ICommessaService, CommessaService>();
             services.AddScoped<INegozioService, NegozioService>();
             services.AddScoped<ILegacyMeasurementUiService, LegacyMeasurementUiService>();

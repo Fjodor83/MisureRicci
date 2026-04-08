@@ -45,7 +45,18 @@
             </div>
             <div class="col-md-6">
                 <label asp-for="Tessuto" class="form-label"></label>
-                <input asp-for="Tessuto" class="form-control" placeholder="Es. Lana Super 150's" />
+                @if (Model.TessutiDisponibili.Any())
+                {
+                    <select asp-for="Tessuto" class="form-select" asp-items="new SelectList(Model.TessutiDisponibili, nameof(Fabric.Nome), nameof(Fabric.Nome))">
+                        <option value=""> Seleziona Tessuto </option>
+                    </select>
+                }
+                else
+                {
+                    <div class="alert alert-warning">
+                        <p class="mb-0">Nessun tessuto disponibile nel catalogo. <a asp-controller="AdminFabrics" asp-action="Create">Aggiungine uno</a>.</p>
+                    </div>
+                }
                 <span asp-validation-for="Tessuto" class="text-danger"></span>
             </div>
             <div class="col-md-6">

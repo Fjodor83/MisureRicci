@@ -95,5 +95,8 @@ namespace MisureRicci.Models.ViewModels
 
         /// <summary>Tipi di capo disponibili da catalogo per il dropdown.</summary>
         public List<MeasurementType> TipoCapiDisponibili { get; set; } = new();
+
+        /// <summary>Tessuti disponibili da catalogo per il dropdown.</summary>
+        public List<Fabric> TessutiDisponibili { get; set; } = new();
     }
 }

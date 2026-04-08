@@ -24,6 +24,8 @@ namespace MisureRicci.Data
         public DbSet<DynamicMeasurementRecord> DynamicMeasurementRecords { get; set; } = default!;
         public DbSet<DynamicMeasurementValue> DynamicMeasurementValues { get; set; } = default!;
 
+        public DbSet<Fabric> Fabrics { get; set; } = default!;
+
         // Tabelle legacy
         public DbSet<GiaccaMeasurement> MisureGiacca { get; set; } = default!;
         public DbSet<PantaloneMeasurement> MisurePantalone { get; set; } = default!;
