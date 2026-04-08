@@ -92,5 +92,8 @@ namespace MisureRicci.Models.ViewModels
 
         /// <summary>ID delle misure selezionate dall'utente durante la creazione.</summary>
         public List<int> SelectedMisuraIds { get; set; } = new();
+
+        /// <summary>Tipi di capo disponibili da catalogo per il dropdown.</summary>
+        public List<MeasurementType> TipoCapiDisponibili { get; set; } = new();
     }
 }

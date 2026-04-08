@@ -7,7 +7,7 @@
 <section class="page-hero">
     <div class="page-hero__content">
         <span class="page-kicker">Order opening</span>
-        <h1 class="page-title">Apri nuova commissione</h1>
+        <h1 class="page-title">Apri Nuova Commissione</h1>
         <p class="page-subtitle">Cliente: <strong>@Model.ClienteNome</strong>. Definisci capo, tempi e misure da collegare subito.</p>
     </div>
     <div class="page-actions">
@@ -22,14 +22,25 @@
     <section class="form-section">
         <div class="form-section__header">
             <div>
-                <h2 class="form-section__title">Impostazioni commessa</h2>
+                <h2 class="form-section__title">Impostazioni Commissione</h2>
                 <p class="form-section__text">Descrivi il capo e definisci il perimetro operativo iniziale.</p>
             </div>
         </div>
         <div class="row g-4">
             <div class="col-md-6">
                 <label asp-for="TipoCapo" class="form-label"></label>
-                <input asp-for="TipoCapo" class="form-control" placeholder="Es. Giacca doppiopetto" />
+                @if (Model.TipoCapiDisponibili.Any())
+                {
+                    <select asp-for="TipoCapo" class="form-select" asp-items="new SelectList(Model.TipoCapiDisponibili, nameof(MeasurementType.Nome), nameof(MeasurementType.Nome))">
+                        <option value=""> Seleziona  Capo </option>
+                    </select>
+                }
+                else
+                {
+                    <div class="alert alert-warning">
+                        <p class="mb-0">Nessun tipo di capo disponibile nel catalogo. <a asp-controller="AdminMeasurementTypes" asp-action="CreateType">Aggiungine uno</a>.</p>
+                    </div>
+                }
                 <span asp-validation-for="TipoCapo" class="text-danger"></span>
             </div>
             <div class="col-md-6">

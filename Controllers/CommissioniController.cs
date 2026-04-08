@@ -13,6 +13,7 @@ namespace MisureRicci.Controllers
         private readonly ICommessaService _commessaService;
         private readonly IClienteService _clienteService;
         private readonly ITenantService _tenantService;
+        private readonly ICustomMeasurementService _customMeasurementService;
 
         private const string ImpossibileCreareLaCommessa = "Impossibile creare la commessa.";
         private const string OperazioneNonConsentita = "Operazione non consentita.";
@@ -23,11 +24,12 @@ namespace MisureRicci.Controllers
         
         private const string CommissioneError = "CommissioneError";
 
-        public CommissioniController(ICommessaService commessaService, IClienteService clienteService, ITenantService tenantService)
+        public CommissioniController(ICommessaService commessaService, IClienteService clienteService, ITenantService tenantService, ICustomMeasurementService customMeasurementService)
         {
             _commessaService = commessaService;
             _clienteService = clienteService;
             _tenantService = tenantService;
+            _customMeasurementService = customMeasurementService;
         }
 
         public async Task<IActionResult> Index(int? clienteId, int page = 1)
@@ -68,12 +70,14 @@ namespace MisureRicci.Controllers
             }
 
             var misureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(clienteId, currentNegozioId, isAdmin);
+            var tipiCapoDisponibili = await _customMeasurementService.GetMeasurementTypesAsync(onlyActive: true);
 
             var model = new CommessaCreateViewModel
             {
                 ClienteId = clienteId,
                 ClienteNome = $"{cliente.Nome} {cliente.Cognome}".Trim(),
-                MisureDisponibili = misureDisponibili
+                MisureDisponibili = misureDisponibili,
+                TipoCapiDisponibili = tipiCapoDisponibili
             };
 
             return View(model);
@@ -90,6 +94,7 @@ namespace MisureRicci.Controllers
                 var cliente0 = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentNegozioId0, isAdmin0);
                 if (cliente0 != null) model.ClienteNome = $"{cliente0.Nome} {cliente0.Cognome}".Trim();
                 model.MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(model.ClienteId, currentNegozioId0, isAdmin0);
+                model.TipoCapiDisponibili = await _customMeasurementService.GetMeasurementTypesAsync(onlyActive: true);
                 return View(model);
             }
 
@@ -110,6 +115,7 @@ namespace MisureRicci.Controllers
             {
                 ModelState.AddModelError(string.Empty, result.Error ?? ImpossibileCreareLaCommessa);
                 model.MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(model.ClienteId, currentNegozioId, isAdmin);
+                model.TipoCapiDisponibili = await _customMeasurementService.GetMeasurementTypesAsync(onlyActive: true);
                 return View(model);
             }
 
