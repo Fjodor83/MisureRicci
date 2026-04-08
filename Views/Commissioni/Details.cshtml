@@ -12,8 +12,12 @@
         <p class="page-subtitle">@commessa.Cliente?.Nome @commessa.Cliente?.Cognome - @commessa.TipoCapo</p>
     </div>
     <div class="page-actions">
-        <a asp-action="Index" asp-route-clienteId="@commessa.ClienteId" class="btn btn-outline-secondary">Elenco commissioni</a>
-        <a asp-controller="Clienti" asp-action="Details" asp-route-id="@commessa.ClienteId" class="btn btn-outline-gold">Torna al cliente</a>
+        <a asp-action="Index" asp-route-clienteId="@commessa.ClienteId" class="btn btn-outline-secondary">Elenco Commissioni</a>
+        <a asp-controller="Clienti" asp-action="Details" asp-route-id="@commessa.ClienteId" class="btn btn-outline-gold">Torna al Cliente</a>
+        <form asp-action="Delete" method="post" class="d-inline">
+            <input type="hidden" name="id" value="@commessa.Id" />
+            <button type="submit" class="btn btn-danger" data-confirm="Eliminare questa commissione? Le misure resteranno nel profilo cliente.">Elimina Commissione</button>
+        </form>
     </div>
 </section>
 

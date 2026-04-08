@@ -475,7 +475,7 @@
 			var unitLabels = document.querySelectorAll('[data-measurement-unit-label="true"]');
 			unitLabels.forEach(function (label) {
 				if (label.dataset.convertibleLength === 'true') {
-					label.textContent = '(' + getMeasurementUnitLabel(nextUnit) + ')';
+					label.textContent = getMeasurementUnitLabel(nextUnit);
 				}
 			});
 

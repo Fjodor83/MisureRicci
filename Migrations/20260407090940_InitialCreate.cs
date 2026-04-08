@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -16,10 +15,10 @@ namespace MisureRicci.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
-                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true)
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -30,14 +29,14 @@ namespace MisureRicci.Migrations
                 name: "DynamicMeasurementTypes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Nome = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: false),
-                    Descrizione = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: true),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    IsSystem = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ImageUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nome = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false),
+                    Descrizione = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    IsSystem = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -48,14 +47,14 @@ namespace MisureRicci.Migrations
                 name: "Negozi",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Nome = table.Column<string>(type: "text", nullable: false),
-                    Citta = table.Column<string>(type: "text", nullable: false),
-                    Indirizzo = table.Column<string>(type: "text", nullable: true),
-                    CodiceNegozio = table.Column<string>(type: "text", nullable: true),
-                    Paese = table.Column<string>(type: "text", nullable: false),
-                    Attivo = table.Column<bool>(type: "boolean", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Citta = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Indirizzo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CodiceNegozio = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Paese = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Attivo = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -66,11 +65,11 @@ namespace MisureRicci.Migrations
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    RoleId = table.Column<string>(type: "text", nullable: false),
-                    ClaimType = table.Column<string>(type: "text", nullable: true),
-                    ClaimValue = table.Column<string>(type: "text", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -87,27 +86,27 @@ namespace MisureRicci.Migrations
                 name: "DynamicFieldDefinitions",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    MeasurementTypeId = table.Column<int>(type: "integer", nullable: false),
-                    NomeCampo = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: false),
-                    Etichetta = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Gruppo = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: true),
-                    OrdineGruppo = table.Column<int>(type: "integer", nullable: false),
-                    TipoDato = table.Column<int>(type: "integer", nullable: false),
-                    Template = table.Column<int>(type: "integer", nullable: false),
-                    UnitaMisura = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
-                    Placeholder = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: true),
-                    HelpText = table.Column<string>(type: "character varying(160)", maxLength: 160, nullable: true),
-                    Obbligatorio = table.Column<bool>(type: "boolean", nullable: false),
-                    Ordine = table.Column<int>(type: "integer", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    MeasurementTypeId = table.Column<int>(type: "int", nullable: false),
+                    NomeCampo = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false),
+                    Etichetta = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Gruppo = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: true),
+                    OrdineGruppo = table.Column<int>(type: "int", nullable: false),
+                    TipoDato = table.Column<int>(type: "int", nullable: false),
+                    Template = table.Column<int>(type: "int", nullable: false),
+                    UnitaMisura = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    Placeholder = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: true),
+                    HelpText = table.Column<string>(type: "nvarchar(160)", maxLength: 160, nullable: true),
+                    Obbligatorio = table.Column<bool>(type: "bit", nullable: false),
+                    Ordine = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DynamicFieldDefinitions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DynamicFieldDefinitions_DynamicMeasurementTypes_Measurement~",
+                        name: "FK_DynamicFieldDefinitions_DynamicMeasurementTypes_MeasurementTypeId",
                         column: x => x.MeasurementTypeId,
                         principalTable: "DynamicMeasurementTypes",
                         principalColumn: "Id",
@@ -118,25 +117,25 @@ namespace MisureRicci.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
-                    NomeCompleto = table.Column<string>(type: "text", nullable: false),
-                    Ruolo = table.Column<string>(type: "text", nullable: false),
-                    NegozioId = table.Column<int>(type: "integer", nullable: true),
-                    Attivo = table.Column<bool>(type: "boolean", nullable: false),
-                    UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
-                    PasswordHash = table.Column<string>(type: "text", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "text", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    NomeCompleto = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Ruolo = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NegozioId = table.Column<int>(type: "int", nullable: true),
+                    Attivo = table.Column<bool>(type: "bit", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -152,21 +151,21 @@ namespace MisureRicci.Migrations
                 name: "Clienti",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ClientCode = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
-                    Nome = table.Column<string>(type: "text", nullable: false),
-                    Cognome = table.Column<string>(type: "text", nullable: false),
-                    Email = table.Column<string>(type: "text", nullable: false),
-                    Telefono = table.Column<string>(type: "text", nullable: true),
-                    Indirizzo = table.Column<string>(type: "text", nullable: true),
-                    Citta = table.Column<string>(type: "text", nullable: true),
-                    StatoProvincia = table.Column<string>(type: "text", nullable: true),
-                    CodicePostale = table.Column<string>(type: "text", nullable: true),
-                    Paese = table.Column<string>(type: "text", nullable: false),
-                    Note = table.Column<string>(type: "text", nullable: true),
-                    DataRegistrazione = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    NegozioId = table.Column<int>(type: "integer", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ClientCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Cognome = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Telefono = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Indirizzo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Citta = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StatoProvincia = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CodicePostale = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Paese = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DataRegistrazione = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    NegozioId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -182,11 +181,11 @@ namespace MisureRicci.Migrations
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserId = table.Column<string>(type: "text", nullable: false),
-                    ClaimType = table.Column<string>(type: "text", nullable: true),
-                    ClaimValue = table.Column<string>(type: "text", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -203,10 +202,10 @@ namespace MisureRicci.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "text", nullable: false),
-                    ProviderKey = table.Column<string>(type: "text", nullable: false),
-                    ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
-                    UserId = table.Column<string>(type: "text", nullable: false)
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -223,8 +222,8 @@ namespace MisureRicci.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "text", nullable: false),
-                    RoleId = table.Column<string>(type: "text", nullable: false)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -247,10 +246,10 @@ namespace MisureRicci.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "text", nullable: false),
-                    LoginProvider = table.Column<string>(type: "text", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Value = table.Column<string>(type: "text", nullable: true)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -267,20 +266,20 @@ namespace MisureRicci.Migrations
                 name: "CommissioniSartoriali",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CommessaCode = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
-                    ClienteId = table.Column<int>(type: "integer", nullable: false),
-                    NegozioId = table.Column<int>(type: "integer", nullable: true),
-                    TipoCapo = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: false),
-                    Tessuto = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: true),
-                    Collezione = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: true),
-                    DataApertura = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    DataConsegnaPrevista = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    DataConsegnaEffettiva = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    Stato = table.Column<int>(type: "integer", nullable: false),
-                    NoteInterne = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
-                    CreatedByUserId = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CommessaCode = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
+                    ClienteId = table.Column<int>(type: "int", nullable: false),
+                    NegozioId = table.Column<int>(type: "int", nullable: true),
+                    TipoCapo = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false),
+                    Tessuto = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: true),
+                    Collezione = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: true),
+                    DataApertura = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DataConsegnaPrevista = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DataConsegnaEffettiva = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Stato = table.Column<int>(type: "int", nullable: false),
+                    NoteInterne = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
+                    CreatedByUserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -307,13 +306,13 @@ namespace MisureRicci.Migrations
                 name: "DynamicMeasurementRecords",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ClienteId = table.Column<int>(type: "integer", nullable: false),
-                    MeasurementTypeId = table.Column<int>(type: "integer", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CreatedByUserId = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: true),
-                    MeasurementUnit = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ClienteId = table.Column<int>(type: "int", nullable: false),
+                    MeasurementTypeId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedByUserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
+                    MeasurementUnit = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -330,7 +329,7 @@ namespace MisureRicci.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_DynamicMeasurementRecords_DynamicMeasurementTypes_Measureme~",
+                        name: "FK_DynamicMeasurementRecords_DynamicMeasurementTypes_MeasurementTypeId",
                         column: x => x.MeasurementTypeId,
                         principalTable: "DynamicMeasurementTypes",
                         principalColumn: "Id",
@@ -341,19 +340,19 @@ namespace MisureRicci.Migrations
                 name: "MisureCamicia",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Collo = table.Column<double>(type: "double precision", nullable: false),
-                    Spalle = table.Column<double>(type: "double precision", nullable: false),
-                    Torace = table.Column<double>(type: "double precision", nullable: false),
-                    Vita = table.Column<double>(type: "double precision", nullable: false),
-                    Manica = table.Column<double>(type: "double precision", nullable: false),
-                    Polso = table.Column<double>(type: "double precision", nullable: false),
-                    Lunghezza = table.Column<double>(type: "double precision", nullable: false),
-                    ClienteId = table.Column<int>(type: "integer", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    OrderId = table.Column<string>(type: "text", nullable: true),
-                    Notes = table.Column<string>(type: "text", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Collo = table.Column<double>(type: "float", nullable: false),
+                    Spalle = table.Column<double>(type: "float", nullable: false),
+                    Torace = table.Column<double>(type: "float", nullable: false),
+                    Vita = table.Column<double>(type: "float", nullable: false),
+                    Manica = table.Column<double>(type: "float", nullable: false),
+                    Polso = table.Column<double>(type: "float", nullable: false),
+                    Lunghezza = table.Column<double>(type: "float", nullable: false),
+                    ClienteId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OrderId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -370,14 +369,14 @@ namespace MisureRicci.Migrations
                 name: "MisureCintura",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Lunghezza = table.Column<double>(type: "double precision", nullable: false),
-                    Girovita = table.Column<double>(type: "double precision", nullable: false),
-                    ClienteId = table.Column<int>(type: "integer", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    OrderId = table.Column<string>(type: "text", nullable: true),
-                    Notes = table.Column<string>(type: "text", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Lunghezza = table.Column<double>(type: "float", nullable: false),
+                    Girovita = table.Column<double>(type: "float", nullable: false),
+                    ClienteId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OrderId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -394,14 +393,14 @@ namespace MisureRicci.Migrations
                 name: "MisureCravatta",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Lunghezza = table.Column<double>(type: "double precision", nullable: false),
-                    Larghezza = table.Column<double>(type: "double precision", nullable: false),
-                    ClienteId = table.Column<int>(type: "integer", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    OrderId = table.Column<string>(type: "text", nullable: true),
-                    Notes = table.Column<string>(type: "text", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Lunghezza = table.Column<double>(type: "float", nullable: false),
+                    Larghezza = table.Column<double>(type: "float", nullable: false),
+                    ClienteId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OrderId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -418,17 +417,17 @@ namespace MisureRicci.Migrations
                 name: "MisureGiacca",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Spalle = table.Column<double>(type: "double precision", nullable: false),
-                    Torace = table.Column<double>(type: "double precision", nullable: false),
-                    Vita = table.Column<double>(type: "double precision", nullable: false),
-                    Manica = table.Column<double>(type: "double precision", nullable: false),
-                    Lunghezza = table.Column<double>(type: "double precision", nullable: false),
-                    ClienteId = table.Column<int>(type: "integer", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    OrderId = table.Column<string>(type: "text", nullable: true),
-                    Notes = table.Column<string>(type: "text", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Spalle = table.Column<double>(type: "float", nullable: false),
+                    Torace = table.Column<double>(type: "float", nullable: false),
+                    Vita = table.Column<double>(type: "float", nullable: false),
+                    Manica = table.Column<double>(type: "float", nullable: false),
+                    Lunghezza = table.Column<double>(type: "float", nullable: false),
+                    ClienteId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OrderId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -445,15 +444,15 @@ namespace MisureRicci.Migrations
                 name: "MisureGilet",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Torace = table.Column<double>(type: "double precision", nullable: false),
-                    Vita = table.Column<double>(type: "double precision", nullable: false),
-                    Lunghezza = table.Column<double>(type: "double precision", nullable: false),
-                    ClienteId = table.Column<int>(type: "integer", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    OrderId = table.Column<string>(type: "text", nullable: true),
-                    Notes = table.Column<string>(type: "text", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Torace = table.Column<double>(type: "float", nullable: false),
+                    Vita = table.Column<double>(type: "float", nullable: false),
+                    Lunghezza = table.Column<double>(type: "float", nullable: false),
+                    ClienteId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OrderId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -470,16 +469,16 @@ namespace MisureRicci.Migrations
                 name: "MisureMaglie",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Torace = table.Column<double>(type: "double precision", nullable: false),
-                    Spalle = table.Column<double>(type: "double precision", nullable: false),
-                    Manica = table.Column<double>(type: "double precision", nullable: false),
-                    Lunghezza = table.Column<double>(type: "double precision", nullable: false),
-                    ClienteId = table.Column<int>(type: "integer", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    OrderId = table.Column<string>(type: "text", nullable: true),
-                    Notes = table.Column<string>(type: "text", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Torace = table.Column<double>(type: "float", nullable: false),
+                    Spalle = table.Column<double>(type: "float", nullable: false),
+                    Manica = table.Column<double>(type: "float", nullable: false),
+                    Lunghezza = table.Column<double>(type: "float", nullable: false),
+                    ClienteId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OrderId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -496,17 +495,17 @@ namespace MisureRicci.Migrations
                 name: "MisureOutdoor",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Torace = table.Column<double>(type: "double precision", nullable: false),
-                    Spalle = table.Column<double>(type: "double precision", nullable: false),
-                    Manica = table.Column<double>(type: "double precision", nullable: false),
-                    Lunghezza = table.Column<double>(type: "double precision", nullable: false),
-                    Fit = table.Column<string>(type: "text", nullable: true),
-                    ClienteId = table.Column<int>(type: "integer", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    OrderId = table.Column<string>(type: "text", nullable: true),
-                    Notes = table.Column<string>(type: "text", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Torace = table.Column<double>(type: "float", nullable: false),
+                    Spalle = table.Column<double>(type: "float", nullable: false),
+                    Manica = table.Column<double>(type: "float", nullable: false),
+                    Lunghezza = table.Column<double>(type: "float", nullable: false),
+                    Fit = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClienteId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OrderId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -523,17 +522,17 @@ namespace MisureRicci.Migrations
                 name: "MisurePantalone",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Vita = table.Column<double>(type: "double precision", nullable: false),
-                    Bacino = table.Column<double>(type: "double precision", nullable: false),
-                    Cavallo = table.Column<double>(type: "double precision", nullable: false),
-                    InternoGamba = table.Column<double>(type: "double precision", nullable: false),
-                    Fondo = table.Column<double>(type: "double precision", nullable: false),
-                    ClienteId = table.Column<int>(type: "integer", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    OrderId = table.Column<string>(type: "text", nullable: true),
-                    Notes = table.Column<string>(type: "text", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Vita = table.Column<double>(type: "float", nullable: false),
+                    Bacino = table.Column<double>(type: "float", nullable: false),
+                    Cavallo = table.Column<double>(type: "float", nullable: false),
+                    InternoGamba = table.Column<double>(type: "float", nullable: false),
+                    Fondo = table.Column<double>(type: "float", nullable: false),
+                    ClienteId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OrderId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -550,15 +549,15 @@ namespace MisureRicci.Migrations
                 name: "MisureScarpe",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Taglia = table.Column<string>(type: "text", nullable: true),
-                    LunghezzaPiede = table.Column<double>(type: "double precision", nullable: false),
-                    Pianta = table.Column<string>(type: "text", nullable: true),
-                    ClienteId = table.Column<int>(type: "integer", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    OrderId = table.Column<string>(type: "text", nullable: true),
-                    Notes = table.Column<string>(type: "text", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Taglia = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LunghezzaPiede = table.Column<double>(type: "float", nullable: false),
+                    Pianta = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClienteId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OrderId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -575,15 +574,15 @@ namespace MisureRicci.Migrations
                 name: "RegistroMisure",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ClienteId = table.Column<int>(type: "integer", nullable: false),
-                    TipoMisura = table.Column<string>(type: "text", nullable: false),
-                    DataCreazione = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Note = table.Column<string>(type: "text", nullable: true),
-                    SystemNote = table.Column<string>(type: "text", nullable: true),
-                    IsDynamic = table.Column<bool>(type: "boolean", nullable: false),
-                    RecordId = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ClienteId = table.Column<int>(type: "int", nullable: false),
+                    TipoMisura = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DataCreazione = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SystemNote = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsDynamic = table.Column<bool>(type: "bit", nullable: false),
+                    RecordId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -600,14 +599,14 @@ namespace MisureRicci.Migrations
                 name: "CommissioniEventi",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CommessaSartorialeId = table.Column<int>(type: "integer", nullable: false),
-                    TipoEvento = table.Column<string>(type: "character varying(40)", maxLength: 40, nullable: false),
-                    NuovoStato = table.Column<int>(type: "integer", nullable: true),
-                    Descrizione = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CreatedByUserId = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CommessaSartorialeId = table.Column<int>(type: "int", nullable: false),
+                    TipoEvento = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
+                    NuovoStato = table.Column<int>(type: "int", nullable: true),
+                    Descrizione = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedByUserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -629,23 +628,23 @@ namespace MisureRicci.Migrations
                 name: "DynamicMeasurementValues",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    DynamicMeasurementRecordId = table.Column<int>(type: "integer", nullable: false),
-                    MeasurementFieldDefinitionId = table.Column<int>(type: "integer", nullable: false),
-                    Valore = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DynamicMeasurementRecordId = table.Column<int>(type: "int", nullable: false),
+                    MeasurementFieldDefinitionId = table.Column<int>(type: "int", nullable: false),
+                    Valore = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DynamicMeasurementValues", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DynamicMeasurementValues_DynamicFieldDefinitions_Measuremen~",
+                        name: "FK_DynamicMeasurementValues_DynamicFieldDefinitions_MeasurementFieldDefinitionId",
                         column: x => x.MeasurementFieldDefinitionId,
                         principalTable: "DynamicFieldDefinitions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_DynamicMeasurementValues_DynamicMeasurementRecords_DynamicM~",
+                        name: "FK_DynamicMeasurementValues_DynamicMeasurementRecords_DynamicMeasurementRecordId",
                         column: x => x.DynamicMeasurementRecordId,
                         principalTable: "DynamicMeasurementRecords",
                         principalColumn: "Id",
@@ -656,14 +655,14 @@ namespace MisureRicci.Migrations
                 name: "MisureAbitoCompleto",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    GiaccaId = table.Column<int>(type: "integer", nullable: false),
-                    PantaloneId = table.Column<int>(type: "integer", nullable: false),
-                    ClienteId = table.Column<int>(type: "integer", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    OrderId = table.Column<string>(type: "text", nullable: true),
-                    Notes = table.Column<string>(type: "text", nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    GiaccaId = table.Column<int>(type: "int", nullable: false),
+                    PantaloneId = table.Column<int>(type: "int", nullable: false),
+                    ClienteId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OrderId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -692,12 +691,12 @@ namespace MisureRicci.Migrations
                 name: "CommissioniMisureLinks",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CommessaSartorialeId = table.Column<int>(type: "integer", nullable: false),
-                    MisuraClienteId = table.Column<int>(type: "integer", nullable: false),
-                    LinkedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LinkedByUserId = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: true)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CommessaSartorialeId = table.Column<int>(type: "int", nullable: false),
+                    MisuraClienteId = table.Column<int>(type: "int", nullable: false),
+                    LinkedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LinkedByUserId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -708,7 +707,7 @@ namespace MisureRicci.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_CommissioniMisureLinks_CommissioniSartoriali_CommessaSartor~",
+                        name: "FK_CommissioniMisureLinks_CommissioniSartoriali_CommessaSartorialeId",
                         column: x => x.CommessaSartorialeId,
                         principalTable: "CommissioniSartoriali",
                         principalColumn: "Id",
@@ -730,7 +729,8 @@ namespace MisureRicci.Migrations
                 name: "RoleNameIndex",
                 table: "AspNetRoles",
                 column: "NormalizedName",
-                unique: true);
+                unique: true,
+                filter: "[NormalizedName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -761,7 +761,8 @@ namespace MisureRicci.Migrations
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
-                unique: true);
+                unique: true,
+                filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Clienti_NegozioId",

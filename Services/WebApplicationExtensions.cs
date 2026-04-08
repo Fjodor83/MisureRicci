@@ -12,13 +12,19 @@ namespace MisureRicci.Services
     {
         public static async Task InitializeDatabaseAsync(this WebApplication app)
         {
+            // TODO: Bisogna rivedere questo metodo in modo che funzioni anche in produzione,
+            // dove le migrazioni automatiche non sono sempre una buona idea.
+            // Per ora, se siamo in produzione, assumiamo che il DB sia già pronto
+            // e skippiamo tutto.
+            return;
+
             using var scope = app.Services.CreateScope();
             var services = scope.ServiceProvider;
             try
             {
                 var dbContext = services.GetRequiredService<ApplicationDbContext>();
 
-                // Applica automaticamente tutte le migration pendenti (PostgreSQL)
+                // Applica automaticamente tutte le migration pendenti (SQL Server)
                 await dbContext.Database.MigrateAsync();
 
                 var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();

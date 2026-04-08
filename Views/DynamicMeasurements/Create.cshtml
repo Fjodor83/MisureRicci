@@ -110,6 +110,9 @@
                         var isStructure = field.Template == MisureRicci.Models.DynamicFieldTemplate.SectionHeader
                             || field.Template == MisureRicci.Models.DynamicFieldTemplate.Divider
                             || field.Template == MisureRicci.Models.DynamicFieldTemplate.AlertNote;
+                        var isNotesField = field.Template == MisureRicci.Models.DynamicFieldTemplate.Notes;
+                        var hasHelpText = !string.IsNullOrWhiteSpace(Model.Fields[fieldIndex].HelpText);
+                        var fieldHelpId = hasHelpText ? $"field-help-{field.FieldDefinitionId}" : null;
                         var wrapperClass = "col-md-6";
 
                         if (isStructure)
@@ -118,6 +121,16 @@
                         }
 
                         var shellClass = "dynamic-field-shell";
+
+                        if (supportsUnitConversion)
+                        {
+                            shellClass += " dynamic-field-shell--emphasis";
+                        }
+
+                        if (isNotesField)
+                        {
+                            shellClass += " dynamic-field-shell--notes";
+                        }
 
                         <div class="@wrapperClass">
                             @if (field.Template == MisureRicci.Models.DynamicFieldTemplate.SectionHeader)
@@ -146,70 +159,97 @@
                             }
                             else
                             {
-                                <div class="@shellClass @(field.Template != MisureRicci.Models.DynamicFieldTemplate.Notes ? "d-flex align-items-center justify-content-between py-2 px-3" : "py-2 px-3")">
-                                    <label class="form-label mb-0 me-3 text-uppercase fw-bold small">
-                                        @Model.Fields[fieldIndex].Etichetta
-                                        @if (!string.IsNullOrWhiteSpace(displayUnit))
-                                        {
-                                            <span class="text-muted small"
-                                                  data-measurement-unit-label="true"
-                                                  data-convertible-length="@(supportsUnitConversion ? "true" : "false")">
-                                                (@displayUnit)
-                                            </span>
-                                        }
-                                        @if (Model.Fields[fieldIndex].Obbligatorio)
-                                        {
-                                            <span class="text-danger">*</span>
-                                        }
-                                    </label>
+                                <div class="@shellClass">
+                                    <div class="dynamic-field-shell__header">
+                                        <div class="dynamic-field-shell__title-block">
+                                            <label asp-for="Fields[fieldIndex].Valore" class="dynamic-field-shell__label">
+                                                @Model.Fields[fieldIndex].Etichetta
+                                            </label>
+                                        </div>
 
-                                    <div class="ms-auto" style="width:100%; min-width: 150px;">
-                                    @switch (Model.Fields[fieldIndex].TipoDato)
-                                    {
-                                        case MisureRicci.Models.DynamicFieldType.Number:
-                                            <input asp-for="Fields[fieldIndex].Valore"
-                                                   type="number"
-                                                   step="1"
-                                                   class="form-control text-center"
-                                                   placeholder="@Model.Fields[fieldIndex].Placeholder"
-                                                   data-measurement-field="true"
-                                                   data-convertible-length="@(supportsUnitConversion ? "true" : "false")" />
-                                            break;
-                                        case MisureRicci.Models.DynamicFieldType.Decimal:
-                                            <input asp-for="Fields[fieldIndex].Valore"
-                                                   type="number"
-                                                   step="0.01"
-                                                   class="form-control text-center"
-                                                   placeholder="@Model.Fields[fieldIndex].Placeholder"
-                                                   data-measurement-field="true"
-                                                   data-convertible-length="@(supportsUnitConversion ? "true" : "false")" />
-                                            break;
-                                        case MisureRicci.Models.DynamicFieldType.Date:
-                                            <input asp-for="Fields[fieldIndex].Valore" type="date" class="form-control" />
-                                            break;
-                                        case MisureRicci.Models.DynamicFieldType.Boolean:
-                                            <select asp-for="Fields[fieldIndex].Valore" class="form-select">
-                                                <option value="">Seleziona...</option>
-                                                <option value="true">Si</option>
-                                                <option value="false">No</option>
-                                            </select>
-                                            break;
-                                        default:
-                                            if (Model.Fields[fieldIndex].Template == MisureRicci.Models.DynamicFieldTemplate.Notes)
-                                            {
-                                                <textarea asp-for="Fields[fieldIndex].Valore" rows="4" class="form-control" placeholder="@Model.Fields[fieldIndex].Placeholder"></textarea>
-                                            }
-                                            else
-                                            {
-                                                <input asp-for="Fields[fieldIndex].Valore" class="form-control" placeholder="@Model.Fields[fieldIndex].Placeholder" />
-                                            }
-                                            break;
-                                    }
+                                        @if (!string.IsNullOrWhiteSpace(displayUnit) || Model.Fields[fieldIndex].Obbligatorio)
+                                        {
+                                            <div class="dynamic-field-shell__chips">
+                                                @if (!string.IsNullOrWhiteSpace(displayUnit))
+                                                {
+                                                    <span class="dynamic-field-chip dynamic-field-chip--unit"
+                                                          data-measurement-unit-label="true"
+                                                          data-convertible-length="@(supportsUnitConversion ? "true" : "false")">
+                                                        @displayUnit
+                                                    </span>
+                                                }
+                                                @if (Model.Fields[fieldIndex].Obbligatorio)
+                                                {
+                                                    <span class="dynamic-field-chip dynamic-field-chip--required">Richiesto</span>
+                                                }
+                                            </div>
+                                        }
                                     </div>
 
-                                    @if (!string.IsNullOrWhiteSpace(Model.Fields[fieldIndex].HelpText))
+                                    <div class="dynamic-field-shell__control">
+                                        @switch (Model.Fields[fieldIndex].TipoDato)
+                                        {
+                                            case MisureRicci.Models.DynamicFieldType.Number:
+                                                <input asp-for="Fields[fieldIndex].Valore"
+                                                       type="number"
+                                                       step="1"
+                                                       class="form-control dynamic-field-input dynamic-field-input--measure text-center"
+                                                       placeholder="@Model.Fields[fieldIndex].Placeholder"
+                                                       aria-describedby="@fieldHelpId"
+                                                       data-measurement-field="true"
+                                                       data-convertible-length="@(supportsUnitConversion ? "true" : "false")" />
+                                                break;
+                                            case MisureRicci.Models.DynamicFieldType.Decimal:
+                                                <input asp-for="Fields[fieldIndex].Valore"
+                                                       type="number"
+                                                       step="0.01"
+                                                       class="form-control dynamic-field-input dynamic-field-input--measure text-center"
+                                                       placeholder="@Model.Fields[fieldIndex].Placeholder"
+                                                       aria-describedby="@fieldHelpId"
+                                                       data-measurement-field="true"
+                                                       data-convertible-length="@(supportsUnitConversion ? "true" : "false")" />
+                                                break;
+                                            case MisureRicci.Models.DynamicFieldType.Date:
+                                                <input asp-for="Fields[fieldIndex].Valore"
+                                                       type="date"
+                                                       class="form-control dynamic-field-input"
+                                                       aria-describedby="@fieldHelpId" />
+                                                break;
+                                            case MisureRicci.Models.DynamicFieldType.Boolean:
+                                                <select asp-for="Fields[fieldIndex].Valore"
+                                                        class="form-select dynamic-field-input"
+                                                        aria-describedby="@fieldHelpId">
+                                                    <option value="">Seleziona...</option>
+                                                    <option value="true">Si</option>
+                                                    <option value="false">No</option>
+                                                </select>
+                                                break;
+                                            default:
+                                                if (isNotesField)
+                                                {
+                                                    <textarea asp-for="Fields[fieldIndex].Valore"
+                                                              rows="4"
+                                                              class="form-control dynamic-field-input dynamic-field-input--notes"
+                                                              placeholder="@Model.Fields[fieldIndex].Placeholder"
+                                                              aria-describedby="@fieldHelpId"></textarea>
+                                                }
+                                                else
+                                                {
+                                                    <input asp-for="Fields[fieldIndex].Valore"
+                                                           class="form-control dynamic-field-input"
+                                                           placeholder="@Model.Fields[fieldIndex].Placeholder"
+                                                           aria-describedby="@fieldHelpId" />
+                                                }
+                                                break;
+                                        }
+                                    </div>
+
+                                    @if (hasHelpText)
                                     {
-                                        <div class="dynamic-field-help">@Model.Fields[fieldIndex].HelpText</div>
+                                        <div id="@fieldHelpId" class="dynamic-field-help">
+                                            <span class="dynamic-field-help__label">Nota campo</span>
+                                            <span class="dynamic-field-help__text">@Model.Fields[fieldIndex].HelpText</span>
+                                        </div>
                                     }
                                 </div>
                             }

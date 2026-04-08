@@ -358,6 +358,51 @@ namespace MisureRicci.Services
             return Result<CommessaSartoriale>.Ok(entity);
         }
 
+        public async Task<Result> DeleteCommessaAsync(int id, int? negozioId, bool isAdmin)
+        {
+            var (commessa, authError) = await FetchAndAuthorizeAsync(
+                _context.Commissioni.Where(c => c.Id == id),
+                c => c.NegozioId, negozioId, isAdmin,
+                CommissioneNonTrovata, AccessoNegatoAllaCommissione);
+
+            if (commessa is null)
+            {
+                return Result.Fail(authError!);
+            }
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var links = await _context.CommissioniMisureLinks
+                    .Where(x => x.CommessaSartorialeId == id)
+                    .ToListAsync();
+                var eventi = await _context.CommissioniEventi
+                    .Where(x => x.CommessaSartorialeId == id)
+                    .ToListAsync();
+
+                if (links.Count > 0)
+                {
+                    _context.CommissioniMisureLinks.RemoveRange(links);
+                }
+
+                if (eventi.Count > 0)
+                {
+                    _context.CommissioniEventi.RemoveRange(eventi);
+                }
+
+                _context.Commissioni.Remove(commessa);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return Result.Ok();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Errore durante l'eliminazione della commessa {CommessaId}", id);
+                return Result.Fail("Errore durante l'eliminazione della commessa.");
+            }
+        }
+
         public async Task<Result<int>> CreateAndLinkDynamicMeasurementAsync(
             DynamicMeasurementCreateViewModel model, string? userId, int? negozioId, bool isAdmin)
         {

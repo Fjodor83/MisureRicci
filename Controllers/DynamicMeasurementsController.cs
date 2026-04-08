@@ -17,8 +17,7 @@ namespace MisureRicci.Controllers
         private readonly ICommessaService _commessaService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<DynamicMeasurementsController> _logger;
-        private const string Admin = "Admin";
-        private const string Crea = "Crea";
+        private const string CreateView = "Create";
 
         public DynamicMeasurementsController(
             ICustomMeasurementService customMeasurementService,
@@ -190,7 +189,7 @@ namespace MisureRicci.Controllers
                 return NotFound();
             }
 
-            return View(Crea, vm);
+            return View(CreateView, vm);
         }
 
         [HttpPost]
@@ -209,7 +208,7 @@ namespace MisureRicci.Controllers
                     model.TipoNome = type0.Nome;
                     model.TypeImageUrl = type0.ImageUrl;
                 }
-                return View(Crea, model);
+                return View(CreateView, model);
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
@@ -250,13 +249,13 @@ namespace MisureRicci.Controllers
             {
                 _logger.LogWarning(ex, "Operazione non valida in modifica misura dinamica record {RecordId}", model.RecordId);
                 ModelState.AddModelError(string.Empty, "I dati inseriti non sono validi.");
-                return View(Crea, model);
+                return View(CreateView, model);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Errore imprevisto durante la modifica misura dinamica record {RecordId}", model.RecordId);
                 ModelState.AddModelError(string.Empty, "Si è verificato un errore interno. Riprovare.");
-                return View(Crea, model);
+                return View(CreateView, model);
             }
         }
 

@@ -19,6 +19,7 @@ namespace MisureRicci.Controllers
         private const string ImpossibileAggiungereLaNota = "Impossibile aggiungere la nota.";
         private const string ImpossibileCollegareLaMisura = "Impossibile collegare la misura.";
         private const string ImpossibileScollegareLaMisura = "Impossibile scollegare la misura.";
+        private const string ImpossibileEliminareLaCommessa = "Impossibile eliminare la commessa.";
         
         private const string CommissioneError = "CommissioneError";
 
@@ -128,6 +129,30 @@ namespace MisureRicci.Controllers
             }
 
             return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var isAdmin = _tenantService.IsAdmin();
+            var currentNegozioId = _tenantService.GetCurrentNegozioId();
+
+            var existing = await _commessaService.GetCommessaByIdAsync(id, currentNegozioId, isAdmin);
+            if (existing == null)
+            {
+                return NotFound();
+            }
+
+            var result = await _commessaService.DeleteCommessaAsync(id, currentNegozioId, isAdmin);
+            if (!result.IsSuccess)
+            {
+                TempData[CommissioneError] = result.Error ?? ImpossibileEliminareLaCommessa;
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            return RedirectToAction("Details", "Clienti", new { id = existing.ClienteId });
         }
 
         [HttpPost]

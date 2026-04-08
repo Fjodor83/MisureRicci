@@ -12,7 +12,9 @@ namespace MisureRicci.Services
         public static IServiceCollection AddProjectDatabase(this IServiceCollection services, string connectionString)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(connectionString));
+            {
+                options.UseSqlServer(connectionString);
+            });
             return services;
         }
 

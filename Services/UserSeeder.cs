@@ -7,11 +7,17 @@ namespace MisureRicci.Services
     {
         public static async Task SeedAdminUserAsync(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
-            const string adminEmail = "admin@mizurericci.it";
+            const string adminEmail = "admin@misurericci.it";
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
             if (adminUser == null)
             {
+                foreach (var roleName in ApplicationRoles.All)
+                {
+                    if (!await roleManager.RoleExistsAsync(roleName))
+                        await roleManager.CreateAsync(new IdentityRole(roleName));
+                }
+
                 var user = new ApplicationUser
                 {
                     UserName = adminEmail,
@@ -22,7 +28,7 @@ namespace MisureRicci.Services
                     EmailConfirmed = true
                 };
 
-                var result = await userManager.CreateAsync(user, "Admin123!");
+                var result = await userManager.CreateAsync(user, "TECHservice123!");
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(user, "Admin");

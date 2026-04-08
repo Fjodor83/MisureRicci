@@ -10,6 +10,7 @@ namespace MisureRicci.Services
     {
         private const string GiaccaProperty = "Giacca";
         private const string PantaloneProperty = "Pantalone";
+        private const string NotesProperty = "Notes";
 
         public int GetClienteId(object model)
         {
@@ -20,21 +21,15 @@ namespace MisureRicci.Services
         public bool TryApplyEditableMeasurementFields(object model, IEnumerable<LegacyMeasurementFieldViewModel> fields, Action<string, string> addError)
         {
             var valuesByName = fields.ToDictionary(x => x.Name, x => x.Value, StringComparer.OrdinalIgnoreCase);
-            var isValid = true;
+            var isValid = ApplyEditableMeasurementFields(model, valuesByName, addError);
 
-            foreach (var property in GetEditableMeasurementProperties(model.GetType()))
+            if (model is AbitoCompletoMeasurement abito)
             {
-                if (!valuesByName.TryGetValue(property.Name, out var rawValue))
-                    continue;
+                abito.Giacca ??= new GiaccaMeasurement { ClienteId = abito.ClienteId };
+                abito.Pantalone ??= new PantaloneMeasurement { ClienteId = abito.ClienteId };
 
-                if (!TryConvertFormValue(property.PropertyType, rawValue, out var convertedValue))
-                {
-                    addError(property.Name, $"Valore non valido per il campo {property.Name}.");
-                    isValid = false;
-                    continue;
-                }
-
-                property.SetValue(model, convertedValue);
+                isValid &= ApplyEditableMeasurementFields(abito.Giacca, valuesByName, addError, GiaccaProperty, includeNotes: false);
+                isValid &= ApplyEditableMeasurementFields(abito.Pantalone, valuesByName, addError, PantaloneProperty, includeNotes: false);
             }
 
             return isValid;
@@ -54,18 +49,14 @@ namespace MisureRicci.Services
                 }
             }
 
-            var canEditFields = !string.Equals(tipoMisura, "abito", StringComparison.OrdinalIgnoreCase);
-
             return new LegacyMeasurementEditViewModel
             {
                 Id = GetMeasurementId(model),
                 ClienteId = GetClienteId(model),
                 TipoMisura = tipoMisura,
                 Fields = fields,
-                CanEditFields = canEditFields,
-                WarningMessage = canEditFields
-                    ? null
-                    : "Modifica per Abito Completo non disponibile da questa vista rapida. Usa workflow dedicato o API specifiche."
+                CanEditFields = true,
+                WarningMessage = null
             };
         }
 
@@ -133,14 +124,25 @@ namespace MisureRicci.Services
 
         private static IEnumerable<LegacyMeasurementFieldViewModel> BuildFieldViewModels(object model)
         {
-            return GetEditableMeasurementProperties(model.GetType())
-                .Select(property => new LegacyMeasurementFieldViewModel
+            if (model is AbitoCompletoMeasurement abito)
+            {
+                var fields = new List<LegacyMeasurementFieldViewModel>();
+
+                if (abito.Giacca != null)
                 {
-                    Name = property.Name,
-                    DisplayName = property.GetCustomAttribute<DisplayAttribute>()?.Name ?? property.Name,
-                    Value = ConvertToDisplayValue(property.GetValue(model)),
-                    IsMultiline = property.Name == "Notes"
-                });
+                    fields.AddRange(BuildEditableFieldViewModels(abito.Giacca, GiaccaProperty, includeNotes: false));
+                }
+
+                if (abito.Pantalone != null)
+                {
+                    fields.AddRange(BuildEditableFieldViewModels(abito.Pantalone, PantaloneProperty, includeNotes: false));
+                }
+
+                fields.AddRange(BuildEditableFieldViewModels(abito));
+                return fields;
+            }
+
+            return BuildEditableFieldViewModels(model);
         }
 
         private static IEnumerable<LegacyMeasurementFieldViewModel> BuildDisplayFields(object model)
@@ -175,7 +177,65 @@ namespace MisureRicci.Services
             };
         }
 
-        private static IEnumerable<PropertyInfo> GetEditableMeasurementProperties(Type type)
+        private static IEnumerable<LegacyMeasurementFieldViewModel> BuildEditableFieldViewModels(object model, string? sectionPrefix = null, bool includeNotes = true)
+        {
+            return GetEditableMeasurementProperties(model.GetType(), includeNotes)
+                .Select(property =>
+                {
+                    var displayName = property.GetCustomAttribute<DisplayAttribute>()?.Name ?? property.Name;
+                    if (!string.IsNullOrWhiteSpace(sectionPrefix))
+                    {
+                        displayName = $"{sectionPrefix} - {displayName}";
+                    }
+
+                    return new LegacyMeasurementFieldViewModel
+                    {
+                        Name = BuildFieldName(property.Name, sectionPrefix),
+                        DisplayName = displayName,
+                        Value = ConvertToDisplayValue(property.GetValue(model)),
+                        IsMultiline = property.Name == NotesProperty
+                    };
+                });
+        }
+
+        private static bool ApplyEditableMeasurementFields(
+            object model,
+            IReadOnlyDictionary<string, string?> valuesByName,
+            Action<string, string> addError,
+            string? sectionPrefix = null,
+            bool includeNotes = true)
+        {
+            var isValid = true;
+
+            foreach (var property in GetEditableMeasurementProperties(model.GetType(), includeNotes))
+            {
+                var fieldName = BuildFieldName(property.Name, sectionPrefix);
+                if (!valuesByName.TryGetValue(fieldName, out var rawValue))
+                {
+                    continue;
+                }
+
+                if (!TryConvertFormValue(property.PropertyType, rawValue, out var convertedValue))
+                {
+                    addError(fieldName, $"Valore non valido per il campo {property.Name}.");
+                    isValid = false;
+                    continue;
+                }
+
+                property.SetValue(model, convertedValue);
+            }
+
+            return isValid;
+        }
+
+        private static string BuildFieldName(string propertyName, string? sectionPrefix)
+        {
+            return string.IsNullOrWhiteSpace(sectionPrefix)
+                ? propertyName
+                : $"{sectionPrefix}.{propertyName}";
+        }
+
+        private static IEnumerable<PropertyInfo> GetEditableMeasurementProperties(Type type, bool includeNotes = true)
         {
             return type
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
@@ -186,6 +246,7 @@ namespace MisureRicci.Services
                     p.Name != "Cliente" &&
                     p.Name != "CreatedAt" &&
                     p.Name != "OrderId" &&
+                    (includeNotes || p.Name != NotesProperty) &&
                     p.Name != GiaccaProperty &&
                     p.Name != PantaloneProperty);
         }
@@ -210,8 +271,18 @@ namespace MisureRicci.Services
 
             if (targetType == typeof(double))
             {
-                if (double.TryParse(rawValue, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out var currentValue)
-                    || double.TryParse(rawValue, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out currentValue))
+                var normalizedValue = rawValue.Trim();
+
+                if (normalizedValue.Contains('.') &&
+                    !normalizedValue.Contains(',') &&
+                    double.TryParse(normalizedValue, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var invariantValue))
+                {
+                    convertedValue = invariantValue;
+                    return true;
+                }
+
+                if (double.TryParse(normalizedValue, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out var currentValue)
+                    || double.TryParse(normalizedValue, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out currentValue))
                 {
                     convertedValue = currentValue;
                     return true;

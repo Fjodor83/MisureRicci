@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using MisureRicci.Models;
 using MisureRicci.Models.Options;
 using MisureRicci.Services;
 using QuestPDF.Infrastructure;
@@ -32,10 +34,12 @@ try
 
     QuestPDF.Settings.License = LicenseType.Community;
 
-    // Connection string Railway
-    var connectionString = GetConnectionString(builder.Configuration);
+    // Connessione SQL Server
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+                          ?? Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION");
+    
     if (string.IsNullOrWhiteSpace(connectionString))
-        throw new InvalidOperationException("Connection string non trovata.");
+        throw new InvalidOperationException("Connection string 'DefaultConnection' non trovata.");
 
     builder.Services.AddControllersWithViews();
     builder.Services.AddRazorPages();
@@ -48,8 +52,8 @@ try
         .AddProjectServices()
         .AddProjectRateLimiters();
 
-    // Railway usa PORT
-    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+    // Configurazione porta (Railway usa PORT, locale usa default)
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
     builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
     builder.Services.AddOptions<BootstrapAdminOptions>()
@@ -59,7 +63,7 @@ try
 
     // Health checks
     builder.Services.AddHealthChecks()
-        .AddNpgSql(connectionString, name: "postgres", tags: new[] { "ready" });
+        .AddSqlServer(connectionString, name: "sqlserver", tags: ["ready"]);
 
     builder.Services.AddAuthorization(options =>
     {
@@ -69,6 +73,14 @@ try
     });
 
     var app = builder.Build();
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+        await UserSeeder.SeedAdminUserAsync(userManager, roleManager);
+    }
 
     await app.InitializeDatabaseAsync();
 
@@ -99,7 +111,7 @@ try
     // Healthcheck per Railway → sempre 200 OK
     app.MapGet("/health", () => Results.Ok("Healthy"));
 
-    // Readiness check PostgreSQL
+    // Readiness check SQL Server
     app.MapHealthChecks("/ready", new HealthCheckOptions
     {
         Predicate = check => check.Tags.Contains("ready")
@@ -119,31 +131,3 @@ finally
     Log.CloseAndFlush();
 }
 
-static string? GetConnectionString(IConfiguration configuration)
-{
-    var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-    if (!string.IsNullOrWhiteSpace(databaseUrl))
-        return ConvertDatabaseUrlToNpgsql(databaseUrl);
-
-    var custom = Environment.GetEnvironmentVariable("POSTGRES_CONNECTION");
-    if (!string.IsNullOrWhiteSpace(custom))
-        return custom;
-
-    return configuration.GetConnectionString("DefaultConnection");
-}
-
-static string ConvertDatabaseUrlToNpgsql(string databaseUrl)
-{
-    if (!databaseUrl.StartsWith("postgresql://") && !databaseUrl.StartsWith("postgres://"))
-        return databaseUrl;
-
-    var uri = new Uri(databaseUrl);
-    var userInfo = uri.UserInfo.Split(':', 2);
-    var user = Uri.UnescapeDataString(userInfo[0]);
-    var password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : string.Empty;
-    var host = uri.Host;
-    var port = uri.Port > 0 ? uri.Port : 5432;
-    var database = uri.AbsolutePath.TrimStart('/');
-
-    return $"Host={host};Port={port};Database={database};Username={user};Password={password};SSL Mode=Require;Trust Server Certificate=true";
-}
