@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using MisureRicci.Models;
 using MisureRicci.Models.Options;
@@ -8,22 +7,15 @@ using QuestPDF.Infrastructure;
 using Serilog;
 using Serilog.Events;
 
-var isProduction = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production"
-                || Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
-
 var loggerConfig = new LoggerConfiguration()
     .MinimumLevel.Information()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
     .Enrich.FromLogContext()
-    .WriteTo.Console();
-
-if (!isProduction)
-{
-    loggerConfig.WriteTo.File(
+    .WriteTo.Console()
+    .WriteTo.File(
         "logs/app-.log",
         rollingInterval: RollingInterval.Day,
         retainedFileCountLimit: 7);
-}
 
 Log.Logger = loggerConfig.CreateLogger();
 
@@ -52,10 +44,6 @@ try
         .AddProjectServices(builder.Configuration)
         .AddProjectRateLimiters();
 
-    // Configurazione porta (Railway usa PORT, locale usa default)
-    var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
-    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
-
     builder.Services.AddOptions<BootstrapAdminOptions>()
         .BindConfiguration(BootstrapAdminOptions.SectionName)
         .ValidateOnStart();
@@ -78,22 +66,21 @@ try
 
     if (startupDbInitEnabled)
     {
-        using var scope = app.Services.CreateScope();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-
-        await UserSeeder.SeedAdminUserAsync(userManager, roleManager, configuration);
-
-        await app.InitializeDatabaseAsync();
+        try
+        {
+            await app.InitializeDatabaseAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "InitializeDatabaseAsync fallito. Continuazione avvio applicazione.");
+        }
     }
     else
     {
         Log.Information("Startup database initialization disabilitata da configurazione (StartupDatabaseInit:Enabled=false).");
     }
 
-    // ❌ Niente HSTS su Railway
-    // ❌ Niente HTTPS redirect su Railway
+    // In Development abilitiamo HTTPS redirect; in production usiamo exception handler.
     if (app.Environment.IsDevelopment())
     {
         app.UseHttpsRedirection();
@@ -116,7 +103,7 @@ try
 
     app.MapRazorPages();
 
-    // Healthcheck per Railway → sempre 200 OK
+    // Healthcheck applicativo
     app.MapGet("/health", () => Results.Ok("Healthy"));
 
     // Readiness check SQL Server

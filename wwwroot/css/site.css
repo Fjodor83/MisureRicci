@@ -822,6 +822,11 @@ textarea.form-control {
     border-color: var(--accent);
 }
 
+.measurement-type-preview {
+    max-height: 120px;
+    object-fit: contain;
+}
+
 .btn {
     position: relative;
     overflow: hidden;

@@ -23,29 +23,92 @@ namespace MisureRicci.Services
             using var scope = app.Services.CreateScope();
             var services = scope.ServiceProvider;
             var env = app.Environment;
+            var dbContext = services.GetRequiredService<ApplicationDbContext>();
 
-            // Fase 1: Verifica connessione DB (non applica migration automatiche)
-            // Nota: il progetto usa approccio DB-First; evitiamo MigrateAsync in avvio
-            // per non tentare creazioni/alterazioni schema in locale o in produzione.
+            // Fase 1: inizializzazione solo al primo avvio (DB assente).
+            var databaseExists = false;
             try
             {
-                var dbContext = services.GetRequiredService<ApplicationDbContext>();
-                var canConnect = await dbContext.Database.CanConnectAsync();
-                if (canConnect)
+                databaseExists = await dbContext.Database.CanConnectAsync();
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Verifica esistenza database fallita. Continuazione avvio senza inizializzazione.");
+                return;
+            }
+
+            if (databaseExists)
+            {
+                Log.Information("Database già esistente: creazione schema saltata.");
+
+                // Su database esistente consentiamo comunque bootstrap ruoli/admin,
+                // utile se BootstrapAdmin viene abilitato dopo il primo avvio.
+                await EnsureRolesAndBootstrapAdminAsync(services);
+                return;
+            }
+
+            try
+            {
+                var created = await dbContext.Database.EnsureCreatedAsync();
+                if (created)
                 {
-                    Log.Information("Connessione database verificata con successo.");
+                    Log.Information("Database creato con successo (primo avvio).");
                 }
                 else
                 {
-                    Log.Warning("Connessione database non disponibile durante startup. Continuazione avvio.");
+                    Log.Warning("EnsureCreatedAsync non ha creato il database. Continuazione avvio.");
+                    return;
                 }
             }
             catch (Exception ex)
             {
-                Log.Warning(ex, "Verifica connessione database fallita. Continuazione avvio.");
+                Log.Warning(ex, "Creazione database fallita al primo avvio. Continuazione avvio.");
+                return;
             }
 
-            // Fase 2: Seed ruoli applicazione (sempre)
+            // Fase 2/3: Ruoli + bootstrap admin
+            await EnsureRolesAndBootstrapAdminAsync(services);
+
+            // Fase 4: Seed tipi misura predefiniti (solo primo avvio)
+            try
+            {
+                await MeasurementTypeSeeder.SeedDefaultsAsync(dbContext);
+                Log.Information("Seed tipi misura completato.");
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Seed tipi misura fallito. Continuazione avvio.");
+            }
+
+            // Fase 5: Migrazione immagini legacy (solo primo avvio, non in test)
+            try
+            {
+                var isTestEnv = env.EnvironmentName.Equals("Testing", StringComparison.OrdinalIgnoreCase);
+                if (!isTestEnv)
+                {
+                    var imageStorage = services.GetRequiredService<IMeasurementTypeImageStorageService>();
+                    var migrated = await imageStorage.MigrateLegacyImagesAsync(dbContext);
+                    if (migrated > 0)
+                    {
+                        Log.Information("Migrate {Count} immagini legacy in storage protetto.", migrated);
+                    }
+                    else
+                    {
+                        Log.Information("Nessuna immagine legacy da migrare.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Migrazione immagini legacy fallita. Continuazione avvio.");
+            }
+
+            Log.Information("Inizializzazione database completata.");
+        }
+
+        private static async Task EnsureRolesAndBootstrapAdminAsync(IServiceProvider services)
+        {
+            // Seed ruoli applicazione
             try
             {
                 var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
@@ -64,7 +127,7 @@ namespace MisureRicci.Services
                 Log.Warning(ex, "Seed ruoli fallito. Continuazione avvio.");
             }
 
-            // Fase 3: Bootstrap admin da configurazione (sempre, se abilitato)
+            // Bootstrap admin da configurazione (se abilitato)
             try
             {
                 var adminOptions = services.GetRequiredService<IOptions<BootstrapAdminOptions>>().Value;
@@ -120,44 +183,6 @@ namespace MisureRicci.Services
             {
                 Log.Warning(ex, "Bootstrap admin fallito. Continuazione avvio.");
             }
-
-            // Fase 4: Seed tipi misura predefiniti (sempre)
-            try
-            {
-                var dbContext = services.GetRequiredService<ApplicationDbContext>();
-                await MeasurementTypeSeeder.SeedDefaultsAsync(dbContext);
-                Log.Information("Seed tipi misura completato.");
-            }
-            catch (Exception ex)
-            {
-                Log.Warning(ex, "Seed tipi misura fallito. Continuazione avvio.");
-            }
-
-            // Fase 5: Migrazione immagini legacy (non in test)
-            try
-            {
-                var isTestEnv = env.EnvironmentName.Equals("Testing", StringComparison.OrdinalIgnoreCase);
-                if (!isTestEnv)
-                {
-                    var dbContext = services.GetRequiredService<ApplicationDbContext>();
-                    var imageStorage = services.GetRequiredService<IMeasurementTypeImageStorageService>();
-                    var migrated = await imageStorage.MigrateLegacyImagesAsync(dbContext);
-                    if (migrated > 0)
-                    {
-                        Log.Information("Migrate {Count} immagini legacy in storage protetto.", migrated);
-                    }
-                    else
-                    {
-                        Log.Information("Nessuna immagine legacy da migrare.");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warning(ex, "Migrazione immagini legacy fallita. Continuazione avvio.");
-            }
-
-            Log.Information("Inizializzazione database completata.");
         }
 
         public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder app)
