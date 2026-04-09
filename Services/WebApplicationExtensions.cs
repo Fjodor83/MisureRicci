@@ -40,9 +40,6 @@ namespace MisureRicci.Services
             if (databaseExists)
             {
                 Log.Information("Database già esistente: creazione schema saltata.");
-
-                // Su database esistente consentiamo comunque bootstrap ruoli/admin,
-                // utile se BootstrapAdmin viene abilitato dopo il primo avvio.
                 await EnsureRolesAndBootstrapAdminAsync(services);
                 return;
             }
@@ -66,10 +63,8 @@ namespace MisureRicci.Services
                 return;
             }
 
-            // Fase 2/3: Ruoli + bootstrap admin
             await EnsureRolesAndBootstrapAdminAsync(services);
 
-            // Fase 4: Seed tipi misura predefiniti (solo primo avvio)
             try
             {
                 await MeasurementTypeSeeder.SeedDefaultsAsync(dbContext);
@@ -80,7 +75,6 @@ namespace MisureRicci.Services
                 Log.Warning(ex, "Seed tipi misura fallito. Continuazione avvio.");
             }
 
-            // Fase 5: Migrazione immagini legacy (solo primo avvio, non in test)
             try
             {
                 var isTestEnv = env.EnvironmentName.Equals("Testing", StringComparison.OrdinalIgnoreCase);
@@ -108,17 +102,18 @@ namespace MisureRicci.Services
 
         private static async Task EnsureRolesAndBootstrapAdminAsync(IServiceProvider services)
         {
-            // Seed ruoli applicazione
+            await SeedApplicationRolesAsync(services);
+            await BootstrapAdminUserAsync(services);
+        }
+
+        private static async Task SeedApplicationRolesAsync(IServiceProvider services)
+        {
             try
             {
                 var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
                 foreach (var roleName in ApplicationRoles.All)
                 {
-                    if (!await roleManager.RoleExistsAsync(roleName))
-                    {
-                        await roleManager.CreateAsync(new IdentityRole(roleName));
-                        Log.Information("Ruolo '{RoleName}' creato.", roleName);
-                    }
+                    await EnsureRoleExistsAsync(roleManager, roleName);
                 }
                 Log.Information("Seed ruoli completato.");
             }
@@ -126,63 +121,93 @@ namespace MisureRicci.Services
             {
                 Log.Warning(ex, "Seed ruoli fallito. Continuazione avvio.");
             }
+        }
 
-            // Bootstrap admin da configurazione (se abilitato)
+        private static async Task EnsureRoleExistsAsync(RoleManager<IdentityRole> roleManager, string roleName)
+        {
+            if (await roleManager.RoleExistsAsync(roleName))
+                return;
+
+            await roleManager.CreateAsync(new IdentityRole(roleName));
+            Log.Information("Ruolo '{RoleName}' creato.", roleName);
+        }
+
+        private static async Task BootstrapAdminUserAsync(IServiceProvider services)
+        {
             try
             {
                 var adminOptions = services.GetRequiredService<IOptions<BootstrapAdminOptions>>().Value;
-                if (adminOptions.Enabled && !string.IsNullOrWhiteSpace(adminOptions.Email))
+
+                // Pattern matching per ottenere email non-nullabile
+                if (!(adminOptions.Enabled && adminOptions.Email is string email && !string.IsNullOrWhiteSpace(email)))
                 {
-                    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-                    var adminUser = await userManager.FindByEmailAsync(adminOptions.Email);
-                    if (adminUser == null)
-                    {
-                        adminUser = new ApplicationUser
-                        {
-                            UserName = adminOptions.Email,
-                            Email = adminOptions.Email,
-                            EmailConfirmed = true,
-                            NomeCompleto = adminOptions.NomeCompleto,
-                            Ruolo = ApplicationRoles.Admin,
-                            Attivo = true
-                        };
+                    Log.Information("Bootstrap admin disabilitato o email non configurata.");
+                    return;
+                }
 
-                        var result = await userManager.CreateAsync(adminUser, adminOptions.Password!);
-                        if (result.Succeeded)
-                        {
-                            await userManager.AddToRoleAsync(adminUser, ApplicationRoles.Admin);
-                            Log.Information("Admin user {Email} creato tramite bootstrap.", adminOptions.Email);
-                        }
-                        else
-                        {
-                            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                            Log.Warning("Creazione admin {Email} fallita: {Errors}", adminOptions.Email, errors);
-                        }
-                    }
-                    else
-                    {
-                        var token = await userManager.GeneratePasswordResetTokenAsync(adminUser);
-                        var result = await userManager.ResetPasswordAsync(adminUser, token, adminOptions.Password!);
+                var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+                var adminUser = await userManager.FindByEmailAsync(email);
 
-                        if (result.Succeeded)
-                        {
-                            if (!await userManager.IsInRoleAsync(adminUser, ApplicationRoles.Admin))
-                            {
-                                await userManager.AddToRoleAsync(adminUser, ApplicationRoles.Admin);
-                            }
-                            Log.Information("Admin user {Email} password e ruolo aggiornati tramite bootstrap.", adminOptions.Email);
-                        }
-                    }
+                if (adminUser == null)
+                {
+                    await CreateNewAdminUserAsync(userManager, adminOptions, email);
                 }
                 else
                 {
-                    Log.Information("Bootstrap admin disabilitato o email non configurata.");
+                    await UpdateExistingAdminUserAsync(userManager, adminUser, adminOptions, email);
                 }
             }
             catch (Exception ex)
             {
                 Log.Warning(ex, "Bootstrap admin fallito. Continuazione avvio.");
             }
+        }
+
+        private static async Task CreateNewAdminUserAsync(
+            UserManager<ApplicationUser> userManager,
+            BootstrapAdminOptions options,
+            string email)
+        {
+            var adminUser = new ApplicationUser
+            {
+                UserName = email,
+                Email = email,
+                EmailConfirmed = true,
+                NomeCompleto = options.NomeCompleto,
+                Ruolo = ApplicationRoles.Admin,
+                Attivo = true
+            };
+
+            var result = await userManager.CreateAsync(adminUser, options.Password!);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                Log.Warning("Creazione admin {Email} fallita: {Errors}", email, errors);
+                return;
+            }
+
+            await userManager.AddToRoleAsync(adminUser, ApplicationRoles.Admin);
+            Log.Information("Admin user {Email} creato tramite bootstrap.", email);
+        }
+
+        private static async Task UpdateExistingAdminUserAsync(
+            UserManager<ApplicationUser> userManager,
+            ApplicationUser adminUser,
+            BootstrapAdminOptions options,
+            string email)
+        {
+            var token = await userManager.GeneratePasswordResetTokenAsync(adminUser);
+            var result = await userManager.ResetPasswordAsync(adminUser, token, options.Password!);
+
+            if (!result.Succeeded)
+                return;
+
+            if (!await userManager.IsInRoleAsync(adminUser, ApplicationRoles.Admin))
+            {
+                await userManager.AddToRoleAsync(adminUser, ApplicationRoles.Admin);
+            }
+
+            Log.Information("Admin user {Email} password e ruolo aggiornati tramite bootstrap.", email);
         }
 
         public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder app)
@@ -205,6 +230,8 @@ namespace MisureRicci.Services
                     ? "'self' http://localhost:* ws://localhost:*"
                     : "'self'";
 
+                // ⚠️ Per evitare S5725, si consiglia di servire Bootstrap Icons e Google Fonts localmente.
+                // Vedi note nella risposta per come adattare la CSP se si mantengono le CDN.
                 context.Response.Headers.Append(
                     "Content-Security-Policy",
                     $"default-src 'none'; " +

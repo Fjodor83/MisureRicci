@@ -56,6 +56,7 @@ body.theme-dark {
     --text-soft: #8d9bb1;
     --shadow-sm: 0 16px 36px rgba(0, 0, 0, 0.24);
     --shadow-md: 0 28px 70px rgba(0, 0, 0, 0.32);
+    color-scheme: dark;
 }
 
 body.theme-dark .popover {
@@ -788,6 +789,31 @@ label {
 
 body.theme-dark .form-select {
     color-scheme: dark;
+}
+
+.form-control[type="date"]::-webkit-calendar-picker-indicator,
+.form-control[type="datetime-local"]::-webkit-calendar-picker-indicator,
+.form-control[type="month"]::-webkit-calendar-picker-indicator,
+.form-control[type="time"]::-webkit-calendar-picker-indicator,
+.form-control[type="week"]::-webkit-calendar-picker-indicator {
+    filter: brightness(0);
+    opacity: 1;
+}
+
+body.theme-dark .form-control[type="date"],
+body.theme-dark .form-control[type="datetime-local"],
+body.theme-dark .form-control[type="month"],
+body.theme-dark .form-control[type="time"],
+body.theme-dark .form-control[type="week"] {
+    color-scheme: dark;
+}
+
+body.theme-dark .form-control[type="date"]::-webkit-calendar-picker-indicator,
+body.theme-dark .form-control[type="datetime-local"]::-webkit-calendar-picker-indicator,
+body.theme-dark .form-control[type="month"]::-webkit-calendar-picker-indicator,
+body.theme-dark .form-control[type="time"]::-webkit-calendar-picker-indicator,
+body.theme-dark .form-control[type="week"]::-webkit-calendar-picker-indicator {
+    filter: brightness(0) invert(1);
 }
 
 body.theme-dark .form-select option,
