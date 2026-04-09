@@ -8,9 +8,7 @@ namespace MisureRicci.Services
 {
     public class CustomMeasurementService : ICustomMeasurementService
     {
-        private const string ActiveMeasurementTypesCacheKey = "measurement_types_active_v1";
-        private const string AllMeasurementTypesCacheKey = "measurement_types_all_v1";
-        private const string FieldDefinitionsCacheKeyPrefix = "measurement_fields_type_";
+
 
         private readonly ApplicationDbContext _context;
         private readonly IMemoryCache _cache;
@@ -23,7 +21,7 @@ namespace MisureRicci.Services
 
         public async Task<List<MeasurementType>> GetMeasurementTypesAsync(bool onlyActive = true)
         {
-            var cacheKey = onlyActive ? ActiveMeasurementTypesCacheKey : AllMeasurementTypesCacheKey;
+            var cacheKey = onlyActive ? CacheKeys.MeasurementTypesActive : CacheKeys.MeasurementTypesAll;
             return await _cache.GetOrCreateAsync(cacheKey, async entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
@@ -442,13 +440,13 @@ namespace MisureRicci.Services
 
         private static string BuildFieldCacheKey(int measurementTypeId, bool onlyActive)
         {
-            return $"{FieldDefinitionsCacheKeyPrefix}{measurementTypeId}_{(onlyActive ? "active" : "all")}";
+            return CacheKeys.FieldDefinitions(measurementTypeId, onlyActive);
         }
 
         private void InvalidateMeasurementTypeCaches()
         {
-            _cache.Remove(ActiveMeasurementTypesCacheKey);
-            _cache.Remove(AllMeasurementTypesCacheKey);
+            _cache.Remove(CacheKeys.MeasurementTypesActive);
+            _cache.Remove(CacheKeys.MeasurementTypesAll);
         }
 
         private void InvalidateFieldCaches(int measurementTypeId)

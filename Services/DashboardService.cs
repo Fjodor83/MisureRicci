@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using MisureRicci.Data;
 using MisureRicci.Models.ViewModels;
 
@@ -7,55 +8,68 @@ namespace MisureRicci.Services
 {
     public class DashboardService : IDashboardService
     {
-        private const string DashboardKpiCacheKey = "dashboard_kpi_v1";
-        private readonly ApplicationDbContext _context;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly IMemoryCache _cache;
 
-        public DashboardService(ApplicationDbContext context, IMemoryCache cache)
+        public DashboardService(IServiceScopeFactory scopeFactory, IMemoryCache cache)
         {
-            _context = context;
+            _scopeFactory = scopeFactory;
             _cache = cache;
         }
 
-        public async Task<DashboardKpiViewModel> GetKpiAsync(int? negozioId, bool isAdmin)
+        public async Task<DashboardKpiViewModel> GetKpiAsync(int? negozioId, bool isAdmin, CancellationToken ct = default)
         {
             var tenantKey = isAdmin ? "global" : (negozioId?.ToString() ?? "unknown");
-            var cacheKey = $"{DashboardKpiCacheKey}_{tenantKey}";
+            var cacheKey = $"{CacheKeys.DashboardKpiPrefix}{tenantKey}";
 
             return await _cache.GetOrCreateAsync(cacheKey, async entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2);
 
-                var clientsQuery = _context.Clienti.AsQueryable();
-                var measurementsQuery = _context.Misure.AsQueryable();
-                var storesQuery = _context.Negozi.AsQueryable();
-                var staffQuery = _context.Users.AsQueryable();
+                if (!isAdmin && !negozioId.HasValue)
+                    return new DashboardKpiViewModel();
 
-                if (!isAdmin)
-                {
-                    if (negozioId.HasValue)
+                var tasks = await Task.WhenAll(
+                    CountAsync((ctx, token) =>
                     {
-                        clientsQuery = clientsQuery.Where(x => x.NegozioId == negozioId.Value);
-                        measurementsQuery = measurementsQuery.Where(x => x.Cliente!.NegozioId == negozioId.Value);
-                        // Stores: depends on requirement, but usually staff sees only their store
-                        storesQuery = storesQuery.Where(x => x.Id == negozioId.Value);
-                        staffQuery = staffQuery.Where(x => x.NegozioId == negozioId.Value);
-                    }
-                    else
+                        var q = ctx.Clienti.AsQueryable();
+                        if (!isAdmin) q = q.Where(x => x.NegozioId == negozioId!.Value);
+                        return q.CountAsync(token);
+                    }, ct),
+                    CountAsync((ctx, token) =>
                     {
-                        // No access if not admin and no store assigned
-                        return new DashboardKpiViewModel();
-                    }
-                }
+                        var q = ctx.Misure.AsQueryable();
+                        if (!isAdmin) q = q.Where(x => x.Cliente!.NegozioId == negozioId!.Value);
+                        return q.CountAsync(token);
+                    }, ct),
+                    CountAsync((ctx, token) =>
+                    {
+                        var q = ctx.Negozi.AsQueryable();
+                        if (!isAdmin) q = q.Where(x => x.Id == negozioId!.Value);
+                        return q.CountAsync(token);
+                    }, ct),
+                    CountAsync((ctx, token) =>
+                    {
+                        var q = ctx.Users.AsQueryable();
+                        if (!isAdmin) q = q.Where(x => x.NegozioId == negozioId!.Value);
+                        return q.CountAsync(token);
+                    }, ct));
 
                 return new DashboardKpiViewModel
                 {
-                    TotalClients = await clientsQuery.CountAsync(),
-                    TotalMeasurements = await measurementsQuery.CountAsync(),
-                    TotalStores = await storesQuery.CountAsync(),
-                    TotalStaff = await staffQuery.CountAsync()
+                    TotalClients = tasks[0],
+                    TotalMeasurements = tasks[1],
+                    TotalStores = tasks[2],
+                    TotalStaff = tasks[3]
                 };
             }) ?? new DashboardKpiViewModel();
+        }
+
+        private async Task<int> CountAsync(Func<ApplicationDbContext, CancellationToken, Task<int>> query, CancellationToken ct)
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var ctx = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            return await query(ctx, ct);
         }
     }
 }

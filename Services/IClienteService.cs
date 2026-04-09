@@ -12,9 +12,9 @@ namespace MisureRicci.Services
         Task<List<MisureCliente>> GetStoricoMisureAsync(int clienteId);
         Task<Cliente?> GetClienteScopedAsync(int id, int? negozioId, bool isAdmin);
         Task<List<MisureCliente>> GetStoricoMisureScopedAsync(int clienteId, int? negozioId, bool isAdmin);
-        Task<Cliente?> CreateClienteScopedAsync(Cliente cliente, int? negozioId, bool isAdmin);
-        Task<bool> UpdateClienteScopedAsync(Cliente cliente, int? negozioId, bool isAdmin);
-        Task<bool> DeleteClienteScopedAsync(int id, int? negozioId, bool isAdmin);
+        Task<Result<Cliente>> CreateClienteScopedAsync(Cliente cliente, int? negozioId, bool isAdmin);
+        Task<Result> UpdateClienteScopedAsync(Cliente cliente, int? negozioId, bool isAdmin);
+        Task<Result> DeleteClienteScopedAsync(int id, int? negozioId, bool isAdmin);
         Task<Cliente> CreateClienteAsync(Cliente cliente);
         Task UpdateClienteAsync(Cliente cliente);
         Task DeleteClienteAsync(int id);

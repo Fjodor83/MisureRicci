@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MisureRicci.Helpers;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
@@ -67,7 +68,7 @@ namespace MisureRicci.Controllers
                 _logger.LogWarning("Validazione immagine fallita per creazione tipologia {Nome}: {Message}", model.Nome, ex.Message);
                 return View(model);
             }
-            catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+            catch (DbUpdateException ex) when (DbExceptionHelper.IsUniqueConstraintViolation(ex))
             {
                 if (storedImageUrl != null)
                     await _measurementTypeImageStorageService
@@ -206,7 +207,7 @@ namespace MisureRicci.Controllers
                 await _customMeasurementService.CreateFieldAsync(model);
                 return RedirectToAction(nameof(Fields), new { typeId = model.MeasurementTypeId });
             }
-            catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+            catch (DbUpdateException ex) when (DbExceptionHelper.IsUniqueConstraintViolation(ex))
             {
                 ModelState.AddModelError(nameof(model.NomeCampo),
                     "Esiste gia un campo con questo nome per la tipologia selezionata.");
@@ -262,7 +263,7 @@ namespace MisureRicci.Controllers
                 await _customMeasurementService.UpdateFieldAsync(model);
                 return RedirectToAction(nameof(Fields), new { typeId = model.MeasurementTypeId });
             }
-            catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+            catch (DbUpdateException ex) when (DbExceptionHelper.IsUniqueConstraintViolation(ex))
             {
                 ModelState.AddModelError(nameof(model.NomeCampo),
                     "Esiste gia un campo con questo nome per la tipologia selezionata.");
@@ -293,16 +294,6 @@ namespace MisureRicci.Controllers
 
         // ── Helpers ──────────────────────────────────────────────────────────
 
-        /// <summary>
-        /// Rileva violazione di unicità tramite messaggio dell'eccezione.
-        /// </summary>
-        private static bool IsUniqueConstraintViolation(DbUpdateException ex)
-        {
-            var message = ex.InnerException?.Message ?? ex.Message;
-            return message.Contains("unique", StringComparison.OrdinalIgnoreCase)
-                || message.Contains("duplicate", StringComparison.OrdinalIgnoreCase);
-        }
-
         private static void RestoreMetadata(
             MeasurementType model, MeasurementType existing, string? imageUrlOverride = null)
         {
@@ -318,7 +309,7 @@ namespace MisureRicci.Controllers
                 ModelState.AddModelError(nameof(model.ImageUpload), ex.Message);
                 _logger.LogWarning("Validazione immagine fallita per tipologia {Id}: {Message}", model.Id, ex.Message);
             }
-            else if (ex is DbUpdateException dbEx && IsUniqueConstraintViolation(dbEx))
+            else if (ex is DbUpdateException dbEx && DbExceptionHelper.IsUniqueConstraintViolation(dbEx))
             {
                 ModelState.AddModelError(nameof(model.Nome), EsisteGiaUnaTipologiaConQuestoNome);
                 _logger.LogWarning("Violazione constraint unico per tipologia {Id}", model.Id);

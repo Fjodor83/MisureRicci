@@ -68,7 +68,7 @@ public class ClienteServiceTests
         using (var actContext = factory.CreateContext())
         {
             var service = new ClienteService(actContext);
-            var created = await service.CreateClienteScopedAsync(new Cliente
+            var result = await service.CreateClienteScopedAsync(new Cliente
             {
                 Nome = "  Anna  ",
                 Cognome = "  Verdi ",
@@ -77,6 +77,8 @@ public class ClienteServiceTests
                 Paese = " Italy "
             }, negozioId, isAdmin: false);
 
+            Assert.True(result.IsSuccess);
+            var created = result.Value;
             Assert.NotNull(created);
             Assert.Equal(negozioId, created!.NegozioId);
             Assert.Equal("Anna", created.Nome);
@@ -88,14 +90,14 @@ public class ClienteServiceTests
     }
 
     [Fact]
-    public async Task CreateClienteScopedAsync_AdminWithoutNegozio_ReturnsNull()
+    public async Task CreateClienteScopedAsync_AdminWithoutNegozio_ReturnsFail()
     {
         using var factory = new TestDbContextFactory();
 
         using var context = factory.CreateContext();
         var service = new ClienteService(context);
 
-        var created = await service.CreateClienteScopedAsync(new Cliente
+        var result = await service.CreateClienteScopedAsync(new Cliente
         {
             Nome = "Laura",
             Cognome = "Bianchi",
@@ -103,7 +105,7 @@ public class ClienteServiceTests
             Paese = "Italy"
         }, negozioId: null, isAdmin: true);
 
-        Assert.Null(created);
+        Assert.False(result.IsSuccess);
     }
 
     [Fact]
@@ -128,7 +130,7 @@ public class ClienteServiceTests
         using (var actContext = factory.CreateContext())
         {
             var service = new ClienteService(actContext);
-            var created = await service.CreateClienteScopedAsync(new Cliente
+            var result = await service.CreateClienteScopedAsync(new Cliente
             {
                 Nome = "Laura",
                 Cognome = "Bianchi",
@@ -137,6 +139,8 @@ public class ClienteServiceTests
                 NegozioId = negozioId
             }, negozioId: null, isAdmin: true);
 
+            Assert.True(result.IsSuccess);
+            var created = result.Value;
             Assert.NotNull(created);
             Assert.Equal(negozioId, created!.NegozioId);
         }

@@ -7,7 +7,6 @@ namespace MisureRicci.Services
 {
     public class NegozioService : INegozioService
     {
-        private const string NegoziCacheKey = "negozi_all_v1";
         private readonly ApplicationDbContext _context;
         private readonly IMemoryCache _cache;
 
@@ -19,7 +18,7 @@ namespace MisureRicci.Services
 
         public async Task<List<Negozio>> GetAllAsync()
         {
-            return await _cache.GetOrCreateAsync(NegoziCacheKey, async entry =>
+            return await _cache.GetOrCreateAsync(CacheKeys.NegozioAll, async entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30);
                 return await _context.Negozi
@@ -31,7 +30,7 @@ namespace MisureRicci.Services
 
         public void InvalidateCache()
         {
-            _cache.Remove(NegoziCacheKey);
+            _cache.Remove(CacheKeys.NegozioAll);
         }
 
         public async Task<Negozio?> GetByIdAsync(int id)
@@ -39,32 +38,36 @@ namespace MisureRicci.Services
             return await _context.Negozi.FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<Negozio> CreateAsync(Negozio negozio)
+        public async Task<Result<Negozio>> CreateAsync(Negozio negozio)
         {
             _context.Negozi.Add(negozio);
             await _context.SaveChangesAsync();
-            _cache.Remove(NegoziCacheKey);
-            return negozio;
+            _cache.Remove(CacheKeys.NegozioAll);
+            return Result<Negozio>.Ok(negozio);
         }
 
-        public async Task UpdateAsync(Negozio negozio)
+        public async Task<Result> UpdateAsync(Negozio negozio)
         {
-            _context.Negozi.Update(negozio);
+            var existing = await _context.Negozi.FindAsync(negozio.Id);
+            if (existing == null)
+                return Result.Fail("Negozio non trovato.");
+
+            _context.Entry(existing).CurrentValues.SetValues(negozio);
             await _context.SaveChangesAsync();
-            _cache.Remove(NegoziCacheKey);
+            _cache.Remove(CacheKeys.NegozioAll);
+            return Result.Ok();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<Result> DeleteAsync(int id)
         {
             var entity = await _context.Negozi.FindAsync(id);
             if (entity == null)
-            {
-                return;
-            }
+                return Result.Fail("Negozio non trovato.");
 
             _context.Negozi.Remove(entity);
             await _context.SaveChangesAsync();
-            _cache.Remove(NegoziCacheKey);
+            _cache.Remove(CacheKeys.NegozioAll);
+            return Result.Ok();
         }
 
         public bool Exists(int id)

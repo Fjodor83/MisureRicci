@@ -71,7 +71,7 @@
                     <form asp-action="AdvanceStato" method="post">
                         <input type="hidden" name="id" value="@commessa.Id" />
                         <div class="mb-3">
-                            <label class="form-label">Nuovo stato</label>
+                            <p class="form-label">Nuovo stato</p>
                             <select name="nuovoStato" class="form-select">
                                 @foreach (var stato in Model.StatiDisponibili)
                                 {
@@ -80,7 +80,7 @@
                             </select>
                         </div>
                         <div>
-                            <label class="form-label">Nota cambio stato</label>
+                            <p class="form-label">Nota cambio stato</p>
                             <textarea name="note" class="form-control" rows="3" placeholder="Dettagli su avanzamento, prova o consegna..."></textarea>
                         </div>
                         <div class="form-actions mt-3">
@@ -196,7 +196,7 @@
                     {
                         <div class="row g-3 align-items-end">
                             <div class="col-md-5">
-                                <label class="form-label">Tipo di misura</label>
+                                <p class="form-label">Tipo di misura</p>
                                 <select id="newMisuraTypeSelect" class="form-select">
                                     @foreach (var t in Model.MeasurementTypes)
                                     {
@@ -205,7 +205,7 @@
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Unita'</label>
+                                <p class="form-label">Unita</p>
                                 <select id="newMisuraUnitSelect" class="form-select">
                                     <option value="@MeasurementUnit.Centimeters">CM</option>
                                     <option value="@MeasurementUnit.Inches">INCH</option>

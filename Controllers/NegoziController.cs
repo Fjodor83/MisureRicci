@@ -32,9 +32,14 @@ namespace MisureRicci.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _negozioService.CreateAsync(negozio);
-                _negozioService.InvalidateCache();
-                return RedirectToAction(nameof(Index));
+                var result = await _negozioService.CreateAsync(negozio);
+                if (result.IsSuccess)
+                {
+                    _negozioService.InvalidateCache();
+                    return RedirectToAction(nameof(Index));
+                }
+
+                ModelState.AddModelError(string.Empty, result.Error ?? "Operazione non riuscita.");
             }
 
             // Log validation errors for debugging
@@ -75,7 +80,12 @@ namespace MisureRicci.Controllers
 
             try
             {
-                await _negozioService.UpdateAsync(negozio);
+                var result = await _negozioService.UpdateAsync(negozio);
+                if (!result.IsSuccess)
+                {
+                    ModelState.AddModelError(string.Empty, result.Error ?? "Operazione non riuscita.");
+                    return View(negozio);
+                }
                 _negozioService.InvalidateCache();
             }
             catch (DbUpdateConcurrencyException)
@@ -105,8 +115,9 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            await _negozioService.DeleteAsync(id);
-            _negozioService.InvalidateCache();
+            var result = await _negozioService.DeleteAsync(id);
+            if (result.IsSuccess)
+                _negozioService.InvalidateCache();
             return RedirectToAction(nameof(Index));
         }
     }

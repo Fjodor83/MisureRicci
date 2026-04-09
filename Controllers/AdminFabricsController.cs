@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MisureRicci.Helpers;
 using MisureRicci.Models;
 using MisureRicci.Services;
 
@@ -42,7 +43,7 @@ namespace MisureRicci.Controllers
                 await _fabricService.CreateFabricAsync(model);
                 return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+            catch (DbUpdateException ex) when (DbExceptionHelper.IsUniqueConstraintViolation(ex))
             {
                 ModelState.AddModelError(nameof(model.Nome), EsisteGiaUnTessutoConQuestoNome);
                 return View(model);
@@ -77,7 +78,7 @@ namespace MisureRicci.Controllers
                 await _fabricService.UpdateFabricAsync(model);
                 return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+            catch (DbUpdateException ex) when (DbExceptionHelper.IsUniqueConstraintViolation(ex))
             {
                 ModelState.AddModelError(nameof(model.Nome), EsisteGiaUnTessutoConQuestoNome);
                 return View(model);
@@ -110,9 +111,5 @@ namespace MisureRicci.Controllers
             }
         }
 
-        private static bool IsUniqueConstraintViolation(DbUpdateException ex)
-        {
-            return ex.InnerException?.Message.Contains("UniqueIndex") ?? false;
-        }
     }
 }

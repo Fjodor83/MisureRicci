@@ -374,14 +374,14 @@ namespace MisureRicci.Migrations
 
                     b.Property<string>("Cognome")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("DataRegistrazione")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Indirizzo")
                         .HasColumnType("nvarchar(max)");
@@ -391,7 +391,7 @@ namespace MisureRicci.Migrations
 
                     b.Property<string>("Nome")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
@@ -408,9 +408,13 @@ namespace MisureRicci.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("NegozioId");
+                    b.HasIndex("Email")
+                        .IsUnique();
 
-                    b.ToTable("Clienti");
+                    b.HasIndex("NegozioId", "Cognome", "Nome")
+                        .HasDatabaseName("IX_Clienti_Negozio_Cognome_Nome");
+
+                    b.ToTable("Clienti", (string)null);
                 });
 
             modelBuilder.Entity("MisureRicci.Models.CommessaEvento", b =>
@@ -476,13 +480,14 @@ namespace MisureRicci.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CommessaSartorialeId");
-
                     b.HasIndex("LinkedByUserId");
 
                     b.HasIndex("MisuraClienteId");
 
-                    b.ToTable("CommissioniMisureLinks");
+                    b.HasIndex("CommessaSartorialeId", "MisuraClienteId")
+                        .IsUnique();
+
+                    b.ToTable("CommissioniMisureLinks", (string)null);
                 });
 
             modelBuilder.Entity("MisureRicci.Models.CommessaSartoriale", b =>
@@ -606,13 +611,13 @@ namespace MisureRicci.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClienteId");
-
                     b.HasIndex("CreatedByUserId");
 
                     b.HasIndex("MeasurementTypeId");
 
-                    b.ToTable("DynamicMeasurementRecords");
+                    b.HasIndex("ClienteId", "MeasurementTypeId");
+
+                    b.ToTable("DynamicMeasurementRecords", (string)null);
                 });
 
             modelBuilder.Entity("MisureRicci.Models.DynamicMeasurementValue", b =>
@@ -635,11 +640,12 @@ namespace MisureRicci.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DynamicMeasurementRecordId");
-
                     b.HasIndex("MeasurementFieldDefinitionId");
 
-                    b.ToTable("DynamicMeasurementValues");
+                    b.HasIndex("DynamicMeasurementRecordId", "MeasurementFieldDefinitionId")
+                        .IsUnique();
+
+                    b.ToTable("DynamicMeasurementValues", (string)null);
                 });
 
             modelBuilder.Entity("MisureRicci.Models.Fabric", b =>
@@ -662,7 +668,9 @@ namespace MisureRicci.Migrations
                         .HasColumnType("nvarchar(250)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Nome")
                         .IsRequired()
@@ -671,7 +679,11 @@ namespace MisureRicci.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Fabrics");
+                    b.HasIndex("Nome")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Fabrics_Nome");
+
+                    b.ToTable("Fabrics", (string)null);
                 });
 
             modelBuilder.Entity("MisureRicci.Models.GiaccaMeasurement", b =>
@@ -851,7 +863,7 @@ namespace MisureRicci.Migrations
                     b.HasIndex("MeasurementTypeId", "NomeCampo")
                         .IsUnique();
 
-                    b.ToTable("DynamicFieldDefinitions");
+                    b.ToTable("DynamicFieldDefinitions", (string)null);
                 });
 
             modelBuilder.Entity("MisureRicci.Models.MeasurementType", b =>
@@ -889,7 +901,7 @@ namespace MisureRicci.Migrations
                     b.HasIndex("Nome")
                         .IsUnique();
 
-                    b.ToTable("DynamicMeasurementTypes");
+                    b.ToTable("DynamicMeasurementTypes", (string)null);
                 });
 
             modelBuilder.Entity("MisureRicci.Models.MisureCliente", b =>
@@ -920,11 +932,13 @@ namespace MisureRicci.Migrations
 
                     b.Property<string>("TipoMisura")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClienteId");
+                    b.HasIndex("ClienteId", "TipoMisura")
+                        .HasDatabaseName("IX_RegistroMisure_ClienteId_TipoMisura");
 
                     b.ToTable("RegistroMisure", (string)null);
                 });
@@ -1196,7 +1210,8 @@ namespace MisureRicci.Migrations
                 {
                     b.HasOne("MisureRicci.Models.Negozio", "Negozio")
                         .WithMany()
-                        .HasForeignKey("NegozioId");
+                        .HasForeignKey("NegozioId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Negozio");
                 });

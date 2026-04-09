@@ -6,7 +6,7 @@ WORKDIR /src
 COPY ["MisureRicci.csproj", "./"]
 RUN dotnet restore "MisureRicci.csproj"
 
-# Copia tutto il sorgente
+# Copia tutto il sorgente (ora sicuro grazie a .dockerignore)
 COPY . .
 
 # Pubblica in Release con ottimizzazioni per dimensione
@@ -25,11 +25,17 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Crea directory per upload (nota: Railway ha filesystem efimero)
-RUN mkdir -p SecureUploads
+# Crea un utente non privilegiato (appuser)
+RUN adduser --disabled-password --gecos "" appuser
+
+# Crea directory per upload e assegna i permessi all'utente
+RUN mkdir -p SecureUploads && chown -R appuser:appuser /app
 
 # Copia il publish
 COPY --from=build /app/publish .
+
+# Passa all'utente non root
+USER appuser
 
 # Railway usa $PORT (default 8080)
 EXPOSE 8080

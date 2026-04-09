@@ -9,13 +9,12 @@ using MisureRicci.Services;
 namespace MisureRicci.Controllers
 {
     [Authorize(Roles = "Admin,Manager,Sartoria,Boutique")]
-    public class DynamicMeasurementsController : Controller
+    public class DynamicMeasurementsController : TenantAwareController
     {
         private const string MeasurementError = "MeasurementError";
         private readonly ICustomMeasurementService _customMeasurementService;
         private readonly IClienteService _clienteService;
         private readonly ICommessaService _commessaService;
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<DynamicMeasurementsController> _logger;
         private const string CreateView = "Create";
 
@@ -23,13 +22,13 @@ namespace MisureRicci.Controllers
             ICustomMeasurementService customMeasurementService,
             IClienteService clienteService,
             ICommessaService commessaService,
-            UserManager<ApplicationUser> userManager,
+            ITenantService tenantService,
             ILogger<DynamicMeasurementsController> logger)
+            : base(tenantService)
         {
             _customMeasurementService = customMeasurementService;
             _clienteService = clienteService;
             _commessaService = commessaService;
-            _userManager = userManager;
             _logger = logger;
         }
 
@@ -37,9 +36,7 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> Create(int clienteId, int typeId, int? returnToCommessaId, MeasurementUnit unit = MeasurementUnit.Centimeters)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = User.IsInRole(ApplicationRoles.Admin);
-            var cliente = await _clienteService.GetClienteScopedAsync(clienteId, currentUser?.NegozioId, isAdmin);
+            var cliente = await _clienteService.GetClienteScopedAsync(clienteId, NegozioId, IsAdmin);
             if (cliente == null)
             {
                 return NotFound();
@@ -88,9 +85,7 @@ namespace MisureRicci.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var currentUser0 = await _userManager.GetUserAsync(User);
-                var isAdmin0 = User.IsInRole(ApplicationRoles.Admin);
-                var cliente0 = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser0?.NegozioId, isAdmin0);
+                var cliente0 = await _clienteService.GetClienteScopedAsync(model.ClienteId, NegozioId, IsAdmin);
                 var type0 = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
                 if (cliente0 != null) model.ClienteNome = $"{cliente0.Nome} {cliente0.Cognome}";
                 if (type0 != null)
@@ -101,9 +96,7 @@ namespace MisureRicci.Controllers
                 return View(model);
             }
 
-            var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = User.IsInRole(ApplicationRoles.Admin);
-            var cliente = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser?.NegozioId, isAdmin);
+            var cliente = await _clienteService.GetClienteScopedAsync(model.ClienteId, NegozioId, IsAdmin);
             var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
 
             if (cliente == null || type == null)
@@ -120,9 +113,9 @@ namespace MisureRicci.Controllers
                 {
                     var result = await _commessaService.CreateAndLinkDynamicMeasurementAsync(
                         model,
-                        currentUser?.Id,
-                        currentUser?.NegozioId,
-                        isAdmin);
+                        UserId,
+                        NegozioId,
+                        IsAdmin);
 
                     if (!result.IsSuccess)
                     {
@@ -133,7 +126,7 @@ namespace MisureRicci.Controllers
                     return RedirectToAction("Details", "Commissioni", new { id = model.ReturnToCommessaId.Value });
                 }
 
-                await _customMeasurementService.CreateDynamicMeasurementAsync(model, currentUser?.Id);
+                await _customMeasurementService.CreateDynamicMeasurementAsync(model, UserId);
                 return RedirectToAction("Details", "Clienti", new { id = model.ClienteId });
             }
             catch (InvalidOperationException ex)
@@ -160,7 +153,7 @@ namespace MisureRicci.Controllers
                 return NotFound();
             }
 
-            if (!await CanAccessClienteAsync(record.Cliente?.NegozioId))
+            if (!CanAccessCliente(record.Cliente?.NegozioId))
             {
                 return Forbid();
             }
@@ -178,7 +171,7 @@ namespace MisureRicci.Controllers
                 return NotFound();
             }
 
-            if (!await CanAccessClienteAsync(record.Cliente?.NegozioId))
+            if (!CanAccessCliente(record.Cliente?.NegozioId))
             {
                 return Forbid();
             }
@@ -198,9 +191,7 @@ namespace MisureRicci.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var currentUser0 = await _userManager.GetUserAsync(User);
-                var isAdmin0 = User.IsInRole(ApplicationRoles.Admin);
-                var cliente0 = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser0?.NegozioId, isAdmin0);
+                var cliente0 = await _clienteService.GetClienteScopedAsync(model.ClienteId, NegozioId, IsAdmin);
                 var type0 = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
                 if (cliente0 != null) model.ClienteNome = $"{cliente0.Nome} {cliente0.Cognome}";
                 if (type0 != null)
@@ -211,15 +202,13 @@ namespace MisureRicci.Controllers
                 return View(CreateView, model);
             }
 
-            var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = User.IsInRole(ApplicationRoles.Admin);
             var existingRecord = await _customMeasurementService.GetDynamicMeasurementRecordByIdAsync(model.RecordId);
             if (existingRecord == null)
             {
                 return NotFound();
             }
 
-            if (!await CanAccessClienteAsync(existingRecord.Cliente?.NegozioId))
+            if (!CanAccessCliente(existingRecord.Cliente?.NegozioId))
             {
                 return Forbid();
             }
@@ -229,7 +218,7 @@ namespace MisureRicci.Controllers
                 return NotFound();
             }
 
-            var cliente = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentUser?.NegozioId, isAdmin);
+            var cliente = await _clienteService.GetClienteScopedAsync(model.ClienteId, NegozioId, IsAdmin);
             var type = await _customMeasurementService.GetMeasurementTypeByIdAsync(model.MeasurementTypeId);
 
             if (cliente == null || type == null)
@@ -270,7 +259,7 @@ namespace MisureRicci.Controllers
                 return NotFound();
             }
 
-            if (!await CanAccessClienteAsync(record.Cliente?.NegozioId))
+            if (!CanAccessCliente(record.Cliente?.NegozioId))
             {
                 return Forbid();
             }
@@ -292,22 +281,13 @@ namespace MisureRicci.Controllers
             return RedirectToAction("Details", "Clienti", new { id = record.ClienteId });
         }
 
-        private async Task<bool> CanAccessClienteAsync(int? clienteNegozioId)
+        private bool CanAccessCliente(int? clienteNegozioId)
         {
-            if (User.IsInRole(ApplicationRoles.Admin))
-            {
-                return true;
-            }
+            if (IsAdmin) return true;
 
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
-            {
-                return false;
-            }
-
-            return currentUser.NegozioId.HasValue
+            return NegozioId.HasValue
                 && clienteNegozioId.HasValue
-                && currentUser.NegozioId.Value == clienteNegozioId.Value;
+                && NegozioId.Value == clienteNegozioId.Value;
         }
     }
 }

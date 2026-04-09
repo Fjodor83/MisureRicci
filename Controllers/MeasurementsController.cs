@@ -1,15 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
-using Microsoft.AspNetCore.Identity;
 
 namespace MisureRicci.Controllers
 {
     [Authorize(Roles = "Admin,Manager,Sartoria,Boutique")]
-    public class MeasurementsController : Controller
+    public class MeasurementsController : TenantAwareController
     {
         private const string MeasurementError = "MeasurementError";
         private readonly IMeasurementRegistryService _measurementRegistryService;
@@ -17,7 +15,6 @@ namespace MisureRicci.Controllers
         private readonly IClienteService _clienteService;
         private readonly ICustomMeasurementService _customMeasurementService;
         private readonly ILegacyMeasurementUiService _legacyMeasurementUiService;
-        private readonly UserManager<ApplicationUser> _userManager;
         private const string Dettagli = "Details";
         private const string Clienti = "Clienti";
         private const string DynamicMeasurements = "DynamicMeasurements";
@@ -29,34 +26,26 @@ namespace MisureRicci.Controllers
             IClienteService clienteService,
             ICustomMeasurementService customMeasurementService,
             ILegacyMeasurementUiService legacyMeasurementUiService,
-            UserManager<ApplicationUser> userManager)
+            ITenantService tenantService)
+            : base(tenantService)
         {
             _measurementRegistryService = measurementRegistryService;
             _legacyMeasurementService = legacyMeasurementService;
             _clienteService = clienteService;
             _customMeasurementService = customMeasurementService;
             _legacyMeasurementUiService = legacyMeasurementUiService;
-            _userManager = userManager;
         }
 
         public async Task<IActionResult> GlobalRegistry(string? filter, int page = 1)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
 
-            int? negozioId = null;
-            if (!isAdmin)
-            {
-                if (userId == null) return Forbid();
-                var currentUser = await _userManager.FindByIdAsync(userId);
-                if (currentUser?.NegozioId == null) return View("TenantAssignmentRequired");
-                negozioId = currentUser.NegozioId;
-            }
+            var tenantCheck = RequireTenant();
+            if (tenantCheck != null) return tenantCheck;
 
             const int pageSize = 20;
 
-            var result = await _measurementRegistryService.GetGlobalRegistryPagedAsync(filter, negozioId, isAdmin, page, pageSize);
+            var result = await _measurementRegistryService.GetGlobalRegistryPagedAsync(filter, NegozioId, IsAdmin, page, pageSize);
             var model = new MeasurementsGlobalRegistryViewModel
             {
                 Items = result.Items,
@@ -74,19 +63,10 @@ namespace MisureRicci.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (clienteId == null) return RedirectToAction("Index", Clienti);
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
+            var tenantCheck = RequireTenant();
+            if (tenantCheck != null) return tenantCheck;
 
-            int? negozioId = null;
-            if (!isAdmin)
-            {
-                if (userId == null) return Forbid();
-                var currentUser = await _userManager.FindByIdAsync(userId);
-                if (currentUser?.NegozioId == null) return View("TenantAssignmentRequired");
-                negozioId = currentUser.NegozioId;
-            }
-
-            var cliente = await _clienteService.GetClienteScopedAsync(clienteId.Value, negozioId, isAdmin);
+            var cliente = await _clienteService.GetClienteScopedAsync(clienteId.Value, NegozioId, IsAdmin);
             if (cliente == null) return NotFound();
 
             var model = new MeasurementsDashboardViewModel
@@ -124,18 +104,7 @@ namespace MisureRicci.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null || string.IsNullOrEmpty(tipoMisura)) return NotFound();
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
-
-            int? negozioId = null;
-            if (!isAdmin)
-            {
-                if (userId == null) return Forbid();
-                var currentUser = await _userManager.FindByIdAsync(userId);
-                negozioId = currentUser?.NegozioId;
-            }
-
-            var model = await _legacyMeasurementService.GetMeasurementScopedAsync(id.Value, tipoMisura, negozioId, isAdmin);
+            var model = await _legacyMeasurementService.GetMeasurementScopedAsync(id.Value, tipoMisura, NegozioId, IsAdmin);
             if (model == null) return NotFound();
 
             return View(BuildEditViewModel(model, tipoMisura));
@@ -148,18 +117,7 @@ namespace MisureRicci.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (string.IsNullOrEmpty(input.TipoMisura)) return NotFound();
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
-
-            int? negozioId = null;
-            if (!isAdmin)
-            {
-                if (userId == null) return Forbid();
-                var currentUser = await _userManager.FindByIdAsync(userId);
-                negozioId = currentUser?.NegozioId;
-            }
-
-            var model = await _legacyMeasurementService.GetMeasurementScopedAsync(input.Id, input.TipoMisura, negozioId, isAdmin);
+            var model = await _legacyMeasurementService.GetMeasurementScopedAsync(input.Id, input.TipoMisura, NegozioId, IsAdmin);
             if (model == null) return NotFound();
 
             if (TryApplyEditableMeasurementFields(model, input.Fields) && TryValidateModel(model))
@@ -203,20 +161,9 @@ namespace MisureRicci.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (string.IsNullOrEmpty(tipoMisura)) return NotFound();
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
-
-            int? negozioId = null;
-            if (!isAdmin)
-            {
-                if (userId == null) return Forbid();
-                var currentUser = await _userManager.FindByIdAsync(userId);
-                negozioId = currentUser?.NegozioId;
-            }
-
             if (registryId.HasValue)
             {
-                var registryEntry = await _measurementRegistryService.GetRegistryEntryAsync(registryId.Value, negozioId, isAdmin);
+                var registryEntry = await _measurementRegistryService.GetRegistryEntryAsync(registryId.Value, NegozioId, IsAdmin);
                 if (registryEntry == null)
                 {
                     return RedirectToAction(nameof(Index), Clienti);
@@ -224,7 +171,7 @@ namespace MisureRicci.Controllers
 
                 try
                 {
-                    var clienteIdFromRegistry = await _measurementRegistryService.DeleteByRegistryEntryAsync(registryId.Value, negozioId, isAdmin);
+                    var clienteIdFromRegistry = await _measurementRegistryService.DeleteByRegistryEntryAsync(registryId.Value, NegozioId, IsAdmin);
                     if (clienteIdFromRegistry.HasValue)
                     {
                         return RedirectToAction(Dettagli, Clienti, new { id = clienteIdFromRegistry.Value });
@@ -239,13 +186,13 @@ namespace MisureRicci.Controllers
                 return RedirectToAction(nameof(Index), Clienti);
             }
 
-            var model = await _legacyMeasurementService.GetMeasurementScopedAsync(id, tipoMisura, negozioId, isAdmin);
+            var model = await _legacyMeasurementService.GetMeasurementScopedAsync(id, tipoMisura, NegozioId, IsAdmin);
             if (model != null)
             {
                 int clienteId = _legacyMeasurementUiService.GetClienteId(model);
                 try
                 {
-                    await _legacyMeasurementService.DeleteMeasurementAsync(id, tipoMisura, negozioId, isAdmin);
+                    await _legacyMeasurementService.DeleteMeasurementAsync(id, tipoMisura, NegozioId, IsAdmin);
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -282,19 +229,9 @@ namespace MisureRicci.Controllers
 
         private async Task<(object? Model, string TipoMisura, int? RegistryId, int? DynamicRecordId)> ResolveMeasurementDisplayAsync(int id, string tipoMisura, int? registryId)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            bool isAdmin = User.IsInRole(ApplicationRoles.Admin);
-
-            int? negozioId = null;
-            if (!isAdmin && userId != null)
-            {
-                var currentUser = await _userManager.FindByIdAsync(userId);
-                negozioId = currentUser?.NegozioId;
-            }
-
             if (registryId.HasValue)
             {
-                var registryEntry = await _measurementRegistryService.GetRegistryEntryAsync(registryId.Value, negozioId, isAdmin);
+                var registryEntry = await _measurementRegistryService.GetRegistryEntryAsync(registryId.Value, NegozioId, IsAdmin);
                 if (registryEntry == null)
                 {
                     return (null, tipoMisura, null, null);
@@ -305,11 +242,11 @@ namespace MisureRicci.Controllers
                     return (null, registryEntry.TipoMisura, registryEntry.Id, registryEntry.RecordId);
                 }
 
-                var legacyModel = await _legacyMeasurementService.GetMeasurementByRegistryEntryAsync(registryId.Value, negozioId, isAdmin);
+                var legacyModel = await _legacyMeasurementService.GetMeasurementByRegistryEntryAsync(registryId.Value, NegozioId, IsAdmin);
                 return (legacyModel, registryEntry.TipoMisura, registryEntry.Id, null);
             }
 
-            var model = await _legacyMeasurementService.GetMeasurementScopedAsync(id, tipoMisura, negozioId, isAdmin);
+            var model = await _legacyMeasurementService.GetMeasurementScopedAsync(id, tipoMisura, NegozioId, IsAdmin);
             if (model != null)
             {
                 return (model, tipoMisura, registryId, null);

@@ -8,6 +8,7 @@ using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
 using Moq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -46,7 +47,7 @@ public class HomeControllerTests
         // Arrange
         var user = new ApplicationUser { Id = "1", NegozioId = 1 };
         _mockUserManager.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
-        _mockDashboardService.Setup(s => s.GetKpiAsync(It.IsAny<int?>(), It.IsAny<bool>()))
+        _mockDashboardService.Setup(s => s.GetKpiAsync(It.IsAny<int?>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new DashboardKpiViewModel());
 
         // Act

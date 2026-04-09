@@ -105,7 +105,7 @@ public class ClientiControllerTests
         _mockTenantService.Setup(s => s.IsAdmin()).Returns(false);
         _mockTenantService.Setup(s => s.GetCurrentNegozioId()).Returns(1);
         _mockClienteService.Setup(s => s.CreateClienteScopedAsync(It.IsAny<Cliente>(), It.IsAny<int?>(), It.IsAny<bool>()))
-            .ReturnsAsync(new Cliente { Id = 42 });
+            .ReturnsAsync(Result<Cliente>.Ok(new Cliente { Id = 42 }));
 
         // Act
         var result = await _controller.Create(model);
@@ -117,20 +117,22 @@ public class ClientiControllerTests
     }
 
     [Fact]
-    public async Task Create_POST_ReturnsForbid_WhenServiceReturnsNull()
+    public async Task Create_POST_ReturnsViewWithError_WhenServiceFails()
     {
         // Arrange
         var model = new ClientePageViewModel { Cliente = new Cliente { Nome = "Test" } };
         _mockTenantService.Setup(s => s.IsAdmin()).Returns(false);
         _mockTenantService.Setup(s => s.GetCurrentNegozioId()).Returns(1);
         _mockClienteService.Setup(s => s.CreateClienteScopedAsync(It.IsAny<Cliente>(), It.IsAny<int?>(), It.IsAny<bool>()))
-            .ReturnsAsync((Cliente?)null);
+            .ReturnsAsync(Result<Cliente>.Fail("Accesso negato: tenant non assegnato."));
+        _mockNegozioService.Setup(s => s.GetAllAsync()).ReturnsAsync(new List<Negozio>());
 
         // Act
         var result = await _controller.Create(model);
 
         // Assert
-        Assert.IsType<ForbidResult>(result);
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.False(_controller.ModelState.IsValid);
     }
 
     [Fact]
@@ -152,7 +154,7 @@ public class ClientiControllerTests
         _mockTenantService.Setup(s => s.IsAdmin()).Returns(false);
         _mockTenantService.Setup(s => s.GetCurrentNegozioId()).Returns(1);
         _mockClienteService.Setup(s => s.UpdateClienteScopedAsync(It.IsAny<Cliente>(), It.IsAny<int?>(), It.IsAny<bool>()))
-            .ReturnsAsync(true);
+            .ReturnsAsync(Result.Ok());
 
         // Act
         var result = await _controller.Edit(1, model);
@@ -181,7 +183,7 @@ public class ClientiControllerTests
     {
         // Arrange
         _mockClienteService.Setup(s => s.DeleteClienteScopedAsync(It.IsAny<int>(), It.IsAny<int?>(), It.IsAny<bool>()))
-            .ReturnsAsync(true);
+            .ReturnsAsync(Result.Ok());
 
         // Act
         var result = await _controller.DeleteConfirmed(1);

@@ -96,15 +96,17 @@ namespace MisureRicci.Services
                 .ToListAsync();
         }
 
-        public async Task<Cliente?> CreateClienteScopedAsync(Cliente cliente, int? negozioId, bool isAdmin)
+        public async Task<Result<Cliente>> CreateClienteScopedAsync(Cliente cliente, int? negozioId, bool isAdmin)
         {
-            if (!CanAccessTenant(negozioId, isAdmin)) return null;
+            if (!CanAccessTenant(negozioId, isAdmin))
+                return Result<Cliente>.Fail("Accesso negato: tenant non assegnato.");
 
             NormalizeCliente(cliente);
 
             if (isAdmin)
             {
-                if (!cliente.NegozioId.HasValue) return null;
+                if (!cliente.NegozioId.HasValue)
+                    return Result<Cliente>.Fail("Il negozio è obbligatorio.");
             }
             else
             {
@@ -118,17 +120,18 @@ namespace MisureRicci.Services
             cliente.ClientCode = GenerateClientCode(cliente.Id, cliente.DataRegistrazione);
             await _context.SaveChangesAsync();
 
-            return cliente;
+            return Result<Cliente>.Ok(cliente);
         }
 
-        public async Task<bool> UpdateClienteScopedAsync(Cliente cliente, int? negozioId, bool isAdmin)
+        public async Task<Result> UpdateClienteScopedAsync(Cliente cliente, int? negozioId, bool isAdmin)
         {
-            if (!CanAccessTenant(negozioId, isAdmin)) return false;
+            if (!CanAccessTenant(negozioId, isAdmin))
+                return Result.Fail("Accesso negato: tenant non assegnato.");
 
             var existing = await ApplyClienteScope(_context.Clienti, negozioId, isAdmin)
                 .FirstOrDefaultAsync(c => c.Id == cliente.Id);
 
-            if (existing == null) return false;
+            if (existing == null) return Result.Fail("Cliente non trovato.");
 
             NormalizeCliente(cliente);
 
@@ -145,26 +148,28 @@ namespace MisureRicci.Services
 
             if (isAdmin)
             {
-                if (!cliente.NegozioId.HasValue) return false;
+                if (!cliente.NegozioId.HasValue)
+                    return Result.Fail("Il negozio è obbligatorio.");
                 existing.NegozioId = cliente.NegozioId;
             }
 
             await _context.SaveChangesAsync();
-            return true;
+            return Result.Ok();
         }
 
-        public async Task<bool> DeleteClienteScopedAsync(int id, int? negozioId, bool isAdmin)
+        public async Task<Result> DeleteClienteScopedAsync(int id, int? negozioId, bool isAdmin)
         {
-            if (!CanAccessTenant(negozioId, isAdmin)) return false;
+            if (!CanAccessTenant(negozioId, isAdmin))
+                return Result.Fail("Accesso negato: tenant non assegnato.");
 
             var cliente = await ApplyClienteScope(_context.Clienti, negozioId, isAdmin)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
-            if (cliente == null) return false;
+            if (cliente == null) return Result.Fail("Cliente non trovato.");
 
             _context.Clienti.Remove(cliente);
             await _context.SaveChangesAsync();
-            return true;
+            return Result.Ok();
         }
 
         public async Task<Cliente> CreateClienteAsync(Cliente cliente)

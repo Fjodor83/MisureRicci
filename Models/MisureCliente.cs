@@ -12,6 +12,7 @@ namespace MisureRicci.Models
         public virtual Cliente? Cliente { get; set; }
 
         [Required]
+        [MaxLength(80)]
         [Display(Name = "Tipo di Misura")]
         public string TipoMisura { get; set; } = string.Empty; // Giacca, Pantalone, Camicia, etc.
 

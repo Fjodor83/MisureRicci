@@ -13,29 +13,23 @@ namespace MisureRicci.Controllers
 {
     [Authorize(Roles = "Admin,Manager,Sartoria,Boutique")]
     [Route("Report")]
-    public class ReportController : Controller
+    public class ReportController : TenantAwareController
     {
         private readonly ApplicationDbContext _context;
-        private readonly ITenantService _tenantService;
 
         public ReportController(
             ApplicationDbContext context,
             ITenantService tenantService)
+            : base(tenantService)
         {
             _context = context;
-            _tenantService = tenantService;
         }
 
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
-            var isAdmin = _tenantService.IsAdmin();
-            var currentNegozioId = _tenantService.GetCurrentNegozioId();
-
-            if (!isAdmin && !currentNegozioId.HasValue)
-            {
-                return View("TenantAssignmentRequired");
-            }
+            var tenantCheck = RequireTenant();
+            if (tenantCheck != null) return tenantCheck;
 
             return View();
         }
@@ -44,10 +38,7 @@ namespace MisureRicci.Controllers
         [EnableRateLimiting("export")]
         public async Task<IActionResult> ExportClientiCsv(CancellationToken ct)
         {
-            var isAdmin = _tenantService.IsAdmin();
-            var currentNegozioId = _tenantService.GetCurrentNegozioId();
-
-            if (!isAdmin && !currentNegozioId.HasValue)
+            if (!IsAdmin && !NegozioId.HasValue)
             {
                 return Forbid();
             }
@@ -62,10 +53,10 @@ namespace MisureRicci.Controllers
                 .AsNoTracking()
                 .OrderBy(c => c.Id);
 
-            if (!isAdmin)
+            if (!IsAdmin)
             {
                 query = query
-                    .Where(c => c.NegozioId == currentNegozioId!.Value)
+                        .Where(c => c.NegozioId == NegozioId!.Value)
                     .OrderBy(c => c.Id);
             }
 
@@ -97,10 +88,7 @@ namespace MisureRicci.Controllers
         [EnableRateLimiting("export")]
         public async Task<IActionResult> ExportMisureCsv(CancellationToken ct)
         {
-            var isAdmin = _tenantService.IsAdmin();
-            var currentNegozioId = _tenantService.GetCurrentNegozioId();
-
-            if (!isAdmin && !currentNegozioId.HasValue)
+            if (!IsAdmin && !NegozioId.HasValue)
             {
                 return Forbid();
             }
@@ -116,10 +104,10 @@ namespace MisureRicci.Controllers
                 .Include(m => m.Cliente)
                 .OrderByDescending(m => m.DataCreazione);
 
-            if (!isAdmin)
+            if (!IsAdmin)
             {
                 query = query
-                    .Where(m => m.Cliente != null && m.Cliente.NegozioId == currentNegozioId!.Value)
+                        .Where(m => m.Cliente != null && m.Cliente.NegozioId == NegozioId!.Value)
                     .OrderByDescending(m => m.DataCreazione);
             }
 

@@ -1,38 +1,30 @@
-## Visual Studio / IDE
-.vs/
-*.user
-*.userosscache
-*.suo
+# Esclude file di configurazione locale e segreti
+**/.env
+**/appsettings.*.json
+!**/appsettings.json
+**/secrets.*
+**/*.pfx
+**/*.pem
+**/*.key
 
-## Build output
-[Bb]in/
-[Oo]bj/
-[Tt]est[Rr]esults/
+# Esclude cartelle di version control e IDE
+**/.git/
+**/.vs/
+**/.vscode/
+**/bin/
+**/obj/
 
-## Logs
-logs/
-*.log
+# Esclude file di documentazione e immagini non necessarie
+**/*.md
+**/*.png
+**/*.jpg
+**/.dockerignore
+**/Dockerfile*
+**/docker-compose*.yml
+**/.editorconfig
 
-## Git
-.git/
-.gitignore
-
-## Secrets e sviluppo locale
-appsettings.Development.json
-**/user-secrets.json
-
-## Coverage / Analisi
-coverage.xml
-.sonarqube/
-
-## Node (se presente)
-node_modules/
-
-## Temp / OS
-.tmp_dotnet_home/
-.nuget/
-Thumbs.db
-.DS_Store
-
-## Upload directory locale
-SecureUploads/
+# Esclude file temporanei e di log
+**/*.log
+**/logs/
+**/*.tmp
+**/*.swp

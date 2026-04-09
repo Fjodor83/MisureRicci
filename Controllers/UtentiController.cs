@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using MisureRicci.Data;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
@@ -14,11 +15,16 @@ namespace MisureRicci.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly INegozioService _negozioService;
+        private readonly ApplicationDbContext _dbContext;
 
-        public UtentiController(UserManager<ApplicationUser> userManager, INegozioService negozioService)
+        public UtentiController(
+            UserManager<ApplicationUser> userManager,
+            INegozioService negozioService,
+            ApplicationDbContext dbContext)
         {
             _userManager = userManager;
             _negozioService = negozioService;
+            _dbContext = dbContext;
         }
 
         public async Task<IActionResult> Index()
@@ -43,9 +49,25 @@ namespace MisureRicci.Controllers
                 .OrderBy(u => u.NomeCompleto)
                 .ToListAsync();
 
+            // Batch-load all user→role mappings in a single query (fix N+1)
+            var userIds = users.Select(u => u.Id).ToList();
+            var userRoleLookup = await _dbContext.Set<IdentityUserRole<string>>()
+                .Where(ur => userIds.Contains(ur.UserId))
+                .Join(
+                    _dbContext.Roles,
+                    ur => ur.RoleId,
+                    r => r.Id,
+                    (ur, r) => new { ur.UserId, RoleName = r.Name })
+                .ToListAsync();
+
+            var rolesByUser = userRoleLookup
+                .Where(x => x.RoleName != null)
+                .ToLookup(x => x.UserId, x => x.RoleName!);
+
             foreach (var user in users)
             {
-                user.Ruolo = await ResolveAssignedRoleAsync(user);
+                user.Ruolo = rolesByUser[user.Id]
+                    .FirstOrDefault(ApplicationRoles.IsSupported) ?? user.Ruolo;
             }
 
             return View(users);

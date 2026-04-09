@@ -8,11 +8,10 @@ using MisureRicci.Services;
 namespace MisureRicci.Controllers
 {
     [Authorize(Roles = "Admin,Manager,Sartoria,Boutique")]
-    public class CommissioniController : Controller
+    public class CommissioniController : TenantAwareController
     {
         private readonly ICommessaService _commessaService;
         private readonly IClienteService _clienteService;
-        private readonly ITenantService _tenantService;
         private readonly ICustomMeasurementService _customMeasurementService;
         private readonly IFabricService _fabricService;
 
@@ -26,10 +25,10 @@ namespace MisureRicci.Controllers
         private const string CommissioneError = "CommissioneError";
 
         public CommissioniController(ICommessaService commessaService, IClienteService clienteService, ITenantService tenantService, ICustomMeasurementService customMeasurementService, IFabricService fabricService)
+            : base(tenantService)
         {
             _commessaService = commessaService;
             _clienteService = clienteService;
-            _tenantService = tenantService;
             _customMeasurementService = customMeasurementService;
             _fabricService = fabricService;
         }
@@ -37,14 +36,13 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> Index(int? clienteId, int page = 1)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var isAdmin = _tenantService.IsAdmin();
-            var currentNegozioId = _tenantService.GetCurrentNegozioId();
 
-            if (!isAdmin && !currentNegozioId.HasValue) return View("TenantAssignmentRequired");
+            var tenantCheck = RequireTenant();
+            if (tenantCheck != null) return tenantCheck;
 
             const int pageSize = 20;
-            var result = await _commessaService.GetCommissioniPagedAsync(clienteId, currentNegozioId, isAdmin, page, pageSize);
-            var kpi = await _commessaService.GetKpiAsync(currentNegozioId, isAdmin);
+            var result = await _commessaService.GetCommissioniPagedAsync(clienteId, NegozioId, IsAdmin, page, pageSize);
+            var kpi = await _commessaService.GetKpiAsync(NegozioId, IsAdmin);
 
             var model = new CommessaIndexViewModel
             {
@@ -62,16 +60,14 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> Create(int clienteId)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var isAdmin = _tenantService.IsAdmin();
-            var currentNegozioId = _tenantService.GetCurrentNegozioId();
 
-            var cliente = await _clienteService.GetClienteScopedAsync(clienteId, currentNegozioId, isAdmin);
+            var cliente = await _clienteService.GetClienteScopedAsync(clienteId, NegozioId, IsAdmin);
             if (cliente == null)
             {
                 return NotFound();
             }
 
-            var misureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(clienteId, currentNegozioId, isAdmin);
+            var misureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(clienteId, NegozioId, IsAdmin);
             var tipiCapoDisponibili = await _customMeasurementService.GetMeasurementTypesAsync(onlyActive: true);
             var tessutiDisponibili = await _fabricService.GetFabricsAsync(onlyActive: true);
 
@@ -93,21 +89,15 @@ namespace MisureRicci.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var isAdmin0 = _tenantService.IsAdmin();
-                var currentNegozioId0 = _tenantService.GetCurrentNegozioId();
-                var cliente0 = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentNegozioId0, isAdmin0);
+                var cliente0 = await _clienteService.GetClienteScopedAsync(model.ClienteId, NegozioId, IsAdmin);
                 if (cliente0 != null) model.ClienteNome = $"{cliente0.Nome} {cliente0.Cognome}".Trim();
-                model.MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(model.ClienteId, currentNegozioId0, isAdmin0);
+                model.MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(model.ClienteId, NegozioId, IsAdmin);
                 model.TipoCapiDisponibili = await _customMeasurementService.GetMeasurementTypesAsync(onlyActive: true);
                 model.TessutiDisponibili = await _fabricService.GetFabricsAsync(onlyActive: true);
                 return View(model);
             }
 
-            var isAdmin = _tenantService.IsAdmin();
-            var currentNegozioId = _tenantService.GetCurrentNegozioId();
-            var userId = _tenantService.GetUserId();
-
-            var cliente = await _clienteService.GetClienteScopedAsync(model.ClienteId, currentNegozioId, isAdmin);
+            var cliente = await _clienteService.GetClienteScopedAsync(model.ClienteId, NegozioId, IsAdmin);
             if (cliente == null)
             {
                 return NotFound();
@@ -115,11 +105,11 @@ namespace MisureRicci.Controllers
 
             model.ClienteNome = $"{cliente.Nome} {cliente.Cognome}".Trim();
 
-            var result = await _commessaService.CreateCommessaAsync(model, userId, currentNegozioId, isAdmin);
+            var result = await _commessaService.CreateCommessaAsync(model, UserId, NegozioId, IsAdmin);
             if (!result.IsSuccess || result.Value == null)
             {
                 ModelState.AddModelError(string.Empty, result.Error ?? ImpossibileCreareLaCommessa);
-                model.MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(model.ClienteId, currentNegozioId, isAdmin);
+                model.MisureDisponibili = await _commessaService.GetMisureDisponibiliPerClienteAsync(model.ClienteId, NegozioId, IsAdmin);
                 model.TipoCapiDisponibili = await _customMeasurementService.GetMeasurementTypesAsync(onlyActive: true);
                 model.TessutiDisponibili = await _fabricService.GetFabricsAsync(onlyActive: true);
                 return View(model);
@@ -131,10 +121,8 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> Details(int id)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var isAdmin = _tenantService.IsAdmin();
-            var currentNegozioId = _tenantService.GetCurrentNegozioId();
 
-            var vm = await _commessaService.GetCommessaDetailsAsync(id, currentNegozioId, isAdmin);
+            var vm = await _commessaService.GetCommessaDetailsAsync(id, NegozioId, IsAdmin);
             if (vm == null)
             {
                 return NotFound();
@@ -148,16 +136,14 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var isAdmin = _tenantService.IsAdmin();
-            var currentNegozioId = _tenantService.GetCurrentNegozioId();
 
-            var existing = await _commessaService.GetCommessaByIdAsync(id, currentNegozioId, isAdmin);
+            var existing = await _commessaService.GetCommessaByIdAsync(id, NegozioId, IsAdmin);
             if (existing == null)
             {
                 return NotFound();
             }
 
-            var result = await _commessaService.DeleteCommessaAsync(id, currentNegozioId, isAdmin);
+            var result = await _commessaService.DeleteCommessaAsync(id, NegozioId, IsAdmin);
             if (!result.IsSuccess)
             {
                 TempData[CommissioneError] = result.Error ?? ImpossibileEliminareLaCommessa;
@@ -172,11 +158,8 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> AdvanceStato(int id, StatoCommessa nuovoStato, string? note)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var isAdmin = _tenantService.IsAdmin();
-            var currentNegozioId = _tenantService.GetCurrentNegozioId();
-            var userId = _tenantService.GetUserId();
 
-            var result = await _commessaService.AdvanceStatoAsync(id, nuovoStato, note, userId, currentNegozioId, isAdmin);
+            var result = await _commessaService.AdvanceStatoAsync(id, nuovoStato, note, UserId, NegozioId, IsAdmin);
             if (!result.IsSuccess)
             {
                 TempData[CommissioneError] = result.Error ?? OperazioneNonConsentita;
@@ -191,11 +174,8 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> AddNota(int id, string nota)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var isAdmin = _tenantService.IsAdmin();
-            var currentNegozioId = _tenantService.GetCurrentNegozioId();
-            var userId = _tenantService.GetUserId();
 
-            var result = await _commessaService.AddNotaAsync(id, nota, userId, currentNegozioId, isAdmin);
+            var result = await _commessaService.AddNotaAsync(id, nota, UserId, NegozioId, IsAdmin);
             if (!result.IsSuccess)
             {
                 TempData[CommissioneError] = result.Error ?? ImpossibileAggiungereLaNota;
@@ -210,11 +190,8 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> LinkMisura(int id, int misuraClienteId)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var isAdmin = _tenantService.IsAdmin();
-            var currentNegozioId = _tenantService.GetCurrentNegozioId();
-            var userId = _tenantService.GetUserId();
 
-            var result = await _commessaService.LinkMisuraAsync(id, misuraClienteId, userId, currentNegozioId, isAdmin);
+            var result = await _commessaService.LinkMisuraAsync(id, misuraClienteId, UserId, NegozioId, IsAdmin);
             if (!result.IsSuccess)
             {
                 TempData[CommissioneError] = result.Error ?? ImpossibileCollegareLaMisura;
@@ -229,10 +206,8 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> UnlinkMisura(int id, int misuraClienteId)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var isAdmin = _tenantService.IsAdmin();
-            var currentNegozioId = _tenantService.GetCurrentNegozioId();
 
-            var result = await _commessaService.UnlinkMisuraAsync(id, misuraClienteId, currentNegozioId, isAdmin);
+            var result = await _commessaService.UnlinkMisuraAsync(id, misuraClienteId, NegozioId, IsAdmin);
             if (!result.IsSuccess)
             {
                 TempData[CommissioneError] = result.Error ?? ImpossibileScollegareLaMisura;

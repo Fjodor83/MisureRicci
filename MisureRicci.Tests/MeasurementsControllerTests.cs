@@ -22,7 +22,7 @@ public class MeasurementsControllerTests
     private readonly Mock<IClienteService> _mockClienteService;
     private readonly Mock<ICustomMeasurementService> _mockCustomService;
     private readonly Mock<ILegacyMeasurementUiService> _mockUiService;
-    private readonly Mock<UserManager<ApplicationUser>> _mockUserManager;
+    private readonly Mock<ITenantService> _mockTenantService;
     private readonly MeasurementsController _controller;
 
     public MeasurementsControllerTests()
@@ -32,9 +32,11 @@ public class MeasurementsControllerTests
         _mockClienteService = new Mock<IClienteService>();
         _mockCustomService = new Mock<ICustomMeasurementService>();
         _mockUiService = new Mock<ILegacyMeasurementUiService>();
-        
-        var store = new Mock<IUserStore<ApplicationUser>>();
-        _mockUserManager = new Mock<UserManager<ApplicationUser>>(store.Object, null!, null!, null!, null!, null!, null!, null!, null!);
+        _mockTenantService = new Mock<ITenantService>();
+
+        _mockTenantService.Setup(s => s.IsAdmin()).Returns(true);
+        _mockTenantService.Setup(s => s.GetCurrentNegozioId()).Returns((int?)null);
+        _mockTenantService.Setup(s => s.GetUserId()).Returns("1");
 
         _controller = new MeasurementsController(
             _mockRegistryService.Object,
@@ -42,7 +44,7 @@ public class MeasurementsControllerTests
             _mockClienteService.Object,
             _mockCustomService.Object,
             _mockUiService.Object,
-            _mockUserManager.Object);
+            _mockTenantService.Object);
 
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
         {

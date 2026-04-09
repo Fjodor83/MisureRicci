@@ -6,9 +6,9 @@ namespace MisureRicci.Services
     {
         Task<List<Negozio>> GetAllAsync();
         Task<Negozio?> GetByIdAsync(int id);
-        Task<Negozio> CreateAsync(Negozio negozio);
-        Task UpdateAsync(Negozio negozio);
-        Task DeleteAsync(int id);
+        Task<Result<Negozio>> CreateAsync(Negozio negozio);
+        Task<Result> UpdateAsync(Negozio negozio);
+        Task<Result> DeleteAsync(int id);
         bool Exists(int id);
         void InvalidateCache();
     }

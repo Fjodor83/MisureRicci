@@ -57,14 +57,17 @@ namespace MisureRicci.Services
             TimeSpan.FromSeconds(1));
 
         private readonly IWebHostEnvironment _environment;
+        private readonly IFileStorageProvider _storageProvider;
         private readonly ILogger<MeasurementTypeImageStorageService> _logger;
         private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
 
         public MeasurementTypeImageStorageService(
             IWebHostEnvironment environment,
+            IFileStorageProvider storageProvider,
             ILogger<MeasurementTypeImageStorageService> logger)
         {
             _environment = environment;
+            _storageProvider = storageProvider;
             _logger = logger;
         }
 
@@ -87,11 +90,9 @@ namespace MisureRicci.Services
             }
 
             var fileName = $"{Guid.NewGuid():N}{extension}";
-            var physicalPath = Path.Combine(GetSecureStoragePath(), fileName);
 
             await using var sourceStream = file.OpenReadStream();
-            await using var targetStream = new FileStream(physicalPath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
-            await sourceStream.CopyToAsync(targetStream, cancellationToken);
+            await _storageProvider.SaveAsync(sourceStream, Path.Combine(MeasurementTypes, fileName), cancellationToken);
 
             return BuildProtectedUrl(fileName);
         }

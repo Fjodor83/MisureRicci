@@ -49,9 +49,10 @@ namespace MisureRicci.Data
             builder.ApplyConfiguration(new DynamicMeasurementValueConfiguration());
             builder.ApplyConfiguration(new AbitoCompletoMeasurementConfiguration());
             builder.ApplyConfiguration(new ClienteConfiguration());
+            builder.ApplyConfiguration(new FabricConfiguration());
+            builder.ApplyConfiguration(new MisureClienteConfiguration());
 
             builder.Entity<CommessaSartoriale>().ToTable("CommissioniSartoriali");
-            builder.Entity<MisureCliente>().ToTable("RegistroMisure");
 
             // Mapping tabelle legacy
             builder.Entity<GiaccaMeasurement>().ToTable("MisureGiacca");
@@ -64,8 +65,6 @@ namespace MisureRicci.Data
             builder.Entity<ScarpeMeasurement>().ToTable("MisureScarpe");
             builder.Entity<CravattaMeasurement>().ToTable("MisureCravatta");
             builder.Entity<CinturaMeasurement>().ToTable("MisureCintura");
-
-            // Nota: ClientCode era una colonna calcolata in SQL Server;
             // la generazione del codice avviene in WebApplicationExtensions.
         }
     }

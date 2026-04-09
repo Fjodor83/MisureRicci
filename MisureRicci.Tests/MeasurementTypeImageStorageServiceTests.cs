@@ -31,7 +31,8 @@ public class MeasurementTypeImageStorageServiceTests : IDisposable
             WebRootFileProvider = new PhysicalFileProvider(Path.Combine(_rootPath, "wwwroot"))
         };
 
-        _service = new MeasurementTypeImageStorageService(_environment, NullLogger<MeasurementTypeImageStorageService>.Instance);
+        var storageProvider = new LocalFileStorageProvider(Path.Combine(_rootPath, "SecureUploads"));
+        _service = new MeasurementTypeImageStorageService(_environment, storageProvider, NullLogger<MeasurementTypeImageStorageService>.Instance);
     }
 
     [Fact]

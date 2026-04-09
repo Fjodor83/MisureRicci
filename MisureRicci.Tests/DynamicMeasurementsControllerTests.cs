@@ -20,7 +20,7 @@ public class DynamicMeasurementsControllerTests
     private readonly Mock<ICustomMeasurementService> _mockCustomMeasurementService;
     private readonly Mock<IClienteService> _mockClienteService;
     private readonly Mock<ICommessaService> _mockCommessaService;
-    private readonly Mock<UserManager<ApplicationUser>> _mockUserManager;
+    private readonly Mock<ITenantService> _mockTenantService;
     private readonly Mock<ILogger<DynamicMeasurementsController>> _mockLogger;
     private readonly DynamicMeasurementsController _controller;
 
@@ -29,17 +29,18 @@ public class DynamicMeasurementsControllerTests
         _mockCustomMeasurementService = new Mock<ICustomMeasurementService>();
         _mockClienteService = new Mock<IClienteService>();
         _mockCommessaService = new Mock<ICommessaService>();
-        
-        var store = new Mock<IUserStore<ApplicationUser>>();
-        _mockUserManager = new Mock<UserManager<ApplicationUser>>(store.Object, null!, null!, null!, null!, null!, null!, null!, null!);
-        
+        _mockTenantService = new Mock<ITenantService>();
         _mockLogger = new Mock<ILogger<DynamicMeasurementsController>>();
+
+        _mockTenantService.Setup(s => s.IsAdmin()).Returns(true);
+        _mockTenantService.Setup(s => s.GetCurrentNegozioId()).Returns((int?)null);
+        _mockTenantService.Setup(s => s.GetUserId()).Returns("1");
 
         _controller = new DynamicMeasurementsController(
             _mockCustomMeasurementService.Object,
             _mockClienteService.Object,
             _mockCommessaService.Object,
-            _mockUserManager.Object,
+            _mockTenantService.Object,
             _mockLogger.Object);
 
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
@@ -61,8 +62,6 @@ public class DynamicMeasurementsControllerTests
         // Arrange
         var cliente = new Cliente { Id = 1, Nome = "Mario", Cognome = "Rossi" };
         var type = new MeasurementType { Id = 1, Nome = "Tipo1", IsActive = true };
-        _mockUserManager.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
-            .ReturnsAsync(new ApplicationUser { Id = "1" });
         _mockClienteService.Setup(s => s.GetClienteScopedAsync(1, It.IsAny<int?>(), true))
             .ReturnsAsync(cliente);
         _mockCustomMeasurementService.Setup(s => s.GetMeasurementTypeByIdAsync(1))
@@ -91,8 +90,6 @@ public class DynamicMeasurementsControllerTests
         var type = new MeasurementType { Id = 1, Nome = "Tipo1" };
         var record = new DynamicMeasurementRecord { Id = 10 };
 
-        _mockUserManager.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
-            .ReturnsAsync(new ApplicationUser { Id = "1" });
         _mockClienteService.Setup(s => s.GetClienteScopedAsync(1, It.IsAny<int?>(), true))
             .ReturnsAsync(cliente);
         _mockCustomMeasurementService.Setup(s => s.GetMeasurementTypeByIdAsync(1))

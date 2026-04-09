@@ -9,36 +9,32 @@ using System.Threading.Tasks;
 namespace MisureRicci.Controllers
 {
     [Authorize]
-    public class ClientiController : Controller
+    public class ClientiController : TenantAwareController
     {
         private readonly IClienteService _clienteService;
         private readonly INegozioService _negozioService;
-        private readonly ITenantService _tenantService;
 
         public ClientiController(
             IClienteService clienteService,
             INegozioService negozioService,
             ITenantService tenantService)
+            : base(tenantService)
         {
             _clienteService = clienteService;
             _negozioService = negozioService;
-            _tenantService = tenantService;
         }
 
         // GET: Clienti
         public async Task<IActionResult> Index(string? searchString, int page = 1)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            bool isAdmin = _tenantService.IsAdmin();
-            int? negozioId = _tenantService.GetCurrentNegozioId();
-            if (!isAdmin && !negozioId.HasValue)
-            {
-                return View("TenantAssignmentRequired");
-            }
+
+            var tenantCheck = RequireTenant();
+            if (tenantCheck != null) return tenantCheck;
 
             const int pageSize = 20;
             
-            var result = await _clienteService.GetClientiPagedAsync(searchString, negozioId, isAdmin, page, pageSize);
+            var result = await _clienteService.GetClientiPagedAsync(searchString, NegozioId, IsAdmin, page, pageSize);
             var model = new ClientiIndexViewModel
             {
                 Clienti = result.Items,
@@ -56,13 +52,11 @@ namespace MisureRicci.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null) return NotFound();
 
-            bool isAdmin = _tenantService.IsAdmin();
-            int? negozioId = _tenantService.GetCurrentNegozioId();
-            var cliente = await _clienteService.GetClienteScopedAsync(id.Value, negozioId, isAdmin);
+            var cliente = await _clienteService.GetClienteScopedAsync(id.Value, NegozioId, IsAdmin);
             
             if (cliente == null) return NotFound();
 
-            var history = await _clienteService.GetStoricoMisureScopedAsync(id.Value, negozioId, isAdmin);
+            var history = await _clienteService.GetStoricoMisureScopedAsync(id.Value, NegozioId, IsAdmin);
 
             var vm = new MisureRicci.Models.ViewModels.ClienteDetailsViewModel
             {
@@ -87,27 +81,24 @@ namespace MisureRicci.Controllers
         {
             if (!ModelState.IsValid)
             {
-                bool isAdmin0 = _tenantService.IsAdmin();
-                return View(await BuildPageViewModelAsync(model.Cliente, isAdmin0));
+                return View(await BuildPageViewModelAsync(model.Cliente, IsAdmin));
             }
 
-            bool isAdmin = _tenantService.IsAdmin();
-            int? currentNegozioId = _tenantService.GetCurrentNegozioId();
-            
-            ValidateClienteTenantAssignment(model.Cliente, isAdmin, currentNegozioId);
+            ValidateClienteTenantAssignment(model.Cliente, IsAdmin, NegozioId);
 
             if (ModelState.IsValid)
             {
-                var created = await _clienteService.CreateClienteScopedAsync(model.Cliente, currentNegozioId, isAdmin);
-                if (created == null)
+                var result = await _clienteService.CreateClienteScopedAsync(model.Cliente, NegozioId, IsAdmin);
+                if (!result.IsSuccess)
                 {
-                    return Forbid();
+                    ModelState.AddModelError(string.Empty, result.Error ?? "Operazione non riuscita.");
+                    return View(await BuildPageViewModelAsync(model.Cliente, IsAdmin));
                 }
 
-                return RedirectToAction(nameof(Details), new { id = created.Id });
+                return RedirectToAction(nameof(Details), new { id = result.Value!.Id });
             }
 
-            return View(await BuildPageViewModelAsync(model.Cliente, isAdmin));
+            return View(await BuildPageViewModelAsync(model.Cliente, IsAdmin));
         }
 
         // GET: Clienti/Edit/5
@@ -116,12 +107,10 @@ namespace MisureRicci.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null) return NotFound();
 
-            bool isAdmin = _tenantService.IsAdmin();
-            int? currentNegozioId = _tenantService.GetCurrentNegozioId();
-            var cliente = await _clienteService.GetClienteScopedAsync(id.Value, currentNegozioId, isAdmin);
+            var cliente = await _clienteService.GetClienteScopedAsync(id.Value, NegozioId, IsAdmin);
             if (cliente == null) return NotFound();
             
-            return View(await BuildPageViewModelAsync(cliente, isAdmin));
+            return View(await BuildPageViewModelAsync(cliente, IsAdmin));
         }
 
         // POST: Clienti/Edit/5
@@ -131,28 +120,25 @@ namespace MisureRicci.Controllers
         {
             if (!ModelState.IsValid)
             {
-                bool isAdmin0 = _tenantService.IsAdmin();
-                return View(await BuildPageViewModelAsync(model.Cliente, isAdmin0));
+                return View(await BuildPageViewModelAsync(model.Cliente, IsAdmin));
             }
 
             if (id != model.Cliente.Id) return NotFound();
 
-            bool isAdmin = _tenantService.IsAdmin();
-            int? currentNegozioId = _tenantService.GetCurrentNegozioId();
-            
-            ValidateClienteTenantAssignment(model.Cliente, isAdmin, currentNegozioId);
+            ValidateClienteTenantAssignment(model.Cliente, IsAdmin, NegozioId);
 
             if (ModelState.IsValid)
             {
-                if (await _clienteService.UpdateClienteScopedAsync(model.Cliente, currentNegozioId, isAdmin))
+                var result = await _clienteService.UpdateClienteScopedAsync(model.Cliente, NegozioId, IsAdmin);
+                if (result.IsSuccess)
                 {
                     return RedirectToAction(nameof(Index));
                 }
 
-                return NotFound();
+                ModelState.AddModelError(string.Empty, result.Error ?? "Operazione non riuscita.");
             }
 
-            return View(await BuildPageViewModelAsync(model.Cliente, isAdmin));
+            return View(await BuildPageViewModelAsync(model.Cliente, IsAdmin));
         }
 
         public async Task<IActionResult> Delete(int? id)
@@ -160,9 +146,7 @@ namespace MisureRicci.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null) return NotFound();
 
-            bool isAdmin = _tenantService.IsAdmin();
-            int? currentNegozioId = _tenantService.GetCurrentNegozioId();
-            var cliente = await _clienteService.GetClienteScopedAsync(id.Value, currentNegozioId, isAdmin);
+            var cliente = await _clienteService.GetClienteScopedAsync(id.Value, NegozioId, IsAdmin);
             if (cliente == null) return NotFound();
 
             return View(cliente);
@@ -173,10 +157,9 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            bool isAdmin = _tenantService.IsAdmin();
-            int? currentNegozioId = _tenantService.GetCurrentNegozioId();
 
-            if (!await _clienteService.DeleteClienteScopedAsync(id, currentNegozioId, isAdmin))
+            var result = await _clienteService.DeleteClienteScopedAsync(id, NegozioId, IsAdmin);
+            if (!result.IsSuccess)
             {
                 return NotFound();
             }
@@ -186,7 +169,7 @@ namespace MisureRicci.Controllers
 
         private async Task<ClientePageViewModel> BuildPageViewModelAsync(Cliente cliente, bool? isAdminOverride = null)
         {
-            var isAdmin = isAdminOverride ?? _tenantService.IsAdmin();
+            var isAdmin = isAdminOverride ?? IsAdmin;
 
             return new ClientePageViewModel
             {

@@ -64,7 +64,7 @@ public class NegoziControllerTests
     {
         // Arrange
         var negozio = new Negozio { Nome = "Test" };
-        _mockNegozioService.Setup(s => s.CreateAsync(negozio)).ReturnsAsync(negozio);
+        _mockNegozioService.Setup(s => s.CreateAsync(negozio)).ReturnsAsync(Result<Negozio>.Ok(negozio));
 
         // Act
         var result = await _controller.Create(negozio);
@@ -79,7 +79,7 @@ public class NegoziControllerTests
     {
         // Arrange
         var negozio = new Negozio { Id = 1, Nome = "Test" };
-        _mockNegozioService.Setup(s => s.UpdateAsync(negozio)).Returns(Task.CompletedTask);
+        _mockNegozioService.Setup(s => s.UpdateAsync(negozio)).ReturnsAsync(Result.Ok());
 
         // Act
         var result = await _controller.Edit(1, negozio);
@@ -93,7 +93,7 @@ public class NegoziControllerTests
     public async Task DeleteConfirmed_RedirectsToIndex()
     {
         // Arrange
-        _mockNegozioService.Setup(s => s.DeleteAsync(1)).Returns(Task.CompletedTask);
+        _mockNegozioService.Setup(s => s.DeleteAsync(1)).ReturnsAsync(Result.Ok());
 
         // Act
         var result = await _controller.DeleteConfirmed(1);

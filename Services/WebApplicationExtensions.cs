@@ -187,6 +187,9 @@ namespace MisureRicci.Services
 
         public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder app)
         {
+            var env = app.ApplicationServices.GetRequiredService<IWebHostEnvironment>();
+            var isDevelopment = env.IsDevelopment();
+
             return app.Use(async (context, next) =>
             {
                 var nonce = GenerateNonce();
@@ -197,10 +200,15 @@ namespace MisureRicci.Services
                 context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
                 context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
                 context.Response.Headers.Append("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+
+                var connectSrc = isDevelopment
+                    ? "'self' http://localhost:* ws://localhost:*"
+                    : "'self'";
+
                 context.Response.Headers.Append(
                     "Content-Security-Policy",
                     $"default-src 'none'; " +
-                    $"connect-src 'self' http://localhost:* ws://localhost:*; " +
+                    $"connect-src {connectSrc}; " +
                     $"script-src 'self' 'nonce-{nonce}' https://cdn.jsdelivr.net; " +
                     $"style-src 'self' 'nonce-{nonce}' https://fonts.googleapis.com https://cdn.jsdelivr.net; " +
                     "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; " +

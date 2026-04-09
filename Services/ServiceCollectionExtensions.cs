@@ -71,7 +71,27 @@ namespace MisureRicci.Services
             services.AddScoped<IPdfService, PdfService>();
             services.AddScoped<ICustomMeasurementService, CustomMeasurementService>();
             services.AddScoped<IMeasurementTypeImageStorageService, MeasurementTypeImageStorageService>();
+
+            // File storage provider (configurabile via Storage:Provider)
+            var storageProvider = config?.GetValue<string>("Storage:Provider") ?? "Local";
+            if (string.Equals(storageProvider, "AzureBlob", StringComparison.OrdinalIgnoreCase))
+            {
+                services.AddSingleton<IFileStorageProvider, AzureBlobStorageProvider>();
+            }
+            else
+            {
+                services.AddSingleton<IFileStorageProvider>(sp =>
+                {
+                    var env = sp.GetRequiredService<IWebHostEnvironment>();
+                    var basePath = Path.Combine(env.ContentRootPath, "SecureUploads");
+                    return new LocalFileStorageProvider(basePath);
+                });
+            }
+
             services.AddScoped<IFabricService, FabricService>();
+            services.AddScoped<ICommessaQueryService, CommessaQueryService>();
+            services.AddScoped<ICommessaCommandService, CommessaCommandService>();
+            services.AddScoped<ICommessaMisuraLinkService, CommessaMisuraLinkService>();
             services.AddScoped<ICommessaService, CommessaService>();
             services.AddScoped<INegozioService, NegozioService>();
             services.AddScoped<ILegacyMeasurementUiService, LegacyMeasurementUiService>();

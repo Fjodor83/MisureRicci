@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using MisureRicci.Data;
 using MisureRicci.Models;
 using MisureRicci.Services;
 using Moq;
@@ -8,6 +10,21 @@ namespace MisureRicci.Tests;
 
 public class DashboardServiceTests
 {
+    private static IServiceScopeFactory CreateScopeFactory(TestDbContextFactory factory)
+    {
+        var mock = new Mock<IServiceScopeFactory>();
+        mock.Setup(f => f.CreateScope()).Returns(() =>
+        {
+            var ctx = factory.CreateContext();
+            var provider = new Mock<IServiceProvider>();
+            provider.Setup(p => p.GetService(typeof(ApplicationDbContext))).Returns(ctx);
+            var scope = new Mock<IServiceScope>();
+            scope.Setup(s => s.ServiceProvider).Returns(provider.Object);
+            scope.Setup(s => s.Dispose()).Callback(() => ctx.Dispose());
+            return scope.Object;
+        });
+        return mock.Object;
+    }
     [Fact]
     public async Task GetKpiAsync_NonAdmin_ReturnsOnlyOwnNegozioSnapshot()
     {
@@ -89,7 +106,7 @@ public class DashboardServiceTests
 
         using (var actContext = factory.CreateContext())
         {
-            var service = new DashboardService(actContext, new MemoryCache(new MemoryCacheOptions()));
+            var service = new DashboardService(CreateScopeFactory(factory), new MemoryCache(new MemoryCacheOptions()));
             var result = await service.GetKpiAsync(negozio1Id, isAdmin: false);
 
             Assert.Equal(1, result.TotalClients);
@@ -109,7 +126,7 @@ public class DashboardServiceTests
 
         using var context = factory.CreateContext();
 
-        var service = new DashboardService(context, new MemoryCache(new MemoryCacheOptions()));
+        var service = new DashboardService(CreateScopeFactory(factory), new MemoryCache(new MemoryCacheOptions()));
         var result = await service.GetKpiAsync(negozioId: null, isAdmin: false);
 
         Assert.Equal(0, result.TotalClients);

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
+using MisureRicci.Data;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
@@ -10,6 +11,15 @@ namespace MisureRicci.Tests;
 
 public class CommessaServiceTests
 {
+    private static CommessaService BuildService(ApplicationDbContext context)
+    {
+        var cache = new MemoryCache(new MemoryCacheOptions());
+        var linkService = new CommessaMisuraLinkService(context, NullLogger<CommessaMisuraLinkService>.Instance);
+        var queryService = new CommessaQueryService(context, cache);
+        var commandService = new CommessaCommandService(context, NullLogger<CommessaCommandService>.Instance, linkService);
+        return new CommessaService(queryService, commandService, linkService);
+    }
+
     [Fact]
     public async Task CreateCommessaAsync_CreatesOpeningEventAndSelectedMeasurementLinks()
     {
@@ -58,7 +68,7 @@ public class CommessaServiceTests
 
         using (var actContext = factory.CreateContext())
         {
-            var service = new CommessaService(actContext, new MemoryCache(new MemoryCacheOptions()), NullLogger<CommessaService>.Instance);
+            var service = BuildService(actContext);
             var model = new CommessaCreateViewModel
             {
                 ClienteId = clienteId,
@@ -140,7 +150,7 @@ public class CommessaServiceTests
 
         using (var actContext = factory.CreateContext())
         {
-            var service = new CommessaService(actContext, new MemoryCache(new MemoryCacheOptions()), NullLogger<CommessaService>.Instance);
+            var service = BuildService(actContext);
             var model = new CommessaCreateViewModel
             {
                 ClienteId = clienteId,
