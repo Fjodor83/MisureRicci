@@ -16,28 +16,29 @@
 </section>
 
 <form asp-action="Edit" method="post" class="form-shell">
+    @Html.AntiForgeryToken()
     <section class="form-section">
         <div asp-validation-summary="All"></div>
         <input type="hidden" asp-for="Form.Id" />
 
         <div class="row g-4">
             <div class="col-md-6">
-                <label asp-for="Form.NomeCompleto" class="form-label"></label>
+                <label asp-for="Form.NomeCompleto" class="form-label">Nome completo</label>
                 <input asp-for="Form.NomeCompleto" class="form-control" />
                 <span asp-validation-for="Form.NomeCompleto" class="text-danger"></span>
             </div>
             <div class="col-md-6">
-                <label asp-for="Form.UserName" class="form-label"></label>
+                <label asp-for="Form.UserName" class="form-label">Nome utente</label>
                 <input asp-for="Form.UserName" class="form-control" />
                 <span asp-validation-for="Form.UserName" class="text-danger"></span>
             </div>
             <div class="col-12">
-                <label asp-for="Form.Email" class="form-label"></label>
+                <label asp-for="Form.Email" class="form-label">Email</label>
                 <input asp-for="Form.Email" class="form-control" />
                 <span asp-validation-for="Form.Email" class="text-danger"></span>
             </div>
             <div class="col-md-6">
-                <label asp-for="Form.Ruolo" class="form-label"></label>
+                <label asp-for="Form.Ruolo" class="form-label">Ruolo</label>
                 <select asp-for="Form.Ruolo" class="form-select">
                     @if (User.IsInRole("Admin"))
                     {
@@ -50,11 +51,11 @@
                 <span asp-validation-for="Form.Ruolo" class="text-danger"></span>
             </div>
             <div class="col-md-6">
-                <label asp-for="Form.NegozioId" class="form-label"></label>
+                <label asp-for="Form.NegozioId" class="form-label">Negozio</label>
                 @if (User.IsInRole("Admin"))
                 {
                     <select asp-for="Form.NegozioId" class="form-select" asp-items="@(new SelectList(Model.Negozi, "Id", "Nome"))">
-                        <option value="">-- Seleziona Negozio --</option>
+                        <option value="">Seleziona Negozio</option>
                     </select>
                 }
                 else
@@ -68,17 +69,23 @@
 
         <div class="form-check form-switch mt-4">
             <input asp-for="Form.Attivo" class="form-check-input" />
-            <label asp-for="Form.Attivo" class="form-check-label"></label>
+            <label asp-for="Form.Attivo" class="form-check-label">Account attivo</label>
         </div>
     </section>
 
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">Salva</button>
-        <a asp-action="Delete" asp-route-id="@Model.Form.Id" class="btn btn-outline-danger ms-auto">Elimina</a>
+        <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Sei sicuro di voler eliminare questo utente?');">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Form.Id" />
+            <button type="submit" class="btn btn-outline-danger">Elimina</button>
+        </form>
         <a asp-action="Index" class="btn btn-outline-secondary">Annulla</a>
     </div>
 </form>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

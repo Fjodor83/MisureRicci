@@ -195,7 +195,6 @@ a {
 
 .sidebar-brand-panel,
 .sidebar-profile-card,
-.theme-switch-btn,
 .page-hero,
 .page-surface,
 .data-table-card,
@@ -216,7 +215,6 @@ a {
 
 .sidebar-brand-panel,
 .sidebar-profile-card,
-.theme-switch-btn,
 .page-surface,
 .data-table-card,
 .form-shell,
@@ -390,12 +388,6 @@ a {
     font-weight: 700;
 }
 
-.theme-switch-btn {
-    justify-content: center;
-    transition: transform var(--transition-fast), border-color var(--transition-base), background var(--transition-base);
-    color: var(--text-main);
-}
-
 .quick-link {
     justify-content: space-between;
     padding: var(--space-3) var(--space-4);
@@ -408,11 +400,6 @@ a {
 
 .quick-link:visited {
     color: var(--text-main);
-}
-
-.theme-switch-btn:hover {
-    transform: translateY(-2px);
-    border-color: var(--accent-border);
 }
 
 .quick-link:hover {
@@ -549,21 +536,6 @@ body.theme-dark .quick-link:focus-visible {
     animation: page-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.footer {
-    padding: 0 var(--space-6) var(--space-6);
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-    color: var(--text-soft);
-    font-size: 0.8rem;
-}
-
-.footer-copy {
-    color: var(--text-main);
-    font-weight: 600;
-}
-
 .page-hero {
     display: flex;
     justify-content: space-between;
@@ -598,12 +570,6 @@ body.theme-dark .quick-link:focus-visible {
     background: radial-gradient(circle, rgba(196, 138, 51, 0.22), transparent 70%);
 }
 
-.page-hero__content,
-.page-hero__aside {
-    position: relative;
-    z-index: 1;
-}
-
 .page-title,
 .sr-title {
     margin: 0;
@@ -613,8 +579,7 @@ body.theme-dark .quick-link:focus-visible {
 
 .sr-title.small,
 .page-title--sm,
-.detail-card__title,
-.feature-card__title {
+.detail-card__title {
     font-size: 1.65rem;
     line-height: 1.02;
 }
@@ -1554,11 +1519,6 @@ body.theme-dark .dynamic-field-help {
 
 .page-item.disabled .page-link {
     color: var(--text-soft);
-}
-
-.validation-summary-errors ul {
-    margin-bottom: 0;
-    padding-left: 1rem;
 }
 
 #sr-toast-container {
