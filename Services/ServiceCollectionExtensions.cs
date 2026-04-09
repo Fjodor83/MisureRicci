@@ -62,6 +62,11 @@ namespace MisureRicci.Services
         {
             services.AddHttpContextAccessor();
             services.AddScoped<ITenantService, TenantService>();
+            services.AddScoped<IAuditService, AuditService>();
+
+            var storageOptions = new StorageOptions();
+            config?.GetSection(StorageOptions.SectionName).Bind(storageOptions);
+            var storageRoot = ResolveStorageRoot(storageOptions.LocalBasePath);
 
             services.AddScoped<IClienteService, ClienteService>();
             services.AddScoped<IMeasurementService, MeasurementService>();
@@ -69,11 +74,16 @@ namespace MisureRicci.Services
             services.AddScoped<ILegacyMeasurementService, MeasurementService>();
             services.AddScoped<IDashboardService, DashboardService>();
             services.AddScoped<IPdfService, PdfService>();
+            services.AddSingleton<IPdfStorageService>(sp =>
+            {
+                var basePath = Path.Combine(storageRoot, "PdfDossiers");
+                return new LocalPdfStorageProvider(basePath);
+            });
             services.AddScoped<ICustomMeasurementService, CustomMeasurementService>();
             services.AddScoped<IMeasurementTypeImageStorageService, MeasurementTypeImageStorageService>();
 
             // File storage provider (configurabile via Storage:Provider)
-            var storageProvider = config?.GetValue<string>("Storage:Provider") ?? "Local";
+            var storageProvider = storageOptions.Provider;
             if (string.Equals(storageProvider, "AzureBlob", StringComparison.OrdinalIgnoreCase))
             {
                 services.AddSingleton<IFileStorageProvider, AzureBlobStorageProvider>();
@@ -82,8 +92,7 @@ namespace MisureRicci.Services
             {
                 services.AddSingleton<IFileStorageProvider>(sp =>
                 {
-                    var env = sp.GetRequiredService<IWebHostEnvironment>();
-                    var basePath = Path.Combine(env.ContentRootPath, "SecureUploads");
+                    var basePath = Path.Combine(storageRoot, "Files");
                     return new LocalFileStorageProvider(basePath);
                 });
             }
@@ -105,6 +114,16 @@ namespace MisureRicci.Services
             }
 
             return new ProjectServiceBuilder(services);
+        }
+
+        private static string ResolveStorageRoot(string? configuredPath)
+        {
+            if (!string.IsNullOrWhiteSpace(configuredPath))
+            {
+                return Path.GetFullPath(configuredPath);
+            }
+
+            return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "SecureUploads"));
         }
 
         public static IProjectServiceBuilder AddProjectRateLimiters(this IProjectServiceBuilder builder)

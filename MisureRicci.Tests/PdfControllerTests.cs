@@ -6,6 +6,7 @@ using MisureRicci.Models;
 using MisureRicci.Services;
 using Moq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -50,7 +51,7 @@ public class PdfControllerTests
             .ReturnsAsync((Cliente?)null);
 
         // Act
-        var result = await _controller.DossierCliente(1);
+        var result = await _controller.DossierCliente(1, CancellationToken.None);
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
@@ -67,11 +68,11 @@ public class PdfControllerTests
             .ReturnsAsync(new ApplicationUser { Id = "1", NegozioId = 1 });
         _mockClienteService.Setup(s => s.GetClienteScopedAsync(1, It.IsAny<int?>(), It.IsAny<bool>()))
             .ReturnsAsync(cliente);
-        _mockPdfService.Setup(s => s.GenerateDossierPdfAsync(1, It.IsAny<int?>(), It.IsAny<bool>()))
+        _mockPdfService.Setup(s => s.GenerateDossierPdfAsync(1, It.IsAny<int?>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(pdfBytes);
 
         // Act
-        var result = await _controller.DossierCliente(1);
+        var result = await _controller.DossierCliente(1, CancellationToken.None);
 
         // Assert
         var fileResult = Assert.IsType<FileContentResult>(result);
@@ -87,11 +88,11 @@ public class PdfControllerTests
             .ReturnsAsync(new ApplicationUser { Id = "1" });
         _mockClienteService.Setup(s => s.GetClienteScopedAsync(1, It.IsAny<int?>(), It.IsAny<bool>()))
             .ReturnsAsync(new Cliente { Id = 1 });
-        _mockPdfService.Setup(s => s.GenerateDossierPdfAsync(1, It.IsAny<int?>(), It.IsAny<bool>()))
+        _mockPdfService.Setup(s => s.GenerateDossierPdfAsync(1, It.IsAny<int?>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new System.UnauthorizedAccessException());
 
         // Act
-        var result = await _controller.DossierCliente(1);
+        var result = await _controller.DossierCliente(1, CancellationToken.None);
 
         // Assert
         Assert.IsType<ForbidResult>(result);

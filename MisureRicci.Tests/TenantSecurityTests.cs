@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MisureRicci.Models;
 using MisureRicci.Services;
+using System.Threading;
 using Xunit;
 
 namespace MisureRicci.Tests;
@@ -43,7 +44,7 @@ public class TenantSecurityTests
             var pdfService = new PdfService(actContext);
 
             await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
-                pdfService.GenerateDossierPdfAsync(clienteId, negozioId: 99, isAdmin: false));
+                pdfService.GenerateDossierPdfAsync(clienteId, negozioId: 99, isAdmin: false, CancellationToken.None));
         }
     }
 

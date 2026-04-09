@@ -43,6 +43,9 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 ENV DOTNET_RUNNING_IN_CONTAINER=true
 # Riduce il footprint di memoria del GC per free tier (512MB RAM)
 ENV DOTNET_GCConserveMemory=7
-ENV DOTNET_GCHeapHardLimit=419430400
+ENV DOTNET_GCHeapHardLimit=536870912
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s \
+    CMD curl -f http://localhost:8080/health || exit 1
 
 ENTRYPOINT ["dotnet", "MisureRicci.dll"]

@@ -1,7 +1,8 @@
 # Esclude file di configurazione locale e segreti
 **/.env
+**/appsettings.Development.json
 **/appsettings.*.json
-!**/appsettings.json
+!**/appsettings.Production.json
 **/secrets.*
 **/*.pfx
 **/*.pem

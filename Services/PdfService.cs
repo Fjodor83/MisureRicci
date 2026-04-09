@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using MisureRicci.Data;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -9,15 +10,24 @@ namespace MisureRicci.Services
     public class PdfService : IPdfService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IPdfStorageService _pdfStorageService;
+        private readonly ILogger<PdfService> _logger;
 
         public PdfService(ApplicationDbContext context)
+            : this(context, new NoOpPdfStorageService(), NullLogger<PdfService>.Instance)
         {
-            _context = context;
         }
 
-        public async Task<byte[]> GenerateDossierPdfAsync(int clienteId, int? negozioId, bool isAdmin)
+        public PdfService(ApplicationDbContext context, IPdfStorageService pdfStorageService, ILogger<PdfService> logger)
         {
-            var cliente = await _context.Clienti.FindAsync(clienteId);
+            _context = context;
+            _pdfStorageService = pdfStorageService;
+            _logger = logger;
+        }
+
+        public async Task<byte[]> GenerateDossierPdfAsync(int clienteId, int? negozioId, bool isAdmin, CancellationToken ct = default)
+        {
+            var cliente = await _context.Clienti.FindAsync([clienteId], ct);
             if (cliente == null) return Array.Empty<byte>();
 
             if (!isAdmin && (!negozioId.HasValue || cliente.NegozioId != negozioId.Value))
@@ -29,7 +39,7 @@ namespace MisureRicci.Services
             var misure = await _context.Misure
                 .Where(m => m.ClienteId == clienteId)
                 .OrderByDescending(m => m.DataCreazione)
-                .ToListAsync();
+                .ToListAsync(ct);
 
             var document = Document.Create(container =>
             {
@@ -75,7 +85,29 @@ namespace MisureRicci.Services
                 });
             });
 
-            return document.GeneratePdf();
+            var pdfBytes = document.GeneratePdf();
+
+            // On-demand generation is preserved; storage is best-effort for future retrieval.
+            var storagePath = $"dossiers/cliente-{clienteId}/dossier-{DateTime.UtcNow:yyyyMMddHHmmss}.pdf";
+            try
+            {
+                await _pdfStorageService.SaveAsync(storagePath, pdfBytes, ct);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "PDF storage save failed for cliente {ClienteId}", clienteId);
+            }
+
+            return pdfBytes;
+        }
+
+        private sealed class NoOpPdfStorageService : IPdfStorageService
+        {
+            public Task<string> SaveAsync(string relativePath, byte[] content, CancellationToken ct = default) =>
+                Task.FromResult(relativePath);
+
+            public Task<byte[]?> GetAsync(string relativePath, CancellationToken ct = default) =>
+                Task.FromResult<byte[]?>(null);
         }
     }
 }

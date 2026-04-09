@@ -1,0 +1,22 @@
+services:
+  misurericci:
+    image: misurericci:latest
+    container_name: misurericci-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Storage__Provider: Local
+      Storage__LocalBasePath: /data/misurericci
+      # Set this in .env for production safety.
+      ConnectionStrings__DefaultConnection: ${CONNECTIONSTRINGS__DEFAULTCONNECTION}
+    volumes:
+      - misurericci_data:/data/misurericci
+    restart: unless-stopped
+
+volumes:
+  misurericci_data:
+    driver: local

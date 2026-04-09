@@ -81,3 +81,52 @@ dotnet user-secrets set "Storage:Provider" "AzureBlob"
 dotnet user-secrets set "Storage:AzureBlobConnectionString" "..."
 dotnet user-secrets set "Storage:ContainerName" "uploads"
 ```
+
+### 5) Storage persistente PDF dossier
+
+Il servizio PDF genera il dossier on-demand e tenta il salvataggio persistente tramite `IPdfStorageService`.
+
+Provider attuale:
+1. `LocalPdfStorageProvider`
+2. Path default: `SecureUploads/PdfDossiers/`
+
+Note operative:
+1. In ambiente container il path deve puntare a un volume persistente.
+2. Per storage esterno (es. Blob/S3) creare un nuovo provider che implementa `IPdfStorageService` e registrarlo in DI.
+
+### 6) Evitare cancellazione file dopo update/deploy
+
+Per mantenere i file caricati anche dopo restart o aggiornamenti:
+1. Usa `Storage:Provider=Local`.
+2. Imposta `Storage:LocalBasePath` su una cartella esterna al deploy dell'app.
+3. Non usare cartelle sotto `bin/` o dentro la publish folder.
+
+Esempio Windows:
+```json
+{
+  "Storage": {
+    "Provider": "Local",
+    "LocalBasePath": "C:\\MisureRicciData"
+  }
+}
+```
+
+Esempio Docker (volume persistente):
+```bash
+docker run -d \
+  -p 8080:8080 \
+  -v misurericci_data:/data/misurericci \
+  -e Storage__Provider=Local \
+  -e Storage__LocalBasePath=/data/misurericci \
+  misurericci:latest
+```
+
+Con Docker Compose:
+1. Copia `.env.example` in `.env` e imposta la connection string.
+2. Avvia con:
+
+```bash
+docker compose up -d --build
+```
+
+Il volume `misurericci_data` mantiene i file anche dopo restart e aggiornamenti container.

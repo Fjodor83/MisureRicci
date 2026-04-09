@@ -4,6 +4,6 @@ namespace MisureRicci.Services
 {
     public interface IPdfService
     {
-        Task<byte[]> GenerateDossierPdfAsync(int clienteId, int? negozioId, bool isAdmin);
+        Task<byte[]> GenerateDossierPdfAsync(int clienteId, int? negozioId, bool isAdmin, CancellationToken ct = default);
     }
 }

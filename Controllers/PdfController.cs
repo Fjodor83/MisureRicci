@@ -23,7 +23,7 @@ namespace MisureRicci.Controllers
         }
 
         [HttpGet("dossier/{clienteId}")]
-        public async Task<IActionResult> DossierCliente(int clienteId)
+        public async Task<IActionResult> DossierCliente(int clienteId, CancellationToken ct)
         {
             if (!ModelState.IsValid)
             {
@@ -41,7 +41,7 @@ namespace MisureRicci.Controllers
             byte[] bytes;
             try
             {
-                bytes = await _pdfService.GenerateDossierPdfAsync(clienteId, currentUser?.NegozioId, isAdmin);
+                bytes = await _pdfService.GenerateDossierPdfAsync(clienteId, currentUser?.NegozioId, isAdmin, ct);
             }
             catch (UnauthorizedAccessException)
             {

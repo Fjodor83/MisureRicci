@@ -25,6 +25,7 @@ namespace MisureRicci.Data
         public DbSet<DynamicMeasurementValue> DynamicMeasurementValues { get; set; } = default!;
 
         public DbSet<Fabric> Fabrics { get; set; } = default!;
+        public DbSet<AuditLog> AuditLogs { get; set; } = default!;
 
         // Tabelle legacy
         public DbSet<GiaccaMeasurement> MisureGiacca { get; set; } = default!;
@@ -51,6 +52,7 @@ namespace MisureRicci.Data
             builder.ApplyConfiguration(new ClienteConfiguration());
             builder.ApplyConfiguration(new FabricConfiguration());
             builder.ApplyConfiguration(new MisureClienteConfiguration());
+            builder.ApplyConfiguration(new AuditLogConfiguration());
 
             builder.Entity<CommessaSartoriale>().ToTable("CommissioniSartoriali");
 
