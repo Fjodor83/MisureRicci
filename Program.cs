@@ -112,10 +112,11 @@ try
         Predicate = check => check.Tags.Contains("ready")
     });
 
-    app.Run();
+    await app.RunAsync();
 }
-catch (HostAbortedException)
+catch (HostAbortedException ex)
 {
+    Log.Warning(ex, "Host aborted during startup. Application is shutting down.");
 }
 catch (Exception ex)
 {
@@ -123,6 +124,6 @@ catch (Exception ex)
 }
 finally
 {
-    Log.CloseAndFlush();
+    await Log.CloseAndFlushAsync();
 }
 

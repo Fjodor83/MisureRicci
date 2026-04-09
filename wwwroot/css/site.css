@@ -841,9 +841,26 @@ textarea.form-control {
 
 body.theme-dark .form-control:focus,
 body.theme-dark .form-select:focus {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-main);
-    border-color: rgba(196, 138, 51, 0.34);
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-main) !important;
+    border-color: rgba(196, 138, 51, 0.34) !important;
+    box-shadow: 0 0 0 0.25rem rgba(196, 138, 51, 0.14) !important;
+}
+
+/* Identity Account Manage form fields dark mode overrides */
+body.theme-dark .form-control,
+body.theme-dark .form-select {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border-strong) !important;
+}
+
+body.theme-dark .form-control:-webkit-autofill,
+body.theme-dark .form-control:-webkit-autofill:hover,
+body.theme-dark .form-control:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px rgba(7, 12, 22, 0.48) inset !important;
+    box-shadow: 0 0 0 1000px rgba(7, 12, 22, 0.48) inset !important;
+    -webkit-text-fill-color: var(--text-main) !important;
 }
 
 .form-check-input {
