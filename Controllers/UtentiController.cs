@@ -294,6 +294,10 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> Delete(string? id)
         {
             if (id == null) return NotFound();
+            if (id == User.FindFirstValue(ClaimTypes.NameIdentifier))
+            {
+                return Forbid(); // Prevent users from deleting themselves
+            }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             bool isAdmin = User.IsInRole(ApplicationRoles.Admin);

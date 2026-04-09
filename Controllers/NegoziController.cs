@@ -61,7 +61,7 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> Edit(int? id)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            if (id == null) return NotFound();
+            if (!id.HasValue) return NotFound();
             var negozio = await _negozioService.GetByIdAsync(id.Value);
             if (negozio == null) return NotFound();
             return View(negozio);
@@ -104,7 +104,7 @@ namespace MisureRicci.Controllers
         public async Task<IActionResult> Delete(int? id)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            if (id == null) return NotFound();
+            if (id == null|| !id.HasValue) return NotFound();
             var negozio = await _negozioService.GetByIdAsync(id.Value);
             if (negozio == null) return NotFound();
             return View(negozio);

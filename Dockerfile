@@ -26,10 +26,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Crea un utente non privilegiato (appuser)
-RUN adduser --disabled-password --gecos "" appuser
+&& adduser --disabled-password --gecos "" appuser \ 
 
 # Crea directory per upload e assegna i permessi all'utente
-RUN mkdir -p SecureUploads && chown -R appuser:appuser /app
+&& mkdir -p SecureUploads && chown -R appuser:appuser /app
 
 # Copia il publish
 COPY --from=build /app/publish .
