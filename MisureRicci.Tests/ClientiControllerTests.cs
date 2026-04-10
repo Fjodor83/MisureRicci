@@ -101,7 +101,7 @@ public class ClientiControllerTests
     public async Task Create_POST_RedirectsToDetails_WhenSuccessful()
     {
         // Arrange
-        var model = new ClientePageViewModel { Cliente = new Cliente { Nome = "Test" } };
+        var model = new ClientePageViewModel { Cliente = new Cliente { Nome = "Test" }, IsAdmin = false };
         _mockTenantService.Setup(s => s.IsAdmin()).Returns(false);
         _mockTenantService.Setup(s => s.GetCurrentNegozioId()).Returns(1);
         _mockClienteService.Setup(s => s.CreateClienteScopedAsync(It.IsAny<Cliente>(), It.IsAny<int?>(), It.IsAny<bool>()))
@@ -120,19 +120,18 @@ public class ClientiControllerTests
     public async Task Create_POST_ReturnsViewWithError_WhenServiceFails()
     {
         // Arrange
-        var model = new ClientePageViewModel { Cliente = new Cliente { Nome = "Test" } };
+        var model = new ClientePageViewModel { Cliente = new Cliente { Nome = "Test" }, IsAdmin = false };
         _mockTenantService.Setup(s => s.IsAdmin()).Returns(false);
         _mockTenantService.Setup(s => s.GetCurrentNegozioId()).Returns(1);
         _mockClienteService.Setup(s => s.CreateClienteScopedAsync(It.IsAny<Cliente>(), It.IsAny<int?>(), It.IsAny<bool>()))
             .ReturnsAsync(Result<Cliente>.Fail("Accesso negato: tenant non assegnato."));
         _mockNegozioService.Setup(s => s.GetAllAsync()).ReturnsAsync(new List<Negozio>());
 
-        // Act
         var result = await _controller.Create(model);
 
-        // Assert
-        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.IsType<ViewResult>(result);
         Assert.False(_controller.ModelState.IsValid);
+
     }
 
     [Fact]
@@ -150,7 +149,7 @@ public class ClientiControllerTests
     {
         // Arrange
         var cliente = new Cliente { Id = 1, Nome = "Test" };
-        var model = new ClientePageViewModel { Cliente = cliente };
+        var model = new ClientePageViewModel { Cliente = cliente, IsAdmin = false };
         _mockTenantService.Setup(s => s.IsAdmin()).Returns(false);
         _mockTenantService.Setup(s => s.GetCurrentNegozioId()).Returns(1);
         _mockClienteService.Setup(s => s.UpdateClienteScopedAsync(It.IsAny<Cliente>(), It.IsAny<int?>(), It.IsAny<bool>()))

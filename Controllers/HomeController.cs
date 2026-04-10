@@ -71,27 +71,42 @@ namespace MisureRicci.Controllers
 
             var userDisplayQuery = userManager.Users
                 .Where(user => userIds.Contains(user.Id))
-                .Select(user => new
-                {
+                .Select(user => new UserDisplayProjection(
                     user.Id,
                     user.NomeCompleto,
-                    user.UserName
-                });
+                    user.UserName));
 
-            if (userDisplayQuery.Provider is not IAsyncQueryProvider)
-                throw new InvalidOperationException("The query provider does not support async execution.");
-
-            var userDisplayMap = await userDisplayQuery.ToDictionaryAsync(
-                user => user.Id,
-                user => string.IsNullOrWhiteSpace(user.NomeCompleto)
-                    ? (user.UserName ?? user.Id)
-                    : user.NomeCompleto,
-                cancellationToken);
+            var userDisplayMap = await BuildUserDisplayMapAsync(userDisplayQuery, cancellationToken);
 
             ViewBag.UserDisplayMap = userDisplayMap;
 
             return View(entries);
         }
+
+        private static Task<Dictionary<string, string>> BuildUserDisplayMapAsync(
+            IQueryable<UserDisplayProjection> userDisplayQuery,
+            CancellationToken cancellationToken)
+        {
+            if (userDisplayQuery.Provider is IAsyncQueryProvider)
+            {
+                return userDisplayQuery.ToDictionaryAsync(
+                    user => user.Id,
+                    user => string.IsNullOrWhiteSpace(user.NomeCompleto)
+                        ? (user.UserName ?? user.Id)
+                        : user.NomeCompleto,
+                    cancellationToken);
+            }
+
+            var map = userDisplayQuery.ToDictionary(
+                user => user.Id,
+                user => string.IsNullOrWhiteSpace(user.NomeCompleto)
+                    ? (user.UserName ?? user.Id)
+                    : user.NomeCompleto);
+
+            return Task.FromResult(map);
+        }
+
+        private sealed record UserDisplayProjection(string Id, string? NomeCompleto, string? UserName);
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

@@ -34,24 +34,11 @@ namespace MisureRicci.Services
 
                 int storeId = negozioId ?? 0;
 
-                Task<int> CountFilteredAsync<TEntity>(
-                    Func<ApplicationDbContext, IQueryable<TEntity>> baseQuery)
-                    where TEntity : class
-                {
-                    return CountAsync((ctx, token) =>
-                    {
-                        var q = baseQuery(ctx);
-                        if (!isAdmin)
-                            q = q.Where(e => EF.Property<int>(e, "NegozioId") == storeId);
-                        return q.CountAsync(token);
-                    }, ct);
-                }
-
                 var tasks = await Task.WhenAll(
-                    CountFilteredAsync(ctx => ctx.Clienti),
-                    CountFilteredAsync(ctx => ctx.Misure),
-                    CountFilteredAsync(ctx => ctx.Negozi),
-                    CountFilteredAsync(ctx => ctx.Users)
+                    CountClientsAsync(isAdmin, storeId, ct),
+                    CountMeasurementsAsync(isAdmin, storeId, ct),
+                    CountStoresAsync(isAdmin, storeId, ct),
+                    CountStaffAsync(isAdmin, storeId, ct)
                 );
 
                 return new DashboardKpiViewModel
@@ -70,5 +57,33 @@ namespace MisureRicci.Services
             var ctx = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             return await query(ctx, ct);
         }
+
+        private Task<int> CountClientsAsync(bool isAdmin, int storeId, CancellationToken ct)
+            => CountAsync((ctx, token) =>
+                (isAdmin
+                    ? ctx.Clienti
+                    : ctx.Clienti.Where(c => c.NegozioId == storeId))
+                .CountAsync(token), ct);
+
+        private Task<int> CountMeasurementsAsync(bool isAdmin, int storeId, CancellationToken ct)
+            => CountAsync((ctx, token) =>
+                (isAdmin
+                    ? ctx.Misure
+                    : ctx.Misure.Where(m => m.Cliente != null && m.Cliente.NegozioId == storeId))
+                .CountAsync(token), ct);
+
+        private Task<int> CountStoresAsync(bool isAdmin, int storeId, CancellationToken ct)
+            => CountAsync((ctx, token) =>
+                (isAdmin
+                    ? ctx.Negozi
+                    : ctx.Negozi.Where(n => n.Id == storeId))
+                .CountAsync(token), ct);
+
+        private Task<int> CountStaffAsync(bool isAdmin, int storeId, CancellationToken ct)
+            => CountAsync((ctx, token) =>
+                (isAdmin
+                    ? ctx.Users
+                    : ctx.Users.Where(u => u.NegozioId == storeId))
+                .CountAsync(token), ct);
     }
 }
