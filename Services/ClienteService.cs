@@ -1,17 +1,25 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MisureRicci.Data;
 using MisureRicci.Models;
+using System.Security.Claims;
 
 namespace MisureRicci.Services
 {
     public class ClienteService : IClienteService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IAuditService _auditService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ClienteService(ApplicationDbContext context)
+        public ClienteService(ApplicationDbContext context, IAuditService auditService, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _auditService = auditService;
+            _httpContextAccessor = httpContextAccessor;
         }
+
+        private string? CurrentUserId => _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         public async Task<(IEnumerable<Cliente> Items, int TotalCount)> GetClientiPagedAsync(
             string? searchString, int? negozioId, bool isAdmin, int page, int pageSize)
@@ -120,6 +128,8 @@ namespace MisureRicci.Services
             cliente.ClientCode = GenerateClientCode(cliente.Id, cliente.DataRegistrazione);
             await _context.SaveChangesAsync();
 
+            await _auditService.WriteAsync("Cliente", cliente.Id.ToString(), "Create", CurrentUserId, null, $"{cliente.Nome} {cliente.Cognome}");
+
             return Result<Cliente>.Ok(cliente);
         }
 
@@ -154,6 +164,7 @@ namespace MisureRicci.Services
             }
 
             await _context.SaveChangesAsync();
+            await _auditService.WriteAsync("Cliente", existing.Id.ToString(), "Update", CurrentUserId, null, $"{existing.Nome} {existing.Cognome}");
             return Result.Ok();
         }
 
@@ -169,6 +180,7 @@ namespace MisureRicci.Services
 
             _context.Clienti.Remove(cliente);
             await _context.SaveChangesAsync();
+            await _auditService.WriteAsync("Cliente", id.ToString(), "Delete", CurrentUserId, $"{cliente.Nome} {cliente.Cognome}", null);
             return Result.Ok();
         }
 

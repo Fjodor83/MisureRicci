@@ -120,7 +120,7 @@
                     </button>
                     <div>
                         <div class="header-kicker">Workspace</div>
-                        <div class="header-title">@controller / @action</div>
+                        <div class="header-title">@controller</div>
                     </div>
                 </div>
 
@@ -195,10 +195,11 @@
                         <div class="footer-column">
                             <h5 class="footer-heading">Supporto</h5>
                             <ul class="footer-list">
-                                <li><a href="#">Guida all'uso</a></li>
-                                <li><a href="#">Standard Sartoriali</a></li>
-                                <li><a href="#">Assistenza Tecnica</a></li>
-                                <li><a href="#">Log Attività</a></li>
+                                <li><a asp-controller="Home" asp-action="AiutoInfo">Aiuto/Info</a></li>
+                                <li><a asp-controller="Home" asp-action="UserGuide">Guida all'uso</a></li>
+                                <li><a asp-controller="Home" asp-action="TailoringStandards">Standard Sartoriali</a></li>
+                                <li><a asp-controller="Home" asp-action="TechnicalSupport">Assistenza Tecnica</a></li>
+                                <li><a asp-controller="Home" asp-action="ActivityLog">Log Attività</a></li>
                             </ul>
                         </div>
 
@@ -217,11 +218,11 @@
 
                     <div class="footer-bottom-bar">
                         <div class="footer-legal">
-                            <span>Privacy Policy</span>
+                            <a asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
                             <span class="dot-separator"></span>
-                            <span>Termini di Servizio</span>
+                            <a asp-controller="Home" asp-action="TermsOfService">Termini di Servizio</a>
                             <span class="dot-separator"></span>
-                            <span>Standard di Sicurezza</span>
+                            <a asp-controller="Home" asp-action="SecurityStandards">Standard di Sicurezza</a>
                         </div>
                         <div class="footer-signature">
                             Eccellenza Italiana <i class="bi bi-patch-check-fill text-gold ms-1"></i>

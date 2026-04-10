@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using MisureRicci.Data;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
+using System.Security.Claims;
 
 namespace MisureRicci.Services
 {
@@ -12,11 +14,13 @@ namespace MisureRicci.Services
 
         private readonly ApplicationDbContext _context;
         private readonly IMemoryCache _cache;
+        private readonly IAuditService _auditService;
 
-        public CustomMeasurementService(ApplicationDbContext context, IMemoryCache cache)
+        public CustomMeasurementService(ApplicationDbContext context, IMemoryCache cache, IAuditService auditService)
         {
             _context = context;
             _cache = cache;
+            _auditService = auditService;
         }
 
         public async Task<List<MeasurementType>> GetMeasurementTypesAsync(bool onlyActive = true)
@@ -195,6 +199,8 @@ namespace MisureRicci.Services
                 {
                     await transaction.CommitAsync();
                 }
+
+                await _auditService.WriteAsync("Misura", record.Id.ToString(), "Create", createdByUserId, null, type.Nome);
 
                 return record;
             }

@@ -1,0 +1,74 @@
+@model IReadOnlyList<MisureRicci.Models.AuditLog>
+
+@{
+    ViewData["Title"] = "Log Attività";
+    var userDisplayMap = ViewBag.UserDisplayMap as IReadOnlyDictionary<string, string>;
+}
+
+<section class="page-hero">
+    <div class="page-hero__content">
+        <span class="page-kicker">Tracciamento operativo</span>
+        <h1 class="page-title">Log Attività</h1>
+        <p class="page-subtitle">Ultime operazioni registrate dall'applicazione per supporto e ricostruzione eventi.</p>
+    </div>
+</section>
+
+<section class="data-table-card">
+    <div class="table-toolbar">
+        <div>
+            <h2 class="detail-card__title">Ultime @Model.Count attività</h2>
+            <div class="toolbar-meta">Le voci sono ordinate dalla più recente alla meno recente.</div>
+        </div>
+        <span class="toolbar-chip">Audit trail</span>
+    </div>
+
+    @if (Model.Count > 0)
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Data/Ora</th>
+                        <th>Entità</th>
+                        <th>Azione</th>
+                        <th>Riferimento</th>
+                        <th>Utente</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var entry in Model)
+                    {
+                        <tr>
+                            <td>@entry.Timestamp.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@entry.EntityName</td>
+                            <td><span class="toolbar-chip">@entry.Action</span></td>
+                            <td>@(string.IsNullOrWhiteSpace(entry.EntityId) ? "-" : entry.EntityId)</td>
+                            <td>
+                                @if (string.IsNullOrWhiteSpace(entry.UserId))
+                                {
+                                    <span>Sistema</span>
+                                }
+                                else if (userDisplayMap != null && userDisplayMap.TryGetValue(entry.UserId, out var displayName))
+                                {
+                                    <span>@displayName <span class="text-muted">(@entry.UserId)</span></span>
+                                }
+                                else
+                                {
+                                    <span>@entry.UserId</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-state__icon"><i class="bi bi-clock-history"></i></div>
+            <h3 class="empty-state__title">Nessuna attività registrata</h3>
+            <p class="empty-state__text">Il registro audit è vuoto. Le nuove operazioni compariranno qui automaticamente.</p>
+        </div>
+    }
+</section>

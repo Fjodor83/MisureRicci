@@ -53,12 +53,10 @@ try
     builder.Services.AddHealthChecks()
         .AddSqlServer(connectionString, name: "sqlserver", tags: ["ready"]);
 
-    builder.Services.AddAuthorization(options =>
-    {
-        options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+    builder.Services.AddAuthorizationBuilder()
+        .SetFallbackPolicy(new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
             .RequireAuthenticatedUser()
-            .Build();
-    });
+            .Build());
 
     var app = builder.Build();
 
@@ -116,7 +114,14 @@ try
 }
 catch (HostAbortedException ex)
 {
-    Log.Warning(ex, "Host aborted during startup. Application is shutting down.");
+    var isEfDesignTime = AppDomain.CurrentDomain
+        .GetAssemblies()
+        .Any(assembly => string.Equals(assembly.GetName().Name, "Microsoft.EntityFrameworkCore.Design", StringComparison.Ordinal));
+
+    if (!isEfDesignTime)
+    {
+        Log.Warning(ex, "Host aborted during startup. Application is shutting down.");
+    }
 }
 catch (Exception ex)
 {

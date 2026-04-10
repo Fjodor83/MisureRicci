@@ -1,3 +1,5 @@
+using Moq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MisureRicci.Models;
 using MisureRicci.Services;
@@ -94,7 +96,7 @@ public class TenantSecurityTests
 
         using (var actContext = factory.CreateContext())
         {
-            var measurementService = new MeasurementService(actContext);
+            var measurementService = new MeasurementService(actContext, new Mock<IAuditService>().Object, new Mock<IHttpContextAccessor>().Object);
             var result = await measurementService.GetMeasurementScopedAsync(measurementId, "giacca", negozioId: 99, isAdmin: false);
 
             Assert.Null(result);
@@ -147,7 +149,7 @@ public class TenantSecurityTests
 
         using (var actContext = factory.CreateContext())
         {
-            var measurementService = new MeasurementService(actContext);
+            var measurementService = new MeasurementService(actContext, new Mock<IAuditService>().Object, new Mock<IHttpContextAccessor>().Object);
             var result = await measurementService.GetMeasurementScopedAsync(measurementId, "giacca", negozioId: null, isAdmin: false);
 
             Assert.Null(result);
@@ -200,7 +202,7 @@ public class TenantSecurityTests
 
         using (var actContext = factory.CreateContext())
         {
-            var measurementService = new MeasurementService(actContext);
+            var measurementService = new MeasurementService(actContext, new Mock<IAuditService>().Object, new Mock<IHttpContextAccessor>().Object);
             var result = await measurementService.GetMeasurementScopedAsync(measurementId, "giacca", negozioId: null, isAdmin: true);
 
             Assert.NotNull(result);
@@ -261,7 +263,7 @@ public class TenantSecurityTests
 
         using (var actContext = factory.CreateContext())
         {
-            var measurementService = new MeasurementService(actContext);
+            var measurementService = new MeasurementService(actContext, new Mock<IAuditService>().Object, new Mock<IHttpContextAccessor>().Object);
             var result = await measurementService.GetGlobalRegistryAsync(filter: string.Empty, negozioId: 1, isAdmin: false);
 
             Assert.Single(result);

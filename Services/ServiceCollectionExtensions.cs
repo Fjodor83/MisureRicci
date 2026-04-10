@@ -63,6 +63,7 @@ namespace MisureRicci.Services
             services.AddHttpContextAccessor();
             services.AddScoped<ITenantService, TenantService>();
             services.AddScoped<IAuditService, AuditService>();
+            services.AddScoped<IAuditLogQueryService, AuditLogQueryService>();
 
             var storageOptions = new StorageOptions();
             config?.GetSection(StorageOptions.SectionName).Bind(storageOptions);

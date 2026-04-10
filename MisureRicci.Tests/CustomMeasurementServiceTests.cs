@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Moq;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
@@ -69,7 +70,7 @@ public class CustomMeasurementServiceTests
 
         using (var actContext = factory.CreateContext())
         {
-            var service = new CustomMeasurementService(actContext, new MemoryCache(new MemoryCacheOptions()));
+            var service = new CustomMeasurementService(actContext, new MemoryCache(new MemoryCacheOptions()), new Mock<IAuditService>().Object);
             var model = new DynamicMeasurementCreateViewModel
             {
                 ClienteId = clienteId,
@@ -184,7 +185,7 @@ public class CustomMeasurementServiceTests
 
         using (var actContext = factory.CreateContext())
         {
-            var service = new CustomMeasurementService(actContext, new MemoryCache(new MemoryCacheOptions()));
+            var service = new CustomMeasurementService(actContext, new MemoryCache(new MemoryCacheOptions()), new Mock<IAuditService>().Object);
             var model = new DynamicMeasurementCreateViewModel
             {
                 RecordId = recordId,
@@ -286,7 +287,7 @@ public class CustomMeasurementServiceTests
 
         using (var actContext = factory.CreateContext())
         {
-            var service = new CustomMeasurementService(actContext, new MemoryCache(new MemoryCacheOptions()));
+            var service = new CustomMeasurementService(actContext, new MemoryCache(new MemoryCacheOptions()), new Mock<IAuditService>().Object);
             var result = await service.BuildDynamicMeasurementEditViewModelAsync(recordId);
 
             Assert.NotNull(result);
@@ -362,7 +363,7 @@ public class CustomMeasurementServiceTests
 
         using (var actContext = factory.CreateContext())
         {
-            var service = new CustomMeasurementService(actContext, new MemoryCache(new MemoryCacheOptions()));
+            var service = new CustomMeasurementService(actContext, new MemoryCache(new MemoryCacheOptions()), new Mock<IAuditService>().Object);
             var model = new DynamicMeasurementCreateViewModel
             {
                 ClienteId = clienteId,

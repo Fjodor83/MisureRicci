@@ -1,12 +1,18 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MisureRicci.Data;
 using MisureRicci.Models;
+using System.Security.Claims;
 
 namespace MisureRicci.Services
 {
     public class MeasurementService : IMeasurementService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IAuditService _auditService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        private string? CurrentUserId => _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
         private static readonly IReadOnlyDictionary<TipoMisuraLegacy, Func<MeasurementService, int, Task<object?>>> MeasurementLoaders
             = new Dictionary<TipoMisuraLegacy, Func<MeasurementService, int, Task<object?>>>()
         {
@@ -41,9 +47,11 @@ namespace MisureRicci.Services
             [TipoMisuraLegacy.Cintura] = (service, model) => service.UpdateMeasurementEntityAsync<CinturaMeasurement>(model)
         };
 
-        public MeasurementService(ApplicationDbContext context)
+        public MeasurementService(ApplicationDbContext context, IAuditService auditService, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _auditService = auditService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<IEnumerable<MisureCliente>> GetGlobalRegistryAsync(string? filter, int? negozioId, bool isAdmin)
@@ -153,6 +161,7 @@ namespace MisureRicci.Services
                 }
 
                 await _context.SaveChangesAsync();
+                await _auditService.WriteAsync("Misura", entry.Id.ToString(), "Delete", CurrentUserId, entry.TipoMisura, null);
                 return clienteId;
             }
 
@@ -170,6 +179,7 @@ namespace MisureRicci.Services
             }
 
             await _context.SaveChangesAsync();
+            await _auditService.WriteAsync("Misura", entry.Id.ToString(), "Delete", CurrentUserId, entry.TipoMisura, null);
             return clienteId;
         }
 
@@ -242,6 +252,7 @@ namespace MisureRicci.Services
             }
 
             await _context.SaveChangesAsync();
+            await _auditService.WriteAsync("Misura", id.ToString(), "Delete", CurrentUserId, tipoMisura, null);
             return true;
         }
 

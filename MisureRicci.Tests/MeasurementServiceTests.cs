@@ -1,3 +1,5 @@
+using Moq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MisureRicci.Models;
 using MisureRicci.Services;
@@ -72,7 +74,7 @@ public class MeasurementServiceTests
         var (_, giacca1Id, _, negozioId) = await SeedGiaccaAsync(factory);
 
         using var ctx = factory.CreateContext();
-        var service = new MeasurementService(ctx);
+        var service = new MeasurementService(ctx, new Mock<IAuditService>().Object, new Mock<IHttpContextAccessor>().Object);
 
         var result = await service.GetMeasurementScopedAsync(giacca1Id, "giacca", negozioId: negozioId, isAdmin: false);
 
@@ -87,7 +89,7 @@ public class MeasurementServiceTests
         var (_, giacca1Id, _, negozioId) = await SeedGiaccaAsync(factory);
 
         using var ctx = factory.CreateContext();
-        var service = new MeasurementService(ctx);
+        var service = new MeasurementService(ctx, new Mock<IAuditService>().Object, new Mock<IHttpContextAccessor>().Object);
 
         var result = await service.GetMeasurementScopedAsync(giacca1Id, "giacca", negozioId: negozioId + 999, isAdmin: false);
 
@@ -101,7 +103,7 @@ public class MeasurementServiceTests
         var (_, giacca1Id, _, negozioId) = await SeedGiaccaAsync(factory);
 
         using var ctx = factory.CreateContext();
-        var service = new MeasurementService(ctx);
+        var service = new MeasurementService(ctx, new Mock<IAuditService>().Object, new Mock<IHttpContextAccessor>().Object);
 
         var result = await service.GetMeasurementScopedAsync(giacca1Id, "giacca", negozioId: negozioId + 999, isAdmin: true);
 
@@ -117,7 +119,7 @@ public class MeasurementServiceTests
         var (_, _, registryId, negozioId) = await SeedGiaccaAsync(factory);
 
         using var ctx = factory.CreateContext();
-        var service = new MeasurementService(ctx);
+        var service = new MeasurementService(ctx, new Mock<IAuditService>().Object, new Mock<IHttpContextAccessor>().Object);
 
         var result = await service.GetRegistryEntryAsync(registryId, negozioId: negozioId + 999, isAdmin: false);
 
@@ -131,7 +133,7 @@ public class MeasurementServiceTests
         var (_, _, registryId, negozioId) = await SeedGiaccaAsync(factory);
 
         using var ctx = factory.CreateContext();
-        var service = new MeasurementService(ctx);
+        var service = new MeasurementService(ctx, new Mock<IAuditService>().Object, new Mock<IHttpContextAccessor>().Object);
 
         var result = await service.GetRegistryEntryAsync(registryId, negozioId: negozioId + 999, isAdmin: true);
 
@@ -149,7 +151,7 @@ public class MeasurementServiceTests
 
         using (var ctx = factory.CreateContext())
         {
-            var service = new MeasurementService(ctx);
+            var service = new MeasurementService(ctx, new Mock<IAuditService>().Object, new Mock<IHttpContextAccessor>().Object);
             var giacca = (GiaccaMeasurement)(await service.GetMeasurementAsync(giacca1Id, "giacca"))!;
             giacca.Spalle = 47.5;
             await service.UpdateMeasurementAsync(giacca, "giacca");
@@ -171,7 +173,7 @@ public class MeasurementServiceTests
 
         using (var ctx = factory.CreateContext())
         {
-            var service = new MeasurementService(ctx);
+            var service = new MeasurementService(ctx, new Mock<IAuditService>().Object, new Mock<IHttpContextAccessor>().Object);
             var returnedClienteId = await service.DeleteByRegistryEntryAsync(registryId, negozioId: negozioId, isAdmin: false);
             Assert.Equal(clienteId, returnedClienteId);
         }

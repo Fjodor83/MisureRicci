@@ -1,3 +1,5 @@
+using Moq;
+using Microsoft.AspNetCore.Http;
 using MisureRicci.Models;
 using MisureRicci.Services;
 using Xunit;
@@ -39,7 +41,7 @@ public class ClienteServiceTests
 
         using (var actContext = factory.CreateContext())
         {
-            var service = new ClienteService(actContext);
+            var service = new ClienteService(actContext, new Mock<IAuditService>().Object, new Mock<IHttpContextAccessor>().Object);
             var cliente = await service.GetClienteScopedAsync(clienteId, negozioId: null, isAdmin: false);
 
             Assert.Null(cliente);
@@ -67,7 +69,7 @@ public class ClienteServiceTests
 
         using (var actContext = factory.CreateContext())
         {
-            var service = new ClienteService(actContext);
+            var service = new ClienteService(actContext, new Mock<IAuditService>().Object, new Mock<IHttpContextAccessor>().Object);
             var result = await service.CreateClienteScopedAsync(new Cliente
             {
                 Nome = "  Anna  ",
@@ -95,7 +97,7 @@ public class ClienteServiceTests
         using var factory = new TestDbContextFactory();
 
         using var context = factory.CreateContext();
-        var service = new ClienteService(context);
+        var service = new ClienteService(context, new Mock<IAuditService>().Object, new Mock<IHttpContextAccessor>().Object);
 
         var result = await service.CreateClienteScopedAsync(new Cliente
         {
@@ -129,7 +131,7 @@ public class ClienteServiceTests
 
         using (var actContext = factory.CreateContext())
         {
-            var service = new ClienteService(actContext);
+            var service = new ClienteService(actContext, new Mock<IAuditService>().Object, new Mock<IHttpContextAccessor>().Object);
             var result = await service.CreateClienteScopedAsync(new Cliente
             {
                 Nome = "Laura",

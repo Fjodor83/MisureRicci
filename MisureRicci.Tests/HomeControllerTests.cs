@@ -7,6 +7,9 @@ using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
 using Moq;
+using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,17 +19,20 @@ namespace MisureRicci.Tests;
 
 public class HomeControllerTests
 {
+    private readonly Mock<IAuditLogQueryService> _mockAuditLogQueryService;
     private readonly Mock<IDashboardService> _mockDashboardService;
     private readonly Mock<UserManager<ApplicationUser>> _mockUserManager;
     private readonly HomeController _controller;
 
     public HomeControllerTests()
     {
+        _mockAuditLogQueryService = new Mock<IAuditLogQueryService>();
+
         _mockDashboardService = new Mock<IDashboardService>();
         var store = new Mock<IUserStore<ApplicationUser>>();
         _mockUserManager = new Mock<UserManager<ApplicationUser>>(store.Object, null!, null!, null!, null!, null!, null!, null!, null!);
         
-        _controller = new HomeController(_mockDashboardService.Object, _mockUserManager.Object);
+        _controller = new HomeController(_mockAuditLogQueryService.Object, _mockDashboardService.Object, _mockUserManager.Object);
         
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
         {
@@ -66,6 +72,50 @@ public class HomeControllerTests
 
         // Assert
         Assert.IsType<ViewResult>(result);
+    }
+
+    [Fact]
+    public void UserGuide_ReturnsView()
+    {
+        var result = _controller.UserGuide();
+
+        Assert.IsType<ViewResult>(result);
+    }
+
+    [Fact]
+    public void TailoringStandards_ReturnsView()
+    {
+        var result = _controller.TailoringStandards();
+
+        Assert.IsType<ViewResult>(result);
+    }
+
+    [Fact]
+    public void TechnicalSupport_ReturnsView()
+    {
+        var result = _controller.TechnicalSupport();
+
+        Assert.IsType<ViewResult>(result);
+    }
+
+    [Fact]
+    public async Task ActivityLog_ReturnsLatestEntriesOrderedDescending()
+    {
+        var entries = new List<AuditLog>
+        {
+            new() { EntityName = "Cliente", Action = "Create", Timestamp = new DateTime(2026, 4, 8, 8, 0, 0, DateTimeKind.Utc) },
+            new() { EntityName = "Misura", Action = "Update", Timestamp = new DateTime(2026, 4, 10, 12, 0, 0, DateTimeKind.Utc) },
+            new() { EntityName = "Commessa", Action = "Delete", Timestamp = new DateTime(2026, 4, 9, 9, 30, 0, DateTimeKind.Utc) }
+        };
+        _mockAuditLogQueryService
+            .Setup(service => service.GetLatestAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(entries.OrderByDescending(entry => entry.Timestamp).ToList());
+
+        var result = await _controller.ActivityLog(CancellationToken.None);
+
+        var viewResult = Assert.IsType<ViewResult>(result);
+        var model = Assert.IsAssignableFrom<IReadOnlyList<AuditLog>>(viewResult.Model);
+        Assert.Equal(new[] { "Misura", "Commessa", "Cliente" }, model.Select(entry => entry.EntityName).ToArray());
     }
 
     [Fact]
