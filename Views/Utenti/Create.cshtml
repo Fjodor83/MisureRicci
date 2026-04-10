@@ -21,17 +21,17 @@
     <section class="form-section">
         <div class="row g-4">
             <div class="col-md-6">
-                <label asp-for="Form.UserName" class="form-label"></label>
+                <label asp-for="Form.UserName" class="form-label">Username</label>
                 <input asp-for="Form.UserName" class="form-control" placeholder="es: m.rossi" />
                 <span asp-validation-for="Form.UserName" class="text-danger"></span>
             </div>
             <div class="col-md-6">
-                <label asp-for="Form.NomeCompleto" class="form-label"></label>
+                <label asp-for="Form.NomeCompleto" class="form-label">Nome completo</label>
                 <input asp-for="Form.NomeCompleto" class="form-control" />
                 <span asp-validation-for="Form.NomeCompleto" class="text-danger"></span>
             </div>
             <div class="col-12">
-                <label asp-for="Form.Email" class="form-label"></label>
+                <label asp-for="Form.Email" class="form-label">Email</label>
                 <input asp-for="Form.Email" class="form-control" />
                 <span asp-validation-for="Form.Email" class="text-danger"></span>
             </div>
@@ -41,7 +41,7 @@
     <section class="form-section">
         <div class="row g-4">
             <div class="col-md-6">
-                <label asp-for="Form.Ruolo" class="form-label"></label>
+                <label asp-for="Form.Ruolo" class="form-label">Ruolo</label>
                 <select asp-for="Form.Ruolo" class="form-select">
                     @if (User.IsInRole("Admin"))
                     {
@@ -73,12 +73,12 @@
     <section class="form-section">
         <div class="row g-4">
             <div class="col-md-6">
-                <label asp-for="Form.Password" class="form-label"></label>
+                <label asp-for="Form.Password" class="form-label">Password</label>
                 <input asp-for="Form.Password" class="form-control" />
                 <span asp-validation-for="Form.Password" class="text-danger"></span>
             </div>
             <div class="col-md-6">
-                <label asp-for="Form.ConfirmPassword" class="form-label"></label>
+                <label asp-for="Form.ConfirmPassword" class="form-label">Conferma Password</label>
                 <input asp-for="Form.ConfirmPassword" class="form-control" />
                 <span asp-validation-for="Form.ConfirmPassword" class="text-danger"></span>
             </div>

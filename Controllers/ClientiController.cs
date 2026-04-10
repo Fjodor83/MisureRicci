@@ -1,29 +1,18 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
-using System.Threading.Tasks;
+
 
 namespace MisureRicci.Controllers
 {
     [Authorize]
-    public class ClientiController : TenantAwareController
+    public class ClientiController(
+        IClienteService clienteService,
+        INegozioService negozioService,
+        ITenantService tenantService) : TenantAwareController(tenantService)
     {
-        private readonly IClienteService _clienteService;
-        private readonly INegozioService _negozioService;
-
-        public ClientiController(
-            IClienteService clienteService,
-            INegozioService negozioService,
-            ITenantService tenantService)
-            : base(tenantService)
-        {
-            _clienteService = clienteService;
-            _negozioService = negozioService;
-        }
-
         // GET: Clienti
         public async Task<IActionResult> Index(string? searchString, int page = 1)
         {
@@ -34,13 +23,13 @@ namespace MisureRicci.Controllers
 
             const int pageSize = 20;
             
-            var result = await _clienteService.GetClientiPagedAsync(searchString, NegozioId, IsAdmin, page, pageSize);
+            var result = await clienteService.GetClientiPagedAsync(searchString, NegozioId, IsAdmin, page, pageSize);
             var model = new ClientiIndexViewModel
             {
                 Clienti = result.Items,
                 SearchString = searchString,
                 CurrentPage = page,
-                TotalPages = (int)System.Math.Ceiling(result.TotalCount / (double)pageSize)
+                TotalPages = (int)Math.Ceiling(result.TotalCount / (double)pageSize)
             };
 
             return View(model);
@@ -52,13 +41,13 @@ namespace MisureRicci.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null) return NotFound();
 
-            var cliente = await _clienteService.GetClienteScopedAsync(id.Value, NegozioId, IsAdmin);
+            var cliente = await clienteService.GetClienteScopedAsync(id.Value, NegozioId, IsAdmin);
             
             if (cliente == null) return NotFound();
 
-            var history = await _clienteService.GetStoricoMisureScopedAsync(id.Value, NegozioId, IsAdmin);
+            var history = await clienteService.GetStoricoMisureScopedAsync(id.Value, NegozioId, IsAdmin);
 
-            var vm = new MisureRicci.Models.ViewModels.ClienteDetailsViewModel
+            var vm = new ClienteDetailsViewModel
             {
                 Cliente = cliente,
                 History = history
@@ -88,7 +77,7 @@ namespace MisureRicci.Controllers
 
             if (ModelState.IsValid)
             {
-                var result = await _clienteService.CreateClienteScopedAsync(model.Cliente, NegozioId, IsAdmin);
+                var result = await clienteService.CreateClienteScopedAsync(model.Cliente, NegozioId, IsAdmin);
                 if (!result.IsSuccess)
                 {
                     ModelState.AddModelError(string.Empty, result.Error ?? "Operazione non riuscita.");
@@ -107,7 +96,7 @@ namespace MisureRicci.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null) return NotFound();
 
-            var cliente = await _clienteService.GetClienteScopedAsync(id.Value, NegozioId, IsAdmin);
+            var cliente = await clienteService.GetClienteScopedAsync(id.Value, NegozioId, IsAdmin);
             if (cliente == null) return NotFound();
             
             return View(await BuildPageViewModelAsync(cliente, IsAdmin));
@@ -129,7 +118,7 @@ namespace MisureRicci.Controllers
 
             if (ModelState.IsValid)
             {
-                var result = await _clienteService.UpdateClienteScopedAsync(model.Cliente, NegozioId, IsAdmin);
+                var result = await clienteService.UpdateClienteScopedAsync(model.Cliente, NegozioId, IsAdmin);
                 if (result.IsSuccess)
                 {
                     return RedirectToAction(nameof(Index));
@@ -146,7 +135,7 @@ namespace MisureRicci.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id == null) return NotFound();
 
-            var cliente = await _clienteService.GetClienteScopedAsync(id.Value, NegozioId, IsAdmin);
+            var cliente = await clienteService.GetClienteScopedAsync(id.Value, NegozioId, IsAdmin);
             if (cliente == null) return NotFound();
 
             return View(cliente);
@@ -158,7 +147,7 @@ namespace MisureRicci.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var result = await _clienteService.DeleteClienteScopedAsync(id, NegozioId, IsAdmin);
+            var result = await clienteService.DeleteClienteScopedAsync(id, NegozioId, IsAdmin);
             if (!result.IsSuccess)
             {
                 return NotFound();
@@ -175,7 +164,7 @@ namespace MisureRicci.Controllers
             {
                 Cliente = cliente,
                 IsAdmin = isAdmin,
-                Negozi = isAdmin ? await _negozioService.GetAllAsync() : Enumerable.Empty<Negozio>()
+                Negozi = isAdmin ? await negozioService.GetAllAsync() : Enumerable.Empty<Negozio>()
             };
         }
 
