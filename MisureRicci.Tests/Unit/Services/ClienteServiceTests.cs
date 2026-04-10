@@ -88,4 +88,113 @@ public class ClienteServiceTests
             persisted.NegozioId.Should().Be(negozioId);
         }
     }
+
+    [Fact]
+    public async Task CreateClienteScopedAsync_DuplicateEmail_ReturnsFailureWithoutCrash()
+    {
+        using var factory = new TestDbContextFactory();
+        int negozioId;
+
+        using (var seedContext = factory.CreateContext())
+        {
+            var negozio = new Negozio
+            {
+                Nome = "Boutique Email Check",
+                Citta = "Roma",
+                Paese = "Italy"
+            };
+            seedContext.Negozi.Add(negozio);
+            await seedContext.SaveChangesAsync();
+            negozioId = negozio.Id;
+
+            seedContext.Clienti.Add(new Cliente
+            {
+                Nome = "Primo",
+                Cognome = "Cliente",
+                Email = "dup@example.com",
+                Paese = "Italy",
+                NegozioId = negozioId
+            });
+            await seedContext.SaveChangesAsync();
+        }
+
+        using var actContext = factory.CreateContext();
+        var service = new ClienteService(actContext, new Mock<IAuditService>().Object, new Mock<IHttpContextAccessor>().Object);
+
+        var result = await service.CreateClienteScopedAsync(new Cliente
+        {
+            Nome = "Secondo",
+            Cognome = "Cliente",
+            Email = "dup@example.com",
+            Paese = "Italy",
+            NegozioId = negozioId
+        }, negozioId: null, isAdmin: true);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().Contain("Email gia'");
+    }
+
+    [Fact]
+    public async Task UpdateClienteScopedAsync_DuplicateEmail_ReturnsFailureWithoutCrash()
+    {
+        using var factory = new TestDbContextFactory();
+        int negozioId;
+        int secondClienteId;
+
+        using (var seedContext = factory.CreateContext())
+        {
+            var negozio = new Negozio
+            {
+                Nome = "Boutique Update Check",
+                Citta = "Napoli",
+                Paese = "Italy"
+            };
+            seedContext.Negozi.Add(negozio);
+            await seedContext.SaveChangesAsync();
+            negozioId = negozio.Id;
+
+            var first = new Cliente
+            {
+                Nome = "Mario",
+                Cognome = "Rossi",
+                Email = "mario@example.com",
+                Paese = "Italy",
+                NegozioId = negozioId
+            };
+            var second = new Cliente
+            {
+                Nome = "Luigi",
+                Cognome = "Verdi",
+                Email = "luigi@example.com",
+                Paese = "Italy",
+                NegozioId = negozioId
+            };
+
+            seedContext.Clienti.AddRange(first, second);
+            await seedContext.SaveChangesAsync();
+
+            secondClienteId = second.Id;
+        }
+
+        using var actContext = factory.CreateContext();
+        var service = new ClienteService(actContext, new Mock<IAuditService>().Object, new Mock<IHttpContextAccessor>().Object);
+
+        var updateModel = new Cliente
+        {
+            Id = secondClienteId,
+            Nome = "Luigi",
+            Cognome = "Verdi",
+            Email = "mario@example.com",
+            Paese = "Italy",
+            NegozioId = negozioId
+        };
+
+        var result = await service.UpdateClienteScopedAsync(updateModel, negozioId: null, isAdmin: true);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().Contain("Email gia'");
+
+        var unchanged = await actContext.Clienti.AsNoTracking().SingleAsync(c => c.Id == secondClienteId);
+        unchanged.Email.Should().Be("luigi@example.com");
+    }
 }

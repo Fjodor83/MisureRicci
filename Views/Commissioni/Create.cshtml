@@ -28,7 +28,7 @@
         </div>
         <div class="row g-4">
             <div class="col-md-6">
-                <label asp-for="TipoCapo" class="form-label"></label>
+                <label asp-for="TipoCapo" class="form-label">Tipo Capo</label>
                 @if (Model.TipoCapiDisponibili.Any())
                 {
                     <select asp-for="TipoCapo" class="form-select" asp-items="new SelectList(Model.TipoCapiDisponibili, nameof(MeasurementType.Nome), nameof(MeasurementType.Nome))">
@@ -44,7 +44,7 @@
                 <span asp-validation-for="TipoCapo" class="text-danger"></span>
             </div>
             <div class="col-md-6">
-                <label asp-for="Tessuto" class="form-label"></label>
+                <label asp-for="Tessuto" class="form-label">Tessuto</label>
                 @if (Model.TessutiDisponibili.Any())
                 {
                     <select asp-for="Tessuto" class="form-select" asp-items="new SelectList(Model.TessutiDisponibili, nameof(Fabric.Nome), nameof(Fabric.Nome))">
@@ -60,17 +60,17 @@
                 <span asp-validation-for="Tessuto" class="text-danger"></span>
             </div>
             <div class="col-md-6">
-                <label asp-for="Collezione" class="form-label"></label>
+                <label asp-for="Collezione" class="form-label">Collezione</label>
                 <input asp-for="Collezione" class="form-control" placeholder="Es. Primavera Estate 2026" />
                 <span asp-validation-for="Collezione" class="text-danger"></span>
             </div>
             <div class="col-md-6">
-                <label asp-for="DataConsegnaPrevista" class="form-label"></label>
+                <label asp-for="DataConsegnaPrevista" class="form-label">Data Consegna Prevista</label>
                 <input asp-for="DataConsegnaPrevista" class="form-control" />
                 <span asp-validation-for="DataConsegnaPrevista" class="text-danger"></span>
             </div>
             <div class="col-12">
-                <label asp-for="NoteInterne" class="form-label"></label>
+                <label asp-for="NoteInterne" class="form-label">Note Interne</label>
                 <textarea asp-for="NoteInterne"
                           class="form-control"
                           rows="4"
@@ -94,7 +94,7 @@
                 @foreach (var misura in Model.MisureDisponibili)
                 {
                     <label class="selection-card d-flex align-items-start gap-3">
-                        <input class="form-check-input mt-1"
+                           <input class="selection-checkbox"
                                type="checkbox"
                                name="SelectedMisuraIds"
                                value="@misura.MisuraClienteId"

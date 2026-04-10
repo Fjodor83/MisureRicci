@@ -27,29 +27,29 @@
         </div>
         <div class="row g-4">
             <div class="col-md-6">
-                <label asp-for="Cliente.Nome" class="form-label"></label>
+                <label asp-for="Cliente.Nome" class="form-label">Nome</label>
                 <input asp-for="Cliente.Nome" class="form-control" />
                 <span asp-validation-for="Cliente.Nome" class="text-danger"></span>
             </div>
             <div class="col-md-6">
-                <label asp-for="Cliente.Cognome" class="form-label"></label>
+                <label asp-for="Cliente.Cognome" class="form-label">Cognome</label>
                 <input asp-for="Cliente.Cognome" class="form-control" />
                 <span asp-validation-for="Cliente.Cognome" class="text-danger"></span>
             </div>
             <div class="col-md-6">
-                <label asp-for="Cliente.Email" class="form-label"></label>
+                <label asp-for="Cliente.Email" class="form-label">Email</label>
                 <input asp-for="Cliente.Email" class="form-control" />
                 <span asp-validation-for="Cliente.Email" class="text-danger"></span>
             </div>
             <div class="col-md-6">
-                <label asp-for="Cliente.Telefono" class="form-label"></label>
+                <label asp-for="Cliente.Telefono" class="form-label">Telefono</label>
                 <input asp-for="Cliente.Telefono" class="form-control" />
                 <span asp-validation-for="Cliente.Telefono" class="text-danger"></span>
             </div>
             @if (Model.IsAdmin)
             {
                 <div class="col-md-6">
-                    <label asp-for="Cliente.NegozioId" class="form-label"></label>
+                    <label asp-for="Cliente.NegozioId" class="form-label">Boutique</label>
                     <select asp-for="Cliente.NegozioId"
                             class="form-select"
                             asp-items="@(new Microsoft.AspNetCore.Mvc.Rendering.SelectList(Model.Negozi, "Id", "Nome"))">
@@ -70,27 +70,27 @@
         </div>
         <div class="row g-4">
             <div class="col-12">
-                <label asp-for="Cliente.Indirizzo" class="form-label"></label>
+                <label asp-for="Cliente.Indirizzo" class="form-label">Indirizzo</label>
                 <input asp-for="Cliente.Indirizzo" class="form-control" />
                 <span asp-validation-for="Cliente.Indirizzo" class="text-danger"></span>
             </div>
             <div class="col-md-4">
-                <label asp-for="Cliente.Citta" class="form-label"></label>
+                <label asp-for="Cliente.Citta" class="form-label">Città</label>
                 <input asp-for="Cliente.Citta" class="form-control" />
                 <span asp-validation-for="Cliente.Citta" class="text-danger"></span>
             </div>
             <div class="col-md-4">
-                <label asp-for="Cliente.StatoProvincia" class="form-label"></label>
+                <label asp-for="Cliente.StatoProvincia" class="form-label">Stato/Provincia</label>
                 <input asp-for="Cliente.StatoProvincia" class="form-control" />
                 <span asp-validation-for="Cliente.StatoProvincia" class="text-danger"></span>
             </div>
             <div class="col-md-4">
-                <label asp-for="Cliente.CodicePostale" class="form-label"></label>
+                <label asp-for="Cliente.CodicePostale" class="form-label">Codice Postale</label>
                 <input asp-for="Cliente.CodicePostale" class="form-control" />
                 <span asp-validation-for="Cliente.CodicePostale" class="text-danger"></span>
             </div>
             <div class="col-md-6">
-                <label asp-for="Cliente.Paese" class="form-label"></label>
+                <label asp-for="Cliente.Paese" class="form-label">Paese</label>
                 <input asp-for="Cliente.Paese" class="form-control" />
                 <span asp-validation-for="Cliente.Paese" class="text-danger"></span>
             </div>
@@ -105,7 +105,7 @@
             </div>
         </div>
         <div>
-            <label asp-for="Cliente.Note" class="form-label"></label>
+            <label asp-for="Cliente.Note" class="form-label">Note</label>
             <textarea asp-for="Cliente.Note" class="form-control" rows="4"></textarea>
             <span asp-validation-for="Cliente.Note" class="text-danger"></span>
         </div>

@@ -1125,6 +1125,16 @@ body.theme-dark .form-control:-webkit-autofill:focus {
     background: rgba(255, 255, 255, 0.03);
 }
 
+.selection-checkbox {
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 0.15rem;
+    border-radius: 0.25rem;
+    border: 1px solid var(--border-strong);
+    accent-color: var(--accent);
+    flex-shrink: 0;
+}
+
 .empty-state,
 .confirm-card {
     text-align: center;

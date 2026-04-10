@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MisureRicci.Data;
+using MisureRicci.Helpers;
 using MisureRicci.Models;
 using System.Security.Claims;
 
@@ -8,6 +9,8 @@ namespace MisureRicci.Services
 {
     public class ClienteService : IClienteService
     {
+        private const string DuplicateEmailError = "Email gia' registrata. Usa un indirizzo diverso.";
+
         private readonly ApplicationDbContext _context;
         private readonly IAuditService _auditService;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -121,8 +124,20 @@ namespace MisureRicci.Services
                 cliente.NegozioId = negozioId;
             }
 
+            if (await IsEmailAlreadyUsedAsync(cliente.Email))
+            {
+                return Result<Cliente>.Fail(DuplicateEmailError);
+            }
+
             _context.Clienti.Add(cliente);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex) when (DbExceptionHelper.IsUniqueConstraintViolation(ex))
+            {
+                return Result<Cliente>.Fail(DuplicateEmailError);
+            }
 
             // Genera ClientCode dopo aver ottenuto l'Id (simulazione colonna calcolata)
             cliente.ClientCode = GenerateClientCode(cliente.Id, cliente.DataRegistrazione);
@@ -163,7 +178,20 @@ namespace MisureRicci.Services
                 existing.NegozioId = cliente.NegozioId;
             }
 
-            await _context.SaveChangesAsync();
+            if (await IsEmailAlreadyUsedAsync(existing.Email, existing.Id))
+            {
+                return Result.Fail(DuplicateEmailError);
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex) when (DbExceptionHelper.IsUniqueConstraintViolation(ex))
+            {
+                return Result.Fail(DuplicateEmailError);
+            }
+
             await _auditService.WriteAsync("Cliente", existing.Id.ToString(), "Update", CurrentUserId, null, $"{existing.Nome} {existing.Cognome}");
             return Result.Ok();
         }
@@ -252,9 +280,9 @@ namespace MisureRicci.Services
 
         private static void NormalizeCliente(Cliente cliente)
         {
-            cliente.Nome = cliente.Nome?.Trim() ?? string.Empty;
-            cliente.Cognome = cliente.Cognome?.Trim() ?? string.Empty;
-            cliente.Email = cliente.Email?.Trim() ?? string.Empty;
+            cliente.Nome = cliente.Nome.Trim();
+            cliente.Cognome = cliente.Cognome.Trim();
+            cliente.Email = cliente.Email.Trim();
             cliente.Telefono = NormalizeNullable(cliente.Telefono);
             cliente.Indirizzo = NormalizeNullable(cliente.Indirizzo);
             cliente.Citta = NormalizeNullable(cliente.Citta);
@@ -262,6 +290,20 @@ namespace MisureRicci.Services
             cliente.CodicePostale = NormalizeNullable(cliente.CodicePostale);
             cliente.Paese = string.IsNullOrWhiteSpace(cliente.Paese) ? "Italy" : cliente.Paese.Trim();
             cliente.Note = NormalizeNullable(cliente.Note);
+        }
+
+        private Task<bool> IsEmailAlreadyUsedAsync(string? email, int? excludeClienteId = null)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return Task.FromResult(false);
+            }
+
+            var normalized = email.Trim().ToUpperInvariant();
+
+            return _context.Clienti.AnyAsync(c =>
+                (excludeClienteId == null || c.Id != excludeClienteId.Value) &&
+                c.Email.ToUpper() == normalized);
         }
 
         private static string? NormalizeNullable(string? value)

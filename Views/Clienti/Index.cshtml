@@ -119,10 +119,14 @@
                 @for (int i = 1; i <= Model.TotalPages; i++)
                 {
                     <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+
+                        @{
+                            var i1 = i;
+                        }
                         <a class="page-link"
                            asp-action="Index"
-                           asp-route-page="@i"
-                           asp-route-searchString="@Model.SearchString">@i</a>
+                           asp-route-page="@i1"
+                           asp-route-searchString="@Model.SearchString">@i1</a>
                     </li>
                 }
             </ul>

@@ -20,26 +20,26 @@
         <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
         <div class="mb-3">
-            <label asp-for="Nome" class="form-label"></label>
+            <label asp-for="Nome" class="form-label">Nome</label>
             <input asp-for="Nome" class="form-control" placeholder="Es. Lana Super 150's" />
             <span asp-validation-for="Nome" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Composizione" class="form-label"></label>
+            <label asp-for="Composizione" class="form-label">Composizione</label>
             <input asp-for="Composizione" class="form-control" placeholder="Es. 100% Lana vergine" />
             <span asp-validation-for="Composizione" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Descrizione" class="form-label"></label>
+            <label asp-for="Descrizione" class="form-label">Descrizione</label>
             <textarea asp-for="Descrizione" class="form-control" rows="4" placeholder="Note aggiuntive sul tessuto..."></textarea>
             <span asp-validation-for="Descrizione" class="text-danger"></span>
         </div>
 
         <div class="form-check form-switch">
             <input asp-for="IsActive" class="form-check-input" />
-            <label asp-for="IsActive" class="form-check-label"></label>
+            <label asp-for="IsActive" class="form-check-label">Attivo</label>
         </div>
     </section>
 
