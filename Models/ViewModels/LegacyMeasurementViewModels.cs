@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace MisureRicci.Models.ViewModels
 {
     public class LegacyMeasurementFieldViewModel
@@ -16,10 +18,13 @@ namespace MisureRicci.Models.ViewModels
 
     public class LegacyMeasurementEditViewModel
     {
+        [Required]
         public int Id { get; set; }
+        [Required]
         public int ClienteId { get; set; }
         public string TipoMisura { get; set; } = string.Empty;
         public List<LegacyMeasurementFieldViewModel> Fields { get; set; } = new();
+        [Required]
         public bool CanEditFields { get; set; }
         public string? WarningMessage { get; set; }
     }
