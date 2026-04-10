@@ -5,6 +5,7 @@ namespace MisureRicci.Models
     public class Negozio
     {
         [Key]
+        [Required]
         public int Id { get; set; }
 
         [Required]

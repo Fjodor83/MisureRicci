@@ -5,6 +5,7 @@ namespace MisureRicci.Models
     public class Fabric
     {
         [Key]
+        [Required]
         public int Id { get; set; }
 
         [Required]

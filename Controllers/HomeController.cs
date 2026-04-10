@@ -8,29 +8,18 @@ using Microsoft.EntityFrameworkCore.Query;
 
 namespace MisureRicci.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController(IAuditLogQueryService auditLogQueryService, IDashboardService dashboardService, UserManager<ApplicationUser> userManager) : Controller
     {
-        private readonly IAuditLogQueryService _auditLogQueryService;
-        private readonly IDashboardService _dashboardService;
-        private readonly UserManager<ApplicationUser> _userManager;
-
-        public HomeController(IAuditLogQueryService auditLogQueryService, IDashboardService dashboardService, UserManager<ApplicationUser> userManager)
-        {
-            _auditLogQueryService = auditLogQueryService;
-            _dashboardService = dashboardService;
-            _userManager = userManager;
-        }
-
         public async Task<IActionResult> Index()
         {
-            var currentUser = await _userManager.GetUserAsync(User);
+            var currentUser = await userManager.GetUserAsync(User);
             var isAdmin = User.IsInRole(ApplicationRoles.Admin);
             if (!isAdmin && currentUser?.NegozioId == null)
             {
                 return View("TenantAssignmentRequired");
             }
 
-            var model = await _dashboardService.GetKpiAsync(currentUser?.NegozioId, isAdmin);
+            var model = await dashboardService.GetKpiAsync(currentUser?.NegozioId, isAdmin);
             return View(model);
         }
 
@@ -72,16 +61,15 @@ namespace MisureRicci.Controllers
 
         public async Task<IActionResult> ActivityLog(CancellationToken cancellationToken)
         {
-            var entries = await _auditLogQueryService.GetLatestAsync(cancellationToken);
+            var entries = await auditLogQueryService.GetLatestAsync(cancellationToken);
 
             var userIds = entries
                 .Select(entry => entry.UserId)
                 .Where(userId => !string.IsNullOrWhiteSpace(userId))
                 .Distinct()
-                .Cast<string>()
                 .ToList();
 
-            var userDisplayQuery = _userManager.Users
+            var userDisplayQuery = userManager.Users
                 .Where(user => userIds.Contains(user.Id))
                 .Select(user => new
                 {

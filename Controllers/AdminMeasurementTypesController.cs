@@ -65,9 +65,13 @@ namespace MisureRicci.Controllers
             catch (MeasurementTypeImageValidationException ex)
             {
                 ModelState.AddModelError(nameof(model.ImageUpload), ex.Message);
-                _logger.LogWarning("Validazione immagine fallita per creazione tipologia {Nome}: {Message}", model.Nome, ex.Message);
+
+                _logger.LogWarning(ex,"Validazione immagine fallita per creazione tipologia {Nome}: {Message}", model.Nome,
+                    ex.Message);
+
                 return View(model);
             }
+
             catch (DbUpdateException ex) when (DbExceptionHelper.IsUniqueConstraintViolation(ex))
             {
                 if (storedImageUrl != null)
@@ -75,9 +79,12 @@ namespace MisureRicci.Controllers
                         .DeleteImageAsync(storedImageUrl, HttpContext.RequestAborted);
 
                 ModelState.AddModelError(nameof(model.Nome), EsisteGiaUnaTipologiaConQuestoNome);
-                _logger.LogWarning("Violazione constraint unico per tipologia {Nome}", model.Nome);
+
+                _logger.LogWarning(ex,"Violazione constraint unico per tipologia {Nome}", model.Nome);
+
                 return View(model);
             }
+
             catch (Exception ex)
             {
                 if (storedImageUrl != null)

@@ -5,6 +5,7 @@ namespace MisureRicci.Models
     public class Cliente
     {
         [Key]
+        [Required]
         public int Id { get; set; }
 
         /// <summary>
@@ -14,6 +15,7 @@ namespace MisureRicci.Models
         /// </summary>
         [Display(Name = "Codice Cliente")]
         [MaxLength(20)]
+        [Required]
         public string? ClientCode { get; set; }
 
         [Required]
