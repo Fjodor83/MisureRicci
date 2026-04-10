@@ -2,15 +2,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MisureRicci.Controllers;
-using MisureRicci.Data;
 using MisureRicci.Models;
 using MisureRicci.Models.ViewModels;
 using MisureRicci.Services;
 using Moq;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace MisureRicci.Tests;
@@ -35,6 +31,11 @@ public class UtentiControllerTests
 
     private void SetupControllerUser(string userId, string role)
     {
+        SetupControllerUser(_controller, userId, role);
+    }
+
+    private static void SetupControllerUser(Controller controller, string userId, string role)
+    {
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, userId),
@@ -43,7 +44,7 @@ public class UtentiControllerTests
         var identity = new ClaimsIdentity(claims, "TestAuth");
         var principal = new ClaimsPrincipal(identity);
 
-        _controller.ControllerContext = new ControllerContext
+        controller.ControllerContext = new ControllerContext
         {
             HttpContext = new DefaultHttpContext { User = principal }
         };
@@ -52,14 +53,54 @@ public class UtentiControllerTests
     [Fact]
     public async Task Index_ReturnsViewWithUsers()
     {
-        // UserManager.Users is not easily mockable for ToListAsync() without extra setup.
-        // Given the constraints, we will mock the methods used by UtentiController.
-        // However, Index uses .Users.ToListAsync() directly.
-        // To make this work, we'd need a mock of IQueryable with Async support.
-        
-        // Let's skip the direct .Users access testing if it's too complex or 
-        // focus on other actions first, or use a real context if possible.
-        // Actually, many developers use a helper for this.
+        using var factory = new TestDbContextFactory();
+        using var dbContext = factory.CreateContext();
+
+        var negozio = new Negozio { Nome = "Roma" };
+        var boutiqueRole = new IdentityRole
+        {
+            Id = "role-boutique-index",
+            Name = ApplicationRoles.Boutique,
+            NormalizedName = ApplicationRoles.Boutique.ToUpperInvariant()
+        };
+        var user = new ApplicationUser
+        {
+            Id = "user-index",
+            UserName = "mrossi",
+            NormalizedUserName = "MROSSI",
+            Email = "mrossi@example.com",
+            NormalizedEmail = "MROSSI@EXAMPLE.COM",
+            EmailConfirmed = true,
+            NomeCompleto = "Mario Rossi",
+            Negozio = negozio,
+            Attivo = true
+        };
+
+        dbContext.Negozi.Add(negozio);
+        dbContext.Roles.Add(boutiqueRole);
+        dbContext.Users.Add(user);
+        dbContext.UserRoles.Add(new IdentityUserRole<string>
+        {
+            UserId = user.Id,
+            RoleId = boutiqueRole.Id
+        });
+        await dbContext.SaveChangesAsync();
+
+        var store = new Mock<IUserStore<ApplicationUser>>();
+        var userManager = new Mock<UserManager<ApplicationUser>>(store.Object, null!, null!, null!, null!, null!, null!, null!, null!);
+        userManager.SetupGet(m => m.Users).Returns(dbContext.Users);
+
+        var controller = new UtentiController(userManager.Object, _mockNegozioService.Object, dbContext);
+        SetupControllerUser(controller, "admin-user", ApplicationRoles.Admin);
+
+        var result = await controller.Index();
+
+        var viewResult = Assert.IsType<ViewResult>(result);
+        var model = Assert.IsAssignableFrom<IEnumerable<ApplicationUser>>(viewResult.Model);
+        var returnedUser = Assert.Single(model);
+        Assert.Equal("Mario Rossi", returnedUser.NomeCompleto);
+        Assert.Equal(ApplicationRoles.Boutique, returnedUser.Ruolo);
+        Assert.Equal(negozio.Id, returnedUser.NegozioId);
     }
 
     [Fact]

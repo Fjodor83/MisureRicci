@@ -90,14 +90,15 @@ namespace MisureRicci.Controllers
                     user.UserName
                 });
 
-            var userDisplayMap = userDisplayQuery.Provider is IAsyncQueryProvider
-                ? await userDisplayQuery.ToDictionaryAsync(
-                    user => user.Id,
-                    user => string.IsNullOrWhiteSpace(user.NomeCompleto) ? (user.UserName ?? user.Id) : user.NomeCompleto,
-                    cancellationToken)
-                : userDisplayQuery.ToDictionary(
-                    user => user.Id,
-                    user => string.IsNullOrWhiteSpace(user.NomeCompleto) ? (user.UserName ?? user.Id) : user.NomeCompleto);
+            if (userDisplayQuery.Provider is not IAsyncQueryProvider)
+                throw new InvalidOperationException("The query provider does not support async execution.");
+
+            var userDisplayMap = await userDisplayQuery.ToDictionaryAsync(
+                user => user.Id,
+                user => string.IsNullOrWhiteSpace(user.NomeCompleto)
+                    ? (user.UserName ?? user.Id)
+                    : user.NomeCompleto,
+                cancellationToken);
 
             ViewBag.UserDisplayMap = userDisplayMap;
 

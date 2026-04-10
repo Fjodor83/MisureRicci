@@ -304,6 +304,21 @@ a {
     margin-top: var(--space-2);
 }
 
+.sidebar-brand-link {
+    color: var(--text-main);
+    transition: color var(--transition-base);
+}
+
+.sidebar-brand-link:hover,
+.sidebar-brand-link:focus-visible {
+    color: var(--accent);
+}
+
+.sidebar-brand-link:hover .sidebar-brand-sub,
+.sidebar-brand-link:focus-visible .sidebar-brand-sub {
+    color: var(--accent);
+}
+
 .sidebar-section-label,
 .page-kicker,
 .header-kicker,
@@ -2071,6 +2086,16 @@ body.theme-dark .dynamic-field-help {
     display: flex;
     align-items: center;
     gap: var(--space-3);
+}
+
+.footer-legal a {
+    color: inherit;
+    transition: color var(--transition-base);
+}
+
+.footer-legal a:hover,
+.footer-legal a:focus-visible {
+    color: var(--accent);
 }
 
 .dot-separator {

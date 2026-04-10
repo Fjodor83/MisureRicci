@@ -19,7 +19,10 @@ namespace MisureRicci.Services
 
         public async Task<DashboardKpiViewModel> GetKpiAsync(int? negozioId, bool isAdmin, CancellationToken ct = default)
         {
-            var tenantKey = isAdmin ? "global" : (negozioId?.ToString() ?? "unknown");
+            var tenantKey = isAdmin
+                ? "global"
+                : (negozioId?.ToString() ?? "unknown");
+
             var cacheKey = $"{CacheKeys.DashboardKpiPrefix}{tenantKey}";
 
             return await _cache.GetOrCreateAsync(cacheKey, async entry =>
@@ -29,31 +32,27 @@ namespace MisureRicci.Services
                 if (!isAdmin && !negozioId.HasValue)
                     return new DashboardKpiViewModel();
 
+                int storeId = negozioId ?? 0;
+
+                Task<int> CountFilteredAsync<TEntity>(
+                    Func<ApplicationDbContext, IQueryable<TEntity>> baseQuery)
+                    where TEntity : class
+                {
+                    return CountAsync((ctx, token) =>
+                    {
+                        var q = baseQuery(ctx);
+                        if (!isAdmin)
+                            q = q.Where(e => EF.Property<int>(e, "NegozioId") == storeId);
+                        return q.CountAsync(token);
+                    }, ct);
+                }
+
                 var tasks = await Task.WhenAll(
-                    CountAsync((ctx, token) =>
-                    {
-                        var q = ctx.Clienti.AsQueryable();
-                        if (!isAdmin) q = q.Where(x => x.NegozioId == negozioId!.Value);
-                        return q.CountAsync(token);
-                    }, ct),
-                    CountAsync((ctx, token) =>
-                    {
-                        var q = ctx.Misure.AsQueryable();
-                        if (!isAdmin) q = q.Where(x => x.Cliente!.NegozioId == negozioId!.Value);
-                        return q.CountAsync(token);
-                    }, ct),
-                    CountAsync((ctx, token) =>
-                    {
-                        var q = ctx.Negozi.AsQueryable();
-                        if (!isAdmin) q = q.Where(x => x.Id == negozioId!.Value);
-                        return q.CountAsync(token);
-                    }, ct),
-                    CountAsync((ctx, token) =>
-                    {
-                        var q = ctx.Users.AsQueryable();
-                        if (!isAdmin) q = q.Where(x => x.NegozioId == negozioId!.Value);
-                        return q.CountAsync(token);
-                    }, ct));
+                    CountFilteredAsync(ctx => ctx.Clienti),
+                    CountFilteredAsync(ctx => ctx.Misure),
+                    CountFilteredAsync(ctx => ctx.Negozi),
+                    CountFilteredAsync(ctx => ctx.Users)
+                );
 
                 return new DashboardKpiViewModel
                 {

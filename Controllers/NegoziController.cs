@@ -103,12 +103,20 @@ namespace MisureRicci.Controllers
 
         public async Task<IActionResult> Delete(int? id)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            if (id == null|| !id.HasValue) return NotFound();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (id is null)
+                return NotFound();
+
             var negozio = await _negozioService.GetByIdAsync(id.Value);
-            if (negozio == null) return NotFound();
+
+            if (negozio == null)
+                return NotFound();
+
             return View(negozio);
         }
+
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

@@ -255,12 +255,14 @@ namespace MisureRicci.Services
         {
             var targetType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
 
+            // 1. String case
             if (targetType == typeof(string))
             {
                 convertedValue = rawValue?.Trim();
                 return true;
             }
 
+            // 2. Empty value case
             if (string.IsNullOrWhiteSpace(rawValue))
             {
                 convertedValue = Nullable.GetUnderlyingType(propertyType) != null
@@ -269,55 +271,74 @@ namespace MisureRicci.Services
                 return true;
             }
 
+            // 3. Dispatch to type-specific converters
+            return TryConvertByType(targetType, rawValue.Trim(), out convertedValue);
+        }
+
+        private static bool TryConvertByType(Type targetType, string raw, out object? value)
+        {
             if (targetType == typeof(double))
-            {
-                var normalizedValue = rawValue.Trim();
-
-                if (normalizedValue.Contains('.') &&
-                    !normalizedValue.Contains(',') &&
-                    double.TryParse(normalizedValue, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var invariantValue))
-                {
-                    convertedValue = invariantValue;
-                    return true;
-                }
-
-                if (double.TryParse(normalizedValue, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out var currentValue)
-                    || double.TryParse(normalizedValue, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out currentValue))
-                {
-                    convertedValue = currentValue;
-                    return true;
-                }
-
-                convertedValue = null;
-                return false;
-            }
+                return TryParseDouble(raw, out value);
 
             if (targetType == typeof(int))
-            {
-                if (int.TryParse(rawValue, NumberStyles.Integer, CultureInfo.CurrentCulture, out var intValue))
-                {
-                    convertedValue = intValue;
-                    return true;
-                }
-
-                convertedValue = null;
-                return false;
-            }
+                return TryParseInt(raw, out value);
 
             if (targetType == typeof(bool))
-            {
-                if (bool.TryParse(rawValue, out var boolValue))
-                {
-                    convertedValue = boolValue;
-                    return true;
-                }
+                return TryParseBool(raw, out value);
 
-                convertedValue = null;
-                return false;
-            }
-
-            convertedValue = null;
+            value = null;
             return false;
         }
+
+        private static bool TryParseDouble(string raw, out object? value)
+        {
+            // Invariant culture case: dot without comma
+            if (raw.Contains('.') &&
+                !raw.Contains(',') &&
+                double.TryParse(raw, NumberStyles.Float | NumberStyles.AllowThousands,
+                                CultureInfo.InvariantCulture, out var inv))
+            {
+                value = inv;
+                return true;
+            }
+
+            // Try current culture, then invariant
+            if (double.TryParse(raw, NumberStyles.Float | NumberStyles.AllowThousands,
+                                CultureInfo.CurrentCulture, out var cur) ||
+                double.TryParse(raw, NumberStyles.Float | NumberStyles.AllowThousands,
+                                CultureInfo.InvariantCulture, out cur))
+            {
+                value = cur;
+                return true;
+            }
+
+            value = null;
+            return false;
+        }
+
+        private static bool TryParseInt(string raw, out object? value)
+        {
+            if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.CurrentCulture, out var result))
+            {
+                value = result;
+                return true;
+            }
+
+            value = null;
+            return false;
+        }
+
+        private static bool TryParseBool(string raw, out object? value)
+        {
+            if (bool.TryParse(raw, out var result))
+            {
+                value = result;
+                return true;
+            }
+
+            value = null;
+            return false;
+        }
+
     }
 }
